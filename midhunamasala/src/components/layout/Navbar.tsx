@@ -14,7 +14,7 @@ export default function Navbar() {
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                 <div className="w-4 h-4 bg-white rounded-full"></div>
               </div>
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-xl font-bold text-gray-900 font-serif tracking-wider uppercase">
                 MasalaHeritage
               </span>
             </div>
@@ -24,25 +24,25 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             <Link
               href="/"
-              className="text-blue-500 font-medium text-sm hover:text-blue-600 transition-colors"
+              className="text-blue-500 font-medium text-sm hover:text-blue-600 transition-colors tracking-wide"
             >
               Home
             </Link>
             <Link
               href="/shop"
-              className="text-gray-700 font-medium text-sm hover:text-gray-900 transition-colors"
+              className="text-gray-700 font-medium text-sm hover:text-gray-900 transition-colors tracking-wide"
             >
               Shop
             </Link>
             <Link
               href="/about"
-              className="text-gray-700 font-medium text-sm hover:text-gray-900 transition-colors"
+              className="text-gray-700 font-medium text-sm hover:text-gray-900 transition-colors tracking-wide"
             >
               About Us
             </Link>
             <Link
               href="/feedback"
-              className="text-gray-700 font-medium text-sm hover:text-gray-900 transition-colors"
+              className="text-gray-700 font-medium text-sm hover:text-gray-900 transition-colors tracking-wide"
             >
               Feedback
             </Link>

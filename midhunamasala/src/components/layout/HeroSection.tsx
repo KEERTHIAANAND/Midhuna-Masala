@@ -21,7 +21,7 @@ export default function HeroSection() {
           <div className="space-y-8">
             {/* Main Headline */}
             <div className="space-y-2">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight font-serif tracking-wider uppercase">
                 <span className="block">Authentic</span>
                 <span className="block">Flavors,</span>
                 <span className="block">Homemade with</span>
@@ -31,21 +31,12 @@ export default function HeroSection() {
 
             {/* Descriptive Paragraph */}
             <div className="max-w-lg">
-              <p className="text-lg text-gray-700 leading-relaxed">
+              <p className="text-lg text-gray-700 leading-relaxed font-sans tracking-wide">
                 Discover traditional masalas crafted with care, bringing the rich heritage 
                 of Indian kitchens directly to your home.
               </p>
             </div>
 
-            {/* CTA Button */}
-            <div className="pt-4">
-              <Link
-                href="/shop"
-                className="inline-flex items-center px-8 py-4 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors duration-200 text-lg"
-              >
-                Explore Our Masalas
-              </Link>
-            </div>
           </div>
 
           {/* Right side - Placeholder for background elements */}

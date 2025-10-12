@@ -37,10 +37,10 @@ export default function FeaturedProducts() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 font-serif tracking-wider uppercase">
             Our Featured Masalas
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto font-sans tracking-wide">
             Experience the best of our hand-ground, aromatic blends
           </p>
         </div>
@@ -59,7 +59,7 @@ export default function FeaturedProducts() {
                 <div className="relative">
                   <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden">
                     <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-                      <div className="text-4xl text-blue-200">🌶️</div>
+                      <div className="text-4xl text-blue-200">Image</div>
                     </div>
                   </div>
                   {/* Decorative element */}
@@ -71,10 +71,10 @@ export default function FeaturedProducts() {
               {/* Product Info */}
               <div className="w-full lg:w-2/3 space-y-4">
                 <div className="space-y-3">
-                  <h3 className="text-2xl font-bold text-gray-900">
+                  <h3 className="text-2xl font-bold text-gray-900 font-serif tracking-wider uppercase">
                     {product.name}
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed font-sans tracking-wide">
                     {product.description}
                   </p>
                 </div>
@@ -83,12 +83,6 @@ export default function FeaturedProducts() {
           ))}
         </div>
 
-        {/* Bottom CTA */}
-        <div className="text-center mt-16">
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-8 py-4 rounded-lg transition-colors duration-200">
-            View All Products
-          </button>
-        </div>
       </div>
     </section>
   );

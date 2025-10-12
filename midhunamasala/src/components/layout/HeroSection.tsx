@@ -4,9 +4,9 @@ import Link from 'next/link';
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen bg-gray-50 flex items-center">
+    <section className="relative min-h-screen bg-white flex items-center">
       {/* Background placeholder - you can add your background image here later */}
-      <div className="absolute inset-0 bg-gray-50">
+      <div className="absolute inset-0 bg-white">
         {/* Placeholder for background image with kitchenware */}
         <div className="absolute inset-0 opacity-5">
           {/* This will be replaced with your background image */}

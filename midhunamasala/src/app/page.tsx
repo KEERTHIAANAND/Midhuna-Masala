@@ -2,6 +2,7 @@ import Navbar from '@/components/layout/Navbar';
 import HeroSection from '@/components/layout/HeroSection';
 import FeaturedProducts from '@/components/layout/FeaturedProducts';
 import BrandStory from '@/components/layout/BrandStory';
+import Testimonials from '@/components/layout/Testimonials';
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <HeroSection />
       <FeaturedProducts />
       <BrandStory />
+      <Testimonials />
     </div>
   );
 }

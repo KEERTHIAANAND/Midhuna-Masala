@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Crimson_Text } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/layout/Navbar";
+import Marquee from "@/components/layout/Marquee";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,6 +32,8 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${crimsonText.variable} antialiased`}
       >
+        <Marquee />
+        <Navbar />
         {children}
       </body>
     </html>

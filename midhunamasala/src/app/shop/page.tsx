@@ -4,8 +4,8 @@
 
 import React from "react";
 // PromoSlider removed from this page in favor of a static banner
-import ProductCard from "@/components/ui/ProductCard";
-import styles from "@/components/ui/shop.module.css";
+import ProductCard from "@/components/shop/ProductCard";
+import styles from "@/components/shop/shop.module.css";
 
 const products = [
   { id: "cumin", name: "Cumin Seeds", category: "Ground", image: "IMG-20250727-WA0004.jpg" },

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Crimson_Text } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Marquee from "@/components/layout/Marquee";
+import Navbar from "@/components/common/Navbar";
+import Marquee from "@/components/common/Marquee";
 
 const inter = Inter({
   variable: "--font-inter",

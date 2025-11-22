@@ -1,8 +1,8 @@
-import HeroSection from '@/components/layout/HeroSection';
-import FeaturedProducts from '@/components/layout/FeaturedProducts';
-import BrandStory from '@/components/layout/BrandStory';
-import Testimonials from '@/components/layout/Testimonials';
-import Footer from '@/components/layout/footer';
+import HeroSection from '@/components/home/HeroSection';
+import FeaturedProducts from '@/components/home/FeaturedProducts';
+import BrandStory from '@/components/home/BrandStory';
+import Testimonials from '@/components/home/Testimonials';
+import Footer from '@/components/layout/Footer';
 
 export default function Home() {
   return (

@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { ShieldCheck } from 'lucide-react';
 
 export default function HeroSection() {
   return (
@@ -51,14 +50,6 @@ export default function HeroSection() {
             Explore Our Spices
           </Link>
         </div>
-      </div>
-
-      {/* Admin Button */}
-      <div className="absolute bottom-8 right-8 z-20">
-        <button className="bg-[#0F172A] text-white p-4 rounded-full shadow-lg hover:bg-[#1E293B] transition-colors flex flex-col items-center justify-center w-16 h-16">
-          <ShieldCheck className="h-6 w-6 mb-1" />
-          <span className="text-[10px] font-bold">ADMIN</span>
-        </button>
       </div>
     </section>
   );

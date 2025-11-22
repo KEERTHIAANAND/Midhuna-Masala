@@ -1,65 +1,57 @@
 'use client';
 
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 
 export default function Navbar() {
   return (
-    <nav className="bg-white border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav className="bg-[#FFFDF5] border-b border-[#E5D2C5] relative">
+      {/* Dotted pattern overlay */}
+      <div className="absolute inset-0 opacity-50 pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(#8B1E1E 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+      </div>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="flex justify-between items-center h-24">
           {/* Logo */}
-          <div className="flex items-center">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-full"></div>
-              </div>
-              <span className="text-xl font-bold text-gray-900 font-serif tracking-wider uppercase">
-                MasalaHeritage
+          <div className="flex flex-col items-start">
+            <Link href="/" className="flex flex-col">
+              <span className="text-4xl font-bold text-[#8B1E1E] font-serif tracking-wide">
+                Midhuna Masala
               </span>
-            </div>
+              <span className="text-[10px] font-bold text-[#8B1E1E] tracking-[0.2em] uppercase mt-1 text-center w-full">
+                Traditional Stone Ground Spices
+              </span>
+            </Link>
           </div>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-12">
             <Link
               href="/"
-              className="text-blue-500 font-medium text-sm hover:text-blue-600 transition-colors tracking-wide"
+              className="text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase border-b-2 border-[#D4AF37] pb-1"
             >
               Home
             </Link>
             <Link
               href="/shop"
-              className="text-gray-700 font-medium text-sm hover:text-gray-900 transition-colors tracking-wide"
+              className="text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase"
             >
-              Shop
+              Our Spices
             </Link>
             <Link
-              href="/about"
-              className="text-gray-700 font-medium text-sm hover:text-gray-900 transition-colors tracking-wide"
+              href="/track-order"
+              className="text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase"
             >
-              About Us
-            </Link>
-            <Link
-              href="/feedback"
-              className="text-gray-700 font-medium text-sm hover:text-gray-900 transition-colors tracking-wide"
-            >
-              Feedback
+              Track Order
             </Link>
           </div>
 
-          {/* Search Bar */}
+          {/* Icons */}
           <div className="flex items-center">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search for masalas..."
-                className="block w-64 pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+            <button className="text-[#8B1E1E] hover:text-[#D4AF37] transition-colors">
+              <ShoppingBag className="h-6 w-6" />
+            </button>
           </div>
         </div>
       </div>

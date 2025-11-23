@@ -54,7 +54,7 @@ export default function Navbar() {
             <div className="flex flex-col items-start">
               <Link href="/" className="flex flex-col">
                 <span className="text-4xl font-bold text-[#8B1E1E] font-serif tracking-wide">
-                  Mithuna Masala
+                  Midhuna Masala
                 </span>
                 <span className="text-[10px] font-bold text-[#8B1E1E] tracking-[0.2em] uppercase mt-1 text-center w-full">
                   Traditional Stone Ground Spices

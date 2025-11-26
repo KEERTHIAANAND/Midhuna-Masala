@@ -26,7 +26,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="absolute top-0 right-0 z-20">
           <div className="relative w-10">
             {/* Main ribbon body */}
-            <div className="bg-gradient-to-b from-[#E5B43B] via-[#D4A029] to-[#C08F1F] shadow-lg">
+            <div className="bg-[#A02C2C] shadow-lg">
               <div className="flex flex-col items-center text-white pt-2 pb-3">
                 <span className="text-xl font-bold leading-none">1</span>
               </div>
@@ -35,7 +35,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <div className="w-full" style={{ height: '16px' }}>
               <svg width="100%" height="16" viewBox="0 0 40 16" preserveAspectRatio="none" className="block">
                 {/* Straight left and right sides, wider and deeper V-notch in center */}
-                <polygon points="0,0 0,16 1,16 20,1 39,16 40,16 40,0" fill="#A67C1B" />
+                <polygon points="0,0 0,16 1,16 20,1 39,16 40,16 40,0" fill="#A02C2C" />
               </svg>
             </div>
           </div>

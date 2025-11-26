@@ -91,20 +91,14 @@ export default function ProductCard({ product }: { product: Product }) {
               {/* Content - Changes based on ayurvedic state */}
               {!showAyurvedic ? (
                 <>
-                  {/* Chef Icon and Rating */}
-                  <div className="flex justify-between items-start mb-2.5">
+                  {/* Chef Icon */}
+                  <div className="flex justify-center items-start mb-2.5">
                     <div className="w-10 h-10 flex items-center justify-center">
                       <svg viewBox="0 0 24 24" fill="none" className="w-9 h-9">
                         <path d="M8.5 7C8.5 5.067 10.067 3.5 12 3.5C13.933 3.5 15.5 5.067 15.5 7" stroke="#8B6F47" strokeWidth="1.5" strokeLinecap="round"/>
                         <rect x="6" y="7" width="12" height="13" rx="1" stroke="#8B6F47" strokeWidth="1.5" fill="none"/>
                         <path d="M9 7V10M12 7V10M15 7V10" stroke="#8B6F47" strokeWidth="1.5" strokeLinecap="round"/>
                       </svg>
-                    </div>
-                    
-                    {/* Rating Badge */}
-                    <div className="bg-[#6B2C2C] text-white px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md">
-                      <span className="text-yellow-400 text-sm">★</span>
-                      <span className="text-sm font-bold">4.8</span>
                     </div>
                   </div>
 

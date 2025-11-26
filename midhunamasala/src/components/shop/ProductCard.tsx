@@ -13,6 +13,7 @@ type Product = {
   weight?: string;
   type?: string;
   description?: string;
+  rating?: number;
 };
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -23,17 +24,20 @@ export default function ProductCard({ product }: { product: Product }) {
     <div className="relative h-[480px] group">
       {/* Rating Tag - Top Right Corner (Ribbon Style) - Only visible when details are hidden */}
       {!showDetails && (
-        <div className="absolute top-0 right-0 z-20">
-          <div className="relative w-10">
+        <div className="absolute top-0 right-2 z-20">
+          <div className="relative w-8">
             {/* Main ribbon body */}
-            <div className="bg-[#A02C2C] shadow-lg">
-              <div className="flex flex-col items-center text-white pt-2 pb-3">
-                <span className="text-xl font-bold leading-none">1</span>
+            <div className="bg-[#A02C2C] shadow-lg px-1 py-1.5">
+              <div className="flex flex-col items-center justify-center text-white gap-0.5">
+                <svg className="w-2.5 h-2.5 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+                <span className="text-[10px] font-bold leading-none">{product.rating || 4.8}</span>
               </div>
             </div>
             {/* Ribbon tail - Straight sides with extended V-notch in center */}
-            <div className="w-full" style={{ height: '16px' }}>
-              <svg width="100%" height="16" viewBox="0 0 40 16" preserveAspectRatio="none" className="block">
+            <div className="w-full" style={{ height: '10px' }}>
+              <svg width="100%" height="10" viewBox="0 0 40 16" preserveAspectRatio="none" className="block">
                 {/* Straight left and right sides, wider and deeper V-notch in center */}
                 <polygon points="0,0 0,16 1,16 20,1 39,16 40,16 40,0" fill="#A02C2C" />
               </svg>

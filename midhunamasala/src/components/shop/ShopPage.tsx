@@ -115,7 +115,7 @@ export default function ShopPage() {
   }, [selectedCollection]);
   
   return (
-    <div className="bg-[#F5F0E8]">
+    <div className="bg-[#EBE3D5]">
       {/* Classical Shop Banner */}
       <section className="relative w-full h-[400px] overflow-hidden">
         {/* Background Image */}
@@ -129,50 +129,50 @@ export default function ShopPage() {
             quality={100} 
             style={{ objectFit: "cover" }}
           />
-          {/* Maroon gradient overlay on left side for text background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#8B1E1E] via-[#8B1E1E]/80 to-transparent" style={{ width: '85%' }}></div>
+          {/* Mud color gradient overlay on left side for text background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#5A4D3F] via-[#5A4D3F]/85 to-transparent" style={{ width: '85%' }}></div>
         </div>
 
         {/* Content Container */}
         <div className="relative h-full flex flex-col items-start justify-center px-8 md:px-16 lg:px-24 max-w-3xl">
           {/* Premium Selection Badge */}
           <div className="flex items-center gap-3 mb-6">
-            <svg className="w-5 h-5 text-[#F6C84C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="w-5 h-5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
             </svg>
-            <span className="text-[#F6C84C] text-sm tracking-[0.3em] uppercase font-medium">
+            <span className="text-[#D4AF37] text-sm tracking-[0.3em] uppercase font-medium">
               Premium Selection
             </span>
-            <svg className="w-5 h-5 text-[#F6C84C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="w-5 h-5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
             </svg>
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-white leading-tight" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-[#F5E6D3] leading-tight" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
             The Royal
           </h1>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-[#F6C84C] mb-6 leading-tight" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-[#D4AF37] mb-6 leading-tight" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
             Spice Pantry
           </h1>
 
           {/* Decorative Divider */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-[2px] bg-[#F6C84C]"></div>
-            <svg className="w-4 h-4 text-[#F6C84C]" viewBox="0 0 24 24" fill="currentColor">
+            <div className="w-12 h-[2px] bg-[#D4AF37]"></div>
+            <svg className="w-4 h-4 text-[#D4AF37]" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
             </svg>
-            <div className="w-12 h-[2px] bg-[#F6C84C]"></div>
+            <div className="w-12 h-[2px] bg-[#D4AF37]"></div>
           </div>
 
           {/* Subheading */}
-          <p className="text-white text-base md:text-lg leading-relaxed italic" style={{ fontFamily: "'Crimson Text', serif" }}>
+          <p className="text-[#F5E6D3] text-base md:text-lg leading-relaxed italic" style={{ fontFamily: "'Crimson Text', serif" }}>
             Curated for the connoisseurs of authentic Chettinad cuisine
           </p>
         </div>
 
         {/* Bottom Golden Border */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#D4AF37] via-[#F6C84C] to-[#D4AF37]"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#B8860B] via-[#D4AF37] to-[#B8860B]"></div>
       </section>
 
       {/* Main Shop Content */}
@@ -183,29 +183,29 @@ export default function ShopPage() {
           <aside className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               {/* Collections Header */}
-              <div className="p-6 pb-4 border-b-4 border-[#F6C84C]">
+              <div className="p-4 pb-3 bg-gradient-to-r from-[#5A4D3F] to-[#6B5D4F] border-b-2 border-[#B8860B]">
                 <div className="flex items-center gap-2">
-                  <Filter className="w-5 h-5 text-[#8B1E1E]" />
-                  <h2 className="text-2xl font-serif text-[#8B1E1E]" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
+                  <Filter className="w-4 h-4 text-white" />
+                  <h2 className="text-xl font-serif text-white" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
                     Pantry
                   </h2>
                 </div>
               </div>
 
               {/* Collection Items */}
-              <div className="p-6 space-y-4">
+              <div className="p-4 space-y-3">
                 {collections.map((collection) => {
                   const isSelected = selectedCollection === collection.id;
                   
                   // Negative space style SVG icons for each collection
                   const getCollectionIcon = (id: string) => {
                     const isSelected = selectedCollection === id;
-                    const iconColor = isSelected ? "#FFFFFF" : "#8B1E1E";
+                    const iconColor = isSelected ? "#000000" : "#755C48";
                     
                     switch(id) {
                       case "all":
                         return (
-                          <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none">
+                          <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none">
                             {/* Grid/Catalog layout - 3x3 grid representing all products */}
                             <rect x="12" y="12" width="8" height="8" rx="1" fill={iconColor} />
                             <rect x="22" y="12" width="8" height="8" rx="1" fill={iconColor} />
@@ -220,7 +220,7 @@ export default function ShopPage() {
                         );
                       case "whole-spices":
                         return (
-                          <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none">
+                          <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none">
                             {/* Leaf with stem */}
                             <path d="M24 8C24 8 20 10 18 14C16 18 16 22 18 25C20 28 23 30 24 30C24 30 24 26 24 22C24 18 24 14 24 8Z" 
                               fill={iconColor} />
@@ -236,7 +236,7 @@ export default function ShopPage() {
                         );
                       case "ground-powders":
                         return (
-                          <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none">
+                          <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none">
                             {/* Mortar bowl */}
                             <path d="M12 20C12 20 12 18 14 16C16 14 18 13 24 13C30 13 32 14 34 16C36 18 36 20 36 20" 
                               stroke={iconColor} strokeWidth="2" fill="none" strokeLinecap="round" />
@@ -261,7 +261,7 @@ export default function ShopPage() {
                         );
                       case "secret-blends":
                         return (
-                          <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none">
+                          <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none">
                             {/* Spice bowl */}
                             <path d="M10 18C10 18 10 16 12 14C14 12 18 10 24 10C30 10 34 12 36 14C38 16 38 18 38 18" 
                               stroke={iconColor} strokeWidth="2" fill="none" strokeLinecap="round" />
@@ -303,10 +303,10 @@ export default function ShopPage() {
                         isSelected ? "shadow-lg" : "shadow-sm hover:shadow-md"
                       }`}
                     >
-                      <div className={`flex items-center gap-4 p-4 ${
+                      <div className={`flex items-center gap-3 p-3 ${
                         isSelected
-                          ? "bg-[#8B1E1E] text-white"
-                          : "bg-white text-[#8B1E1E] border border-gray-200 hover:border-[#8B1E1E]"
+                          ? "bg-gradient-to-r from-[#A89880] to-[#BDA88E] text-black shadow-md"
+                          : "bg-white text-[#755C48] border border-gray-200 hover:border-[#A89880] hover:shadow-sm"
                       }`}>
                         {/* Line Art Icon */}
                         <div className="flex-shrink-0">
@@ -315,16 +315,16 @@ export default function ShopPage() {
                         
                         {/* Collection Text */}
                         <div className="flex-1">
-                          <div className="font-bold text-sm leading-tight mb-1" style={{ fontFamily: "'Crimson Text', serif" }}>
+                          <div className="font-bold text-xs leading-tight mb-1" style={{ fontFamily: "'Crimson Text', serif" }}>
                             {collection.title}
                           </div>
-                          <div className="text-xs opacity-90 tracking-wide">
+                          <div className="text-[10px] opacity-90 tracking-wide">
                             {collection.subtitle}
                           </div>
                         </div>
                         
                         {/* Arrow Icon */}
-                        <ChevronRight className="w-5 h-5 flex-shrink-0" />
+                        <ChevronRight className="w-4 h-4 flex-shrink-0" />
                       </div>
                     </button>
                   );
@@ -332,11 +332,11 @@ export default function ShopPage() {
               </div>
 
               {/* Help Section */}
-              <div className="px-6 pb-6 pt-2 text-center">
-                <p className="text-sm text-gray-600 italic mb-2" style={{ fontFamily: "'Crimson Text', serif" }}>
+              <div className="px-4 pb-4 pt-2 text-center bg-gradient-to-b from-transparent to-[#FFFEF0]">
+                <p className="text-xs text-gray-600 italic mb-1" style={{ fontFamily: "'Crimson Text', serif" }}>
                   Need help choosing?
                 </p>
-                <button className="text-[#8B1E1E] font-bold text-sm underline hover:text-[#6B1515] tracking-wider">
+                <button className="text-[#B8860B] font-bold text-xs underline hover:text-[#8B6914] tracking-wider">
                   ASK AACHI
                 </button>
               </div>

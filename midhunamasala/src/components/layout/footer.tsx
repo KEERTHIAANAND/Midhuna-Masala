@@ -18,7 +18,7 @@ export default function Footer() {
           {/* Left side - Brand name */}
           <div className="mb-8 md:mb-0 text-center md:text-left">
             <h2 className="text-3xl md:text-4xl font-bold text-white font-serif tracking-wide">
-              Mithuna Masala
+              Midhuna Masala
             </h2>
             <p className="text-sm text-[#F6C84C] font-serif tracking-[0.2em] uppercase mt-2">
               Traditional Stone Ground Spices

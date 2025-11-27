@@ -34,3 +34,5 @@
 
 
 
+use some se tools like SonarQube (code quality) and some more
+

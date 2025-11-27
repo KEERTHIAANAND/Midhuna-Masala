@@ -1,9 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ShoppingBag } from 'lucide-react';
 
 export default function Navbar() {
+  const pathname = usePathname();
+  
   return (
     <>
       {/* Marquee Section */}
@@ -54,7 +57,7 @@ export default function Navbar() {
             <div className="flex flex-col items-start">
               <Link href="/" className="flex flex-col">
                 <span className="text-4xl font-bold text-[#8B1E1E] font-serif tracking-wide">
-                  Mithuna Masala
+                  Midhuna Masala
                 </span>
                 <span className="text-[10px] font-bold text-[#8B1E1E] tracking-[0.2em] uppercase mt-1 text-center w-full">
                   Traditional Stone Ground Spices
@@ -66,19 +69,25 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-12">
               <Link
                 href="/"
-                className="text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase border-b-2 border-[#D4AF37] pb-1"
+                className={`text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase pb-1 ${
+                  pathname === '/' ? 'border-b-2 border-[#D4AF37]' : ''
+                }`}
               >
                 Home
               </Link>
               <Link
                 href="/shop"
-                className="text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase"
+                className={`text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase pb-1 ${
+                  pathname === '/shop' ? 'border-b-2 border-[#D4AF37]' : ''
+                }`}
               >
                 Our Spices
               </Link>
               <Link
                 href="/track-order"
-                className="text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase"
+                className={`text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase pb-1 ${
+                  pathname === '/track-order' ? 'border-b-2 border-[#D4AF37]' : ''
+                }`}
               >
                 Track Order
               </Link>

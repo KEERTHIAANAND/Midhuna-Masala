@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import ProductCard from "@/components/shop/ProductCard";
+import Footer from "@/components/layout/Footer";
 import { ChevronRight, Filter } from "lucide-react";
 
 const products = [
@@ -129,8 +130,8 @@ export default function ShopPage() {
             quality={100} 
             style={{ objectFit: "cover" }}
           />
-          {/* Mud color gradient overlay on left side for text background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#5A4D3F] via-[#5A4D3F]/85 to-transparent" style={{ width: '85%' }}></div>
+          {/* Dark gradient overlay - solid dark on left for text, fading to transparent on right for image */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(139, 30, 30, 0.95) 0%, rgba(139, 30, 30, 0.7) 60%, rgba(139, 30, 30, 0.35) 85%, transparent 100%)' }}></div>
         </div>
 
         {/* Content Container */}
@@ -354,6 +355,9 @@ export default function ShopPage() {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

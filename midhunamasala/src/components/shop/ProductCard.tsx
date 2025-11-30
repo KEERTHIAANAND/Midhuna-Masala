@@ -25,19 +25,19 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* Rating Tag - Top Right Corner (Ribbon Style) - Only visible when details are hidden */}
       {!showDetails && (
         <div className="absolute top-0 right-2 z-20">
-          <div className="relative w-8">
+          <div className="relative w-7">
             {/* Main ribbon body */}
-            <div className="bg-[#A02C2C] shadow-lg px-1 py-1.5">
+            <div className="bg-[#A02C2C] shadow-lg px-1 py-1">
               <div className="flex flex-col items-center justify-center text-white gap-0.5">
-                <svg className="w-2.5 h-2.5 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="w-2 h-2 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
                 </svg>
-                <span className="text-[10px] font-bold leading-none">{product.rating || 4.8}</span>
+                <span className="text-[9px] font-bold leading-none">{product.rating || 4.8}</span>
               </div>
             </div>
             {/* Ribbon tail - Straight sides with extended V-notch in center */}
-            <div className="w-full" style={{ height: '10px' }}>
-              <svg width="100%" height="10" viewBox="0 0 40 16" preserveAspectRatio="none" className="block">
+            <div className="w-full" style={{ height: '8px' }}>
+              <svg width="100%" height="8" viewBox="0 0 40 16" preserveAspectRatio="none" className="block">
                 {/* Straight left and right sides, wider and deeper V-notch in center */}
                 <polygon points="0,0 0,16 1,16 20,1 39,16 40,16 40,0" fill="#A02C2C" />
               </svg>

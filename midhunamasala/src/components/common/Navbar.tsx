@@ -95,9 +95,9 @@ export default function Navbar() {
 
             {/* Icons */}
             <div className="flex items-center">
-              <button className="text-[#8B1E1E] hover:text-[#D4AF37] transition-colors">
+              <Link href="/cart" className="text-[#8B1E1E] hover:text-[#D4AF37] transition-colors">
                 <ShoppingBag className="h-6 w-6" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>

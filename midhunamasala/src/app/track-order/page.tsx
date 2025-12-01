@@ -6,6 +6,7 @@ const orders = [
     id: 'ORD-1001',
     date: '10/15/2023',
     title: 'In Your Kitchen',
+    displayName: 'Chilli Powder & Masala Combo',
     items: [
       { name: 'Guntur Red Chilli Powder', quantity: '200G X 2', price: 12.98, img: '/images/products/chilli.jpg' },
       { name: 'Chettinad Masala Blend', quantity: '100G X 1', price: 9.99, img: '/images/products/masala.jpg' },
@@ -24,6 +25,7 @@ const orders = [
     id: 'ORD-1002',
     date: '10/25/2023',
     title: 'Grinding Fresh',
+    displayName: 'Chettinad Masala Blend',
     items: [
       { name: 'Chettinad Masala Blend', quantity: '100G X 1', price: 4.99, img: '/images/products/masala.jpg' },
     ],
@@ -53,10 +55,10 @@ export default function TrackOrderPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-[#8B1E1E] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
-            Spice Chronicles
+            Order Tracking
           </h1>
           <p className="text-base text-[#D4AF37] italic" style={{ fontFamily: 'Crimson Text, serif' }}>
-            Track the journey of your authentic flavors.
+            Track your spice journey from our village to your kitchen.
           </p>
         </div>
 
@@ -73,13 +75,13 @@ export default function TrackOrderPage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-[#8B1E1E]" style={{ fontFamily: 'Playfair Display, serif' }}>{order.id}</h3>
+                    <h3 className="text-base font-bold text-[#8B1E1E]" style={{ fontFamily: 'Playfair Display, serif' }}>{order.displayName}</h3>
                     <p className="text-xs text-gray-500 mt-0.5">{order.date}</p>
-                    <p className="text-sm font-semibold text-[#A02C2C] mt-0.5" style={{ fontFamily: 'Crimson Text, serif' }}>{order.title}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-[#8B1E1E]" style={{ fontFamily: 'Playfair Display, serif' }}>${order.total.toFixed(2)}</p>
+                  <p className="text-xs font-semibold text-[#A02C2C] mb-1" style={{ fontFamily: 'Crimson Text, serif' }}>Order: {order.id}</p>
+                  <p className="text-xl font-bold text-[#8B1E1E]" style={{ fontFamily: 'Playfair Display, serif' }}>${order.total.toFixed(2)}</p>
                   <button 
                     onClick={() => setSelectedOrder(selectedOrder === order.id ? null : order.id)}
                     className="mt-2 text-xs text-[#D4AF37] hover:text-[#8B1E1E] font-medium transition-colors uppercase tracking-wider"
@@ -96,7 +98,7 @@ export default function TrackOrderPage() {
                     <svg className="w-5 h-5 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                    Story of your Spice
+                    Order Journey
                   </h4>
                   
                   {/* Timeline */}
@@ -122,10 +124,6 @@ export default function TrackOrderPage() {
                       ))}
                     </div>
                   </div>
-
-                  <p className="text-center text-sm italic text-[#D4AF37] mb-6" style={{ fontFamily: 'Crimson Text, serif' }}>
-                    &ldquo;Ready to create magic.&rdquo;
-                  </p>
 
                   {/* Contents Section */}
                   <div className="bg-gradient-to-br from-[#FAF8F3] to-white rounded-lg p-4 border border-[#E5D4B8]">

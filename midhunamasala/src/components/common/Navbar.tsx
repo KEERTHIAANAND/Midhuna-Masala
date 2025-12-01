@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { cartCount } = useCart();
   
   return (
     <>
@@ -95,8 +97,13 @@ export default function Navbar() {
 
             {/* Icons */}
             <div className="flex items-center">
-              <Link href="/cart" className="text-[#8B1E1E] hover:text-[#D4AF37] transition-colors">
+              <Link href="/cart" className="text-[#8B1E1E] hover:text-[#D4AF37] transition-colors relative">
                 <ShoppingBag className="h-6 w-6" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-[#D4AF37] text-[#8B1E1E] text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
             </div>
           </div>

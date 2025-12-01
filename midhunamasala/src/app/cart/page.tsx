@@ -1,10 +1,53 @@
 "use client";
 import React from 'react';
-import { useCart } from '@/contexts/CartContext';
-import Link from 'next/link';
+
+const cartItems = [
+  {
+    id: 1,
+    name: 'Guntur Red Chilli Powder',
+    weight: '200G',
+    price: 6.49,
+    quantity: 2,
+    image: '/images/products/chilli.jpg',
+    inStock: true
+  },
+  {
+    id: 2,
+    name: 'Chettinad Masala Blend',
+    weight: '100G',
+    price: 9.99,
+    quantity: 1,
+    image: '/images/products/masala.jpg',
+    inStock: true
+  },
+  {
+    id: 3,
+    name: 'Turmeric Powder',
+    weight: '150G',
+    price: 4.99,
+    quantity: 1,
+    image: '/images/products/turmeric.jpg',
+    inStock: true
+  }
+];
 
 export default function CartPage() {
-  const { items, updateQuantity, removeFromCart, subtotal, shipping, total } = useCart();
+  const [items, setItems] = React.useState(cartItems);
+
+  const updateQuantity = (id: number, newQuantity: number) => {
+    if (newQuantity < 1) return;
+    setItems(items.map(item => 
+      item.id === id ? { ...item, quantity: newQuantity } : item
+    ));
+  };
+
+  const removeItem = (id: number) => {
+    setItems(items.filter(item => item.id !== id));
+  };
+
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shipping = subtotal > 25 ? 0 : 3.99;
+  const total = subtotal + shipping;
 
   return (
     <div className="min-h-screen bg-[#FAF8F3] px-4 py-6">
@@ -33,9 +76,9 @@ export default function CartPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 <p className="text-gray-500 text-lg mb-4" style={{ fontFamily: 'Crimson Text, serif' }}>Your cart is empty</p>
-                <Link href="/shop" className="bg-gradient-to-r from-[#8B1E1E] to-[#A02C2C] text-white px-6 py-2 rounded-lg font-bold hover:shadow-lg transition-all inline-block">
+                <button className="bg-gradient-to-r from-[#8B1E1E] to-[#A02C2C] text-white px-6 py-2 rounded-lg font-bold hover:shadow-lg transition-all">
                   Continue Shopping
-                </Link>
+                </button>
               </div>
             ) : (
               items.map((item) => (
@@ -87,7 +130,7 @@ export default function CartPage() {
                         ${(item.price * item.quantity).toFixed(2)}
                       </p>
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeItem(item.id)}
                         className="text-red-600 hover:text-red-800 transition-colors"
                         title="Remove item"
                       >
@@ -142,9 +185,9 @@ export default function CartPage() {
                 Proceed to Checkout
               </button>
 
-              <Link href="/shop" className="block w-full text-center bg-white border-2 border-[#8B1E1E] text-[#8B1E1E] py-3 px-6 rounded-lg font-bold hover:bg-[#8B1E1E] hover:text-white transition-all" style={{ fontFamily: 'Crimson Text, serif' }}>
+              <button className="w-full bg-white border-2 border-[#8B1E1E] text-[#8B1E1E] py-3 px-6 rounded-lg font-bold hover:bg-[#8B1E1E] hover:text-white transition-all" style={{ fontFamily: 'Crimson Text, serif' }}>
                 Continue Shopping
-              </Link>
+              </button>
 
               {/* Trust Badges */}
               <div className="mt-6 pt-6 border-t border-gray-200">

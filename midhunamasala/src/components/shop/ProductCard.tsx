@@ -3,6 +3,7 @@
 import Image from "next/image";
 import React from "react";
 import { ShoppingCart, Info, X } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 type Product = {
   id: string;
@@ -19,6 +20,22 @@ type Product = {
 export default function ProductCard({ product }: { product: Product }) {
   const [showDetails, setShowDetails] = React.useState(false);
   const [showAyurvedic, setShowAyurvedic] = React.useState(false);
+  const [addedToCart, setAddedToCart] = React.useState(false);
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: parseInt(product.id.replace(/\D/g, '') || '1'),
+      name: product.name,
+      weight: product.weight || "100g",
+      price: product.price || 5.99,
+      image: product.image,
+      inStock: true,
+    });
+    
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 2000);
+  };
   
   return (
     <div className="relative h-[480px] group">
@@ -287,8 +304,23 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="text-xl font-bold text-[#755C48]" style={{ fontFamily: "'Times New Roman', serif" }}>
               ₹{product.price?.toFixed(2) || "5.99"}
             </span>
-            <button className="bg-[#755C48] hover:bg-[#5A4536] text-white p-2 rounded transition-colors duration-300 shadow-md hover:shadow-lg">
-              <ShoppingCart className="w-[18px] h-[18px]" />
+            <button 
+              onClick={handleAddToCart}
+              disabled={addedToCart}
+              className={`${
+                addedToCart 
+                  ? 'bg-green-600 hover:bg-green-700' 
+                  : 'bg-[#755C48] hover:bg-[#5A4536]'
+              } text-white p-2 rounded transition-all duration-300 shadow-md hover:shadow-lg disabled:cursor-not-allowed relative`}
+              title={addedToCart ? "Added to cart!" : "Add to cart"}
+            >
+              {addedToCart ? (
+                <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <ShoppingCart className="w-[18px] h-[18px]" />
+              )}
             </button>
           </div>
         </div>

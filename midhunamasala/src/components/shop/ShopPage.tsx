@@ -213,22 +213,22 @@ export default function ShopPage() {
                                       strokeWidth="2"
                                     />
                       <text
-                        x="75"
-                        y="155"
+                        x="165"
+                        y="77"
                         textAnchor="middle"
                         className={`text-[10px] font-bold pointer-events-none ${selectedCollection === 'all' ? 'fill-white' : 'fill-[#8B1E1E]'}`}
                         style={{ fontFamily: "'Lora', serif" }}
                       >
-                        ALL PRODUCTS
+                        ALL
                       </text>
                       <text
-                        x="75"
-                        y="166"
+                        x="165"
+                        y="88"
                         textAnchor="middle"
                         className={`text-[8px] pointer-events-none ${selectedCollection === 'all' ? 'fill-white/90' : 'fill-[#8B1E1E]/80'}`}
                         style={{ fontFamily: "'Lora', serif" }}
                       >
-                        {/* Subtitle or description if needed */}
+                        PRODUCTS
                       </text>
                     </g>
                     {/* Whole Spices - Red when selected (right, 25%) */}

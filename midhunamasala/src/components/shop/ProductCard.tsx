@@ -3,6 +3,7 @@
 import Image from "next/image";
 import React from "react";
 import { ShoppingCart, Info, X } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 type Product = {
   id: string;
@@ -19,11 +20,33 @@ type Product = {
 export default function ProductCard({ product }: { product: Product }) {
   const [showDetails, setShowDetails] = React.useState(false);
   const [showAyurvedic, setShowAyurvedic] = React.useState(false);
+  const [addedToCart, setAddedToCart] = React.useState(false);
+  const [showCardAnimation, setShowCardAnimation] = React.useState(false);
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: parseInt(product.id.replace(/\D/g, '') || '1'),
+      name: product.name,
+      weight: product.weight || "100g",
+      price: product.price || 5.99,
+      image: product.image,
+      inStock: true,
+    });
+    
+    setAddedToCart(true);
+    setShowCardAnimation(true);
+    
+    setTimeout(() => {
+      setAddedToCart(false);
+      setShowCardAnimation(false);
+    }, 3000);
+  };
   
   return (
     <div className="relative h-[480px] group">
       {/* Rating Tag - Top Right Corner (Ribbon Style) - Only visible when details are hidden */}
-      {!showDetails && (
+      {!showDetails && !showCardAnimation && (
         <div className="absolute top-0 right-2 z-20">
           <div className="relative w-7">
             {/* Main ribbon body */}
@@ -48,6 +71,78 @@ export default function ProductCard({ product }: { product: Product }) {
 
       {/* Main Product Card */}
       <div className="relative w-full h-full bg-white rounded-lg overflow-visible shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200">
+        
+        {/* Card Animation Overlay - Shows "Happy Shopping" message */}
+        {showCardAnimation && (
+          <div className="absolute inset-0 z-50 bg-gradient-to-br from-[#8B1E1E] via-[#A02C2C] to-[#8B1E1E] rounded-lg overflow-hidden animate-cardFlip">
+            {/* Floating particles background */}
+            <div className="absolute inset-0">
+              <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-[#D4AF37] rounded-full animate-float-1 opacity-60"></div>
+              <div className="absolute top-1/3 right-1/4 w-3 h-3 bg-[#D4AF37] rounded-full animate-float-2 opacity-40"></div>
+              <div className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-[#D4AF37] rounded-full animate-float-3 opacity-50"></div>
+              <div className="absolute bottom-1/3 right-1/3 w-2 h-2 bg-[#D4AF37] rounded-full animate-float-1 opacity-70"></div>
+            </div>
+
+            {/* Golden glow effect */}
+            <div className="absolute inset-0 bg-gradient-radial from-[#D4AF37]/20 via-transparent to-transparent animate-pulse-slow"></div>
+
+            {/* Content */}
+            <div className="relative flex flex-col items-center justify-center h-full text-center px-6 gap-3">
+              
+              {/* Top decorative line */}
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-12 h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
+                <svg className="w-3 h-3 text-[#D4AF37] animate-spin-slow" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+                <div className="w-12 h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
+              </div>
+
+              {/* Animated Shopping Bag Icon */}
+              <div className="relative mb-2">
+                <div className="absolute inset-0 bg-white/30 rounded-full blur-xl animate-ping-slow"></div>
+                <div className="relative bg-white p-4 rounded-full shadow-2xl animate-bounce-gentle">
+                  <svg className="w-12 h-12 text-[#8B1E1E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 13l2 2 4-4" className="animate-drawCheck text-[#D4AF37]" stroke="#D4AF37"/>
+                  </svg>
+                </div>
+              </div>
+
+              {/* Text Content */}
+              <div className="space-y-1.5">
+                <h3 className="text-2xl font-bold text-white tracking-wide animate-slideInUp" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  Happy Shopping!
+                </h3>
+                
+                <div className="flex items-center justify-center gap-2 my-2">
+                  <div className="w-8 h-px bg-white/30"></div>
+                  <svg className="w-4 h-4 text-[#D4AF37] animate-pulse" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                  </svg>
+                  <div className="w-8 h-px bg-white/30"></div>
+                </div>
+
+                <p className="text-lg text-[#D4AF37] font-semibold animate-slideInUp animation-delay-100" style={{ fontFamily: "'Crimson Text', serif" }}>
+                  Added to Cart
+                </p>
+                <p className="text-sm text-white/90 italic px-4 animate-slideInUp animation-delay-200" style={{ fontFamily: "'Crimson Text', serif" }}>
+                  {product.name}
+                </p>
+              </div>
+
+              {/* Bottom decorative elements */}
+              <div className="flex items-center gap-3 mt-3">
+                <div className="w-1 h-1 bg-[#D4AF37] rounded-full animate-pulse"></div>
+                <div className="w-1.5 h-1.5 bg-[#D4AF37] rounded-full animate-pulse animation-delay-100"></div>
+                <div className="w-1 h-1 bg-[#D4AF37] rounded-full animate-pulse animation-delay-200"></div>
+              </div>
+            </div>
+
+            {/* Bottom shine effect */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent animate-shimmer"></div>
+          </div>
+        )}
         
         {/* Product Image Section with Animation */}
         <div className="relative aspect-square bg-[#F5EDE1] overflow-hidden">
@@ -287,8 +382,23 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="text-xl font-bold text-[#755C48]" style={{ fontFamily: "'Times New Roman', serif" }}>
               ₹{product.price?.toFixed(2) || "5.99"}
             </span>
-            <button className="bg-[#755C48] hover:bg-[#5A4536] text-white p-2 rounded transition-colors duration-300 shadow-md hover:shadow-lg">
-              <ShoppingCart className="w-[18px] h-[18px]" />
+            <button 
+              onClick={handleAddToCart}
+              disabled={addedToCart}
+              className={`${
+                addedToCart 
+                  ? 'bg-green-600 hover:bg-green-700' 
+                  : 'bg-[#755C48] hover:bg-[#5A4536]'
+              } text-white p-2 rounded transition-all duration-300 shadow-md hover:shadow-lg disabled:cursor-not-allowed relative`}
+              title={addedToCart ? "Added to cart!" : "Add to cart"}
+            >
+              {addedToCart ? (
+                <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <ShoppingCart className="w-[18px] h-[18px]" />
+              )}
             </button>
           </div>
         </div>

@@ -3,12 +3,26 @@
 import React from "react";
 import Image from "next/image";
 import ProductCard from "@/components/shop/ProductCard";
+import ProductDetails from "@/components/shop/ProductDetails";
+import Footer from "@/components/layout/Footer";
 import { ChevronRight, Filter } from "lucide-react";
 
+type Product = {
+  id: string;
+  name: string;
+  category: string;
+  image: string;
+  price?: number;
+  weight?: string;
+  type?: string;
+  description?: string;
+  rating?: number;
+};
+
 const products = [
-  { 
-    id: "guntur-red-chilli", 
-    name: "Guntur Red Chilli Powder", 
+  {
+    id: "guntur-red-chilli",
+    name: "Guntur Red Chilli Powder",
     category: "POWDER",
     weight: "200g",
     type: "Stone Ground",
@@ -16,9 +30,9 @@ const products = [
     price: 6.49,
     description: "Sun-dried Guntur chillies, stone-ground to preserve the fiery heat.."
   },
-  { 
-    id: "erode-turmeric", 
-    name: "Erode Turmeric Powder (Manjal)", 
+  {
+    id: "erode-turmeric",
+    name: "Erode Turmeric Powder (Manjal)",
     category: "POWDER",
     weight: "100g",
     type: "Stone Ground",
@@ -26,9 +40,9 @@ const products = [
     price: 4.99,
     description: "Pure Erode turmeric with high curcumin content. Traditionally..."
   },
-  { 
-    id: "chettinad-masala", 
-    name: "Chettinad Masala Blend", 
+  {
+    id: "chettinad-masala",
+    name: "Chettinad Masala Blend",
     category: "BLEND",
     weight: "100g",
     type: "Stone Ground",
@@ -36,9 +50,9 @@ const products = [
     price: 9.99,
     description: "Authentic 18-spice blend roasted in iron woks. The secret to the..."
   },
-  { 
-    id: "cumin", 
-    name: "Cumin Seeds", 
+  {
+    id: "cumin",
+    name: "Cumin Seeds",
     category: "POWDER",
     weight: "100g",
     type: "Stone Ground",
@@ -46,9 +60,9 @@ const products = [
     price: 5.49,
     description: "Premium cumin seeds with rich aroma and flavor"
   },
-  { 
-    id: "coriander", 
-    name: "Coriander Seeds", 
+  {
+    id: "coriander",
+    name: "Coriander Seeds",
     category: "POWDER",
     weight: "100g",
     type: "Stone Ground",
@@ -56,9 +70,9 @@ const products = [
     price: 4.49,
     description: "Fresh coriander seeds for authentic taste"
   },
-  { 
-    id: "fennel", 
-    name: "Fennel Seeds", 
+  {
+    id: "fennel",
+    name: "Fennel Seeds",
     category: "WHOLE SPICES",
     weight: "100g",
     type: "Seeds & Pods",
@@ -97,40 +111,54 @@ const collections = [
 
 export default function ShopPage() {
   const [selectedCollection, setSelectedCollection] = React.useState("all");
-  
+  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
+  const detailsRef = React.useRef<HTMLDivElement>(null);
+
+  const handleProductSelect = (product: Product) => {
+    setSelectedProduct(product);
+    // Scroll to details section
+    setTimeout(() => {
+      detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedProduct(null);
+  };
+
   // Filter products based on selected collection
   const filteredProducts = React.useMemo(() => {
     if (selectedCollection === "all") {
       return products;
     }
-    
+
     const categoryMap: Record<string, string[]> = {
       "whole-spices": ["WHOLE SPICES"],
       "ground-powders": ["POWDER"],
       "secret-blends": ["BLEND"]
     };
-    
+
     const allowedCategories = categoryMap[selectedCollection] || [];
     return products.filter(p => allowedCategories.includes(p.category));
   }, [selectedCollection]);
-  
+
   return (
     <div className="bg-[#EBE3D5]">
       {/* Classical Shop Banner */}
       <section className="relative w-full h-[400px] overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0">
-          <Image 
-            src="/images/banners/shopbanner.jpg" 
-            alt="The Royal Spice Pantry" 
+          <Image
+            src="/images/banners/shopbanner.jpg"
+            alt="The Royal Spice Pantry"
             fill
             priority
             className="object-cover"
-            quality={100} 
+            quality={100}
             style={{ objectFit: "cover" }}
           />
-          {/* Mud color gradient overlay on left side for text background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#5A4D3F] via-[#5A4D3F]/85 to-transparent" style={{ width: '85%' }}></div>
+          {/* Dark gradient overlay - solid dark on left for text, fading to transparent on right for image */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(139, 30, 30, 0.95) 0%, rgba(139, 30, 30, 0.7) 60%, rgba(139, 30, 30, 0.35) 85%, transparent 100%)' }}></div>
         </div>
 
         {/* Content Container */}
@@ -138,13 +166,13 @@ export default function ShopPage() {
           {/* Premium Selection Badge */}
           <div className="flex items-center gap-3 mb-6">
             <svg className="w-5 h-5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
             </svg>
             <span className="text-[#D4AF37] text-sm tracking-[0.3em] uppercase font-medium">
               Premium Selection
             </span>
             <svg className="w-5 h-5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
             </svg>
           </div>
 
@@ -160,7 +188,7 @@ export default function ShopPage() {
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-[2px] bg-[#D4AF37]"></div>
             <svg className="w-4 h-4 text-[#D4AF37]" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
             </svg>
             <div className="w-12 h-[2px] bg-[#D4AF37]"></div>
           </div>
@@ -178,167 +206,167 @@ export default function ShopPage() {
       {/* Main Shop Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          
+
           {/* Left Sidebar - Collections */}
-          <aside className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              {/* Collections Header */}
-              <div className="p-4 pb-3 bg-gradient-to-r from-[#5A4D3F] to-[#6B5D4F] border-b-2 border-[#B8860B]">
-                <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-white" />
-                  <h2 className="text-xl font-serif text-white" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
-                    Pantry
-                  </h2>
-                </div>
-              </div>
+          <aside className="lg:col-span-1 -ml-22">
+            {/* Pie Chart Circle */}
+            <div className="flex flex-col items-start">
+              <div className="relative w-96 h-96">
+                {/* SVG Pie Chart with labels */}
+                <svg className="w-full h-full" viewBox="0 0 240 240">
+                  <defs>
+                    {/* Gradients for segments */}
+                    <radialGradient id="redGrad" cx="50%" cy="50%">
+                      <stop offset="0%" stopColor="#8B1E1E" stopOpacity="0.9" />
+                      <stop offset="100%" stopColor="#A02C2C" stopOpacity="1" />
+                    </radialGradient>
+                    <radialGradient id="sandalGrad" cx="50%" cy="50%">
+                      <stop offset="0%" stopColor="#E5D4B8" stopOpacity="0.9" />
+                      <stop offset="100%" stopColor="#D4C4A8" stopOpacity="1" />
+                    </radialGradient>
+                  </defs>
 
-              {/* Collection Items */}
-              <div className="p-4 space-y-3">
-                {collections.map((collection) => {
-                  const isSelected = selectedCollection === collection.id;
-                  
-                  // Negative space style SVG icons for each collection
-                  const getCollectionIcon = (id: string) => {
-                    const isSelected = selectedCollection === id;
-                    const iconColor = isSelected ? "#000000" : "#755C48";
-                    
-                    switch(id) {
-                      case "all":
-                        return (
-                          <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none">
-                            {/* Grid/Catalog layout - 3x3 grid representing all products */}
-                            <rect x="12" y="12" width="8" height="8" rx="1" fill={iconColor} />
-                            <rect x="22" y="12" width="8" height="8" rx="1" fill={iconColor} />
-                            <rect x="32" y="12" width="8" height="8" rx="1" fill={iconColor} />
-                            <rect x="12" y="22" width="8" height="8" rx="1" fill={iconColor} />
-                            <rect x="22" y="22" width="8" height="8" rx="1" fill={iconColor} />
-                            <rect x="32" y="22" width="8" height="8" rx="1" fill={iconColor} />
-                            <rect x="12" y="32" width="8" height="8" rx="1" fill={iconColor} />
-                            <rect x="22" y="32" width="8" height="8" rx="1" fill={iconColor} />
-                            <rect x="32" y="32" width="8" height="8" rx="1" fill={iconColor} />
-                          </svg>
-                        );
-                      case "whole-spices":
-                        return (
-                          <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none">
-                            {/* Leaf with stem */}
-                            <path d="M24 8C24 8 20 10 18 14C16 18 16 22 18 25C20 28 23 30 24 30C24 30 24 26 24 22C24 18 24 14 24 8Z" 
-                              fill={iconColor} />
-                            <path d="M24 8C24 8 28 10 30 14C32 18 32 22 30 25C28 28 25 30 24 30C24 30 24 26 24 22C24 18 24 14 24 8Z" 
-                              fill={iconColor} />
-                            {/* Peppercorns at bottom */}
-                            <circle cx="18" cy="36" r="2.5" fill={iconColor} />
-                            <circle cx="24" cy="38" r="3" fill={iconColor} />
-                            <circle cx="30" cy="36" r="2.5" fill={iconColor} />
-                            <circle cx="21" cy="34" r="1.8" fill={iconColor} />
-                            <circle cx="27" cy="34" r="1.8" fill={iconColor} />
-                          </svg>
-                        );
-                      case "ground-powders":
-                        return (
-                          <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none">
-                            {/* Mortar bowl */}
-                            <path d="M12 20C12 20 12 18 14 16C16 14 18 13 24 13C30 13 32 14 34 16C36 18 36 20 36 20" 
-                              stroke={iconColor} strokeWidth="2" fill="none" strokeLinecap="round" />
-                            <ellipse cx="24" cy="20" rx="12" ry="3" fill={iconColor} />
-                            <path d="M12 20L13 30C13 34 17 38 24 38C31 38 35 34 35 30L36 20" 
-                              stroke={iconColor} strokeWidth="2" fill="none" strokeLinecap="round" />
-                            
-                            {/* Pestle */}
-                            <path d="M30 6C30 6 31 6 32 7C33 8 33 9 32 10L28 18" 
-                              stroke={iconColor} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                            <circle cx="31" cy="6.5" r="2" fill={iconColor} />
-                            
-                            {/* Powder/spices in mortar */}
-                            <circle cx="20" cy="24" r="1.5" fill={iconColor} opacity="0.7" />
-                            <circle cx="24" cy="26" r="1.2" fill={iconColor} opacity="0.7" />
-                            <circle cx="28" cy="24" r="1.5" fill={iconColor} opacity="0.7" />
-                            <circle cx="22" cy="28" r="1" fill={iconColor} opacity="0.5" />
-                            <circle cx="26" cy="28" r="1" fill={iconColor} opacity="0.5" />
-                            <path d="M18 24C18 24 20 26 24 26C28 26 30 24 30 24" 
-                              stroke={iconColor} strokeWidth="1.2" strokeDasharray="1 1" opacity="0.4" fill="none" />
-                          </svg>
-                        );
-                      case "secret-blends":
-                        return (
-                          <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none">
-                            {/* Spice bowl */}
-                            <path d="M10 18C10 18 10 16 12 14C14 12 18 10 24 10C30 10 34 12 36 14C38 16 38 18 38 18" 
-                              stroke={iconColor} strokeWidth="2" fill="none" strokeLinecap="round" />
-                            <ellipse cx="24" cy="18" rx="14" ry="3.5" fill={iconColor} />
-                            <path d="M10 18C10 18 9 26 10 32C11 38 16 42 24 42C32 42 37 38 38 32C39 26 38 18 38 18" 
-                              stroke={iconColor} strokeWidth="2" fill="none" strokeLinecap="round" />
-                            
-                            {/* Multiple spices/blends in bowl - layered look */}
-                            <ellipse cx="24" cy="24" rx="10" ry="2.5" fill={iconColor} opacity="0.3" />
-                            <ellipse cx="24" cy="28" rx="8" ry="2" fill={iconColor} opacity="0.4" />
-                            
-                            {/* Spice particles/texture */}
-                            <circle cx="18" cy="22" r="1.2" fill={iconColor} opacity="0.7" />
-                            <circle cx="24" cy="23" r="1.5" fill={iconColor} opacity="0.7" />
-                            <circle cx="30" cy="22" r="1.2" fill={iconColor} opacity="0.7" />
-                            <circle cx="21" cy="26" r="1" fill={iconColor} opacity="0.6" />
-                            <circle cx="27" cy="26" r="1" fill={iconColor} opacity="0.6" />
-                            <circle cx="24" cy="30" r="1.2" fill={iconColor} opacity="0.5" />
-                            
-                            {/* Aroma/steam lines rising from bowl */}
-                            <path d="M18 10C18 10 18 6 20 6C22 6 22 10 22 10" 
-                              stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-                            <path d="M24 8C24 8 24 4 26 4C28 4 28 8 28 8" 
-                              stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-                            <path d="M30 10C30 10 30 6 32 6C34 6 34 10 34 10" 
-                              stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-                          </svg>
-                        );
-                      default:
-                        return null;
-                    }
-                  };
-                  
-                  return (
-                    <button
-                      key={collection.id}
-                      onClick={() => setSelectedCollection(collection.id)}
-                      className={`w-full text-left rounded-lg transition-all duration-300 overflow-hidden ${
-                        isSelected ? "shadow-lg" : "shadow-sm hover:shadow-md"
-                      }`}
+                  {/* All Products - Red segment when selected (top, 25%) */}
+                  <g
+                    className="cursor-pointer transition-all duration-300"
+                    onClick={() => setSelectedCollection('all')}
+                    style={{ filter: selectedCollection === 'all' ? 'drop-shadow(0 0 6px rgba(139, 30, 30, 0.5))' : 'none' }}
+                  >
+                    <path
+                      d="M 120 120 L 120 30 A 90 90 0 0 1 210 120 L 120 120 Z"
+                      fill={selectedCollection === 'all' ? 'url(#redGrad)' : 'url(#sandalGrad)'}
+                      className="opacity-100 hover:opacity-95"
+                      stroke="white"
+                      strokeWidth="2"
+                    />
+                    <text
+                      x="165"
+                      y="77"
+                      textAnchor="middle"
+                      className={`text-[10px] font-bold pointer-events-none ${selectedCollection === 'all' ? 'fill-white' : 'fill-[#8B1E1E]'}`}
+                      style={{ fontFamily: "'Lora', serif" }}
                     >
-                      <div className={`flex items-center gap-3 p-3 ${
-                        isSelected
-                          ? "bg-gradient-to-r from-[#A89880] to-[#BDA88E] text-black shadow-md"
-                          : "bg-white text-[#755C48] border border-gray-200 hover:border-[#A89880] hover:shadow-sm"
-                      }`}>
-                        {/* Line Art Icon */}
-                        <div className="flex-shrink-0">
-                          {getCollectionIcon(collection.id)}
-                        </div>
-                        
-                        {/* Collection Text */}
-                        <div className="flex-1">
-                          <div className="font-bold text-xs leading-tight mb-1" style={{ fontFamily: "'Crimson Text', serif" }}>
-                            {collection.title}
-                          </div>
-                          <div className="text-[10px] opacity-90 tracking-wide">
-                            {collection.subtitle}
-                          </div>
-                        </div>
-                        
-                        {/* Arrow Icon */}
-                        <ChevronRight className="w-4 h-4 flex-shrink-0" />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                      ALL
+                    </text>
+                    <text
+                      x="165"
+                      y="88"
+                      textAnchor="middle"
+                      className={`text-[8px] pointer-events-none ${selectedCollection === 'all' ? 'fill-white/90' : 'fill-[#8B1E1E]/80'}`}
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      PRODUCTS
+                    </text>
+                  </g>
+                  {/* Whole Spices - Red when selected (right, 25%) */}
+                  <g
+                    className="cursor-pointer transition-all duration-300"
+                    onClick={() => setSelectedCollection('whole-spices')}
+                    style={{ filter: selectedCollection === 'whole-spices' ? 'drop-shadow(0 0 6px rgba(139, 30, 30, 0.5))' : 'none' }}
+                  >
+                    <path
+                      d="M 120 120 L 210 120 A 90 90 0 0 1 120 210 L 120 120 Z"
+                      fill={selectedCollection === 'whole-spices' ? 'url(#redGrad)' : 'url(#sandalGrad)'}
+                      className="opacity-100 hover:opacity-95"
+                      stroke="white"
+                      strokeWidth="2"
+                    />
+                    <text
+                      x="172"
+                      y="155"
+                      textAnchor="middle"
+                      className={`text-[10px] font-bold pointer-events-none ${selectedCollection === 'whole-spices' ? 'fill-white' : 'fill-[#8B1E1E]'}`}
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      WHOLE
+                    </text>
+                    <text
+                      x="172"
+                      y="166"
+                      textAnchor="middle"
+                      className={`text-[8px] pointer-events-none ${selectedCollection === 'whole-spices' ? 'fill-white/90' : 'fill-[#8B1E1E]/80'}`}
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      SPICES
+                    </text>
+                  </g>
 
-              {/* Help Section */}
-              <div className="px-4 pb-4 pt-2 text-center bg-gradient-to-b from-transparent to-[#FFFEF0]">
-                <p className="text-xs text-gray-600 italic mb-1" style={{ fontFamily: "'Crimson Text', serif" }}>
-                  Need help choosing?
-                </p>
-                <button className="text-[#B8860B] font-bold text-xs underline hover:text-[#8B6914] tracking-wider">
-                  ASK AACHI
-                </button>
+                  {/* Ground Powders - Red when selected (bottom, 25%) */}
+                  <g
+                    className="cursor-pointer transition-all duration-300"
+                    onClick={() => setSelectedCollection('ground-powders')}
+                    style={{ filter: selectedCollection === 'ground-powders' ? 'drop-shadow(0 0 6px rgba(139, 30, 30, 0.5))' : 'none' }}
+                  >
+                    <path
+                      d="M 120 120 L 120 210 A 90 90 0 0 1 30 120 L 120 120 Z"
+                      fill={selectedCollection === 'ground-powders' ? 'url(#redGrad)' : 'url(#sandalGrad)'}
+                      className="opacity-100 hover:opacity-95"
+                      stroke="white"
+                      strokeWidth="2"
+                    />
+                    <text
+                      x="75"
+                      y="157"
+                      textAnchor="middle"
+                      className={`text-[10px] font-bold pointer-events-none ${selectedCollection === 'ground-powders' ? 'fill-white' : 'fill-[#8B1E1E]'}`}
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      GROUND
+                    </text>
+                    <text
+                      x="75"
+                      y="168"
+                      textAnchor="middle"
+                      className={`text-[8px] pointer-events-none ${selectedCollection === 'ground-powders' ? 'fill-white/90' : 'fill-[#8B1E1E]/80'}`}
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      POWDERS
+                    </text>
+                  </g>
+
+                  {/* Secret Blends - Red when selected (left, 25%) */}
+                  <g
+                    className="cursor-pointer transition-all duration-300"
+                    onClick={() => setSelectedCollection('secret-blends')}
+                    style={{ filter: selectedCollection === 'secret-blends' ? 'drop-shadow(0 0 6px rgba(139, 30, 30, 0.5))' : 'none' }}
+                  >
+                    <path
+                      d="M 120 120 L 30 120 A 90 90 0 0 1 120 30 L 120 120 Z"
+                      fill={selectedCollection === 'secret-blends' ? 'url(#redGrad)' : 'url(#sandalGrad)'}
+                      className="opacity-100 hover:opacity-95"
+                      stroke="white"
+                      strokeWidth="2"
+                    />
+                    <text
+                      x="72"
+                      y="77"
+                      textAnchor="middle"
+                      className={`text-[10px] font-bold pointer-events-none ${selectedCollection === 'secret-blends' ? 'fill-white' : 'fill-[#8B1E1E]'}`}
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      SECRET
+                    </text>
+                    <text
+                      x="72"
+                      y="88"
+                      textAnchor="middle"
+                      className={`text-[8px] pointer-events-none ${selectedCollection === 'secret-blends' ? 'fill-white/90' : 'fill-[#8B1E1E]/80'}`}
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      BLENDS
+                    </text>
+                  </g>
+
+                  {/* Center white circle */}
+                  <circle cx="120" cy="120" r="35" fill="white" stroke="#D4AF37" strokeWidth="2" />
+                </svg>
+
+                {/* Center Text */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="text-sm text-[#755C48] tracking-widest uppercase font-extrabold text-center" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900 }}>
+                    Pantry<br />Items
+                  </div>
+                </div>
               </div>
             </div>
           </aside>
@@ -346,14 +374,34 @@ export default function ShopPage() {
           {/* Right Content - Products */}
           <div className="lg:col-span-3">
             {/* Products Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isSelected={selectedProduct?.id === product.id}
+                  onSelect={handleProductSelect}
+                />
               ))}
             </div>
+
+            {/* Product Details Modal Overlay */}
+            {selectedProduct && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                <div className="relative w-full max-w-5xl max-h-[90vh] overflow-auto">
+                  <ProductDetails
+                    product={selectedProduct}
+                    onClose={handleCloseDetails}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

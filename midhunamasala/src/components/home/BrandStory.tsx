@@ -63,7 +63,7 @@ export default function BrandStory() {
                 எங்கள் கதை
               </h2>
               <p className="text-xl text-[#8B1E1E] italic font-serif">
-                The Mithuna Legacy
+                The Midhuna Legacy
               </p>
               <div className="w-24 h-1 bg-[#8B1E1E]"></div>
             </div>
@@ -71,7 +71,7 @@ export default function BrandStory() {
             <div className="space-y-4 text-[#4A4A4A]">
               <p className="text-lg leading-relaxed font-serif italic">
                 <span className="text-5xl font-serif text-[#8B1E1E] float-left mr-3 leading-none">M</span>
-                ithuna Masala was born in the sun-drenched courtyards of Karaikudi. It started with a simple belief: <span className="font-bold text-[#8B1E1E] font-serif italic">Food is Memory.</span>
+                idhuna Masala was born in the sun-drenched courtyards of Karaikudi. It started with a simple belief: <span className="font-bold text-[#8B1E1E] font-serif italic">Food is Memory.</span>
               </p>
               
               <p className="text-lg leading-relaxed font-serif italic">
@@ -79,7 +79,7 @@ export default function BrandStory() {
               </p>
               
               <p className="text-lg leading-relaxed font-serif italic">
-                Today, we honor her legacy. Every packet of Mithuna Masala is <span className="font-bold text-[#8B1E1E]">Stone Ground</span> and <span className="font-bold text-[#8B1E1E]">Sun Dried</span>, bringing the pure, unadulterated taste of the village straight to your home.
+                Today, we honor her legacy. Every packet of Midhuna Masala is <span className="font-bold text-[#8B1E1E]">Stone Ground</span> and <span className="font-bold text-[#8B1E1E]">Sun Dried</span>, bringing the pure, unadulterated taste of the village straight to your home.
               </p>
             </div>
 

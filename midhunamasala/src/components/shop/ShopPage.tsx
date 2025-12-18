@@ -6,6 +6,7 @@ import ProductCard from "@/components/shop/ProductCard";
 import ProductDetails from "@/components/shop/ProductDetails";
 import Footer from "@/components/layout/Footer";
 import { ChevronRight, Filter } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Product = {
   id: string;
@@ -375,27 +376,44 @@ export default function ShopPage() {
           <div className="lg:col-span-3">
             {/* Products Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredProducts.map((product) => (
+              {filteredProducts.map((product, index) => (
                 <ProductCard
                   key={product.id}
                   product={product}
                   isSelected={selectedProduct?.id === product.id}
                   onSelect={handleProductSelect}
+                  index={index}
                 />
               ))}
             </div>
 
             {/* Product Details Modal Overlay */}
-            {selectedProduct && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-                <div className="relative w-full max-w-5xl max-h-[90vh] overflow-auto">
-                  <ProductDetails
-                    product={selectedProduct}
-                    onClose={handleCloseDetails}
-                  />
-                </div>
-              </div>
-            )}
+            <AnimatePresence>
+              {selectedProduct && (
+                <motion.div
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  onClick={handleCloseDetails}
+                >
+                  <motion.div
+                    className="relative w-full max-w-5xl"
+                    onClick={(e) => e.stopPropagation()}
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                  >
+                    <ProductDetails
+                      product={selectedProduct}
+                      onClose={handleCloseDetails}
+                    />
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </main>

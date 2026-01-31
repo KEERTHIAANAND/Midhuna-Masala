@@ -35,16 +35,18 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
     const { addToCart } = useCart();
 
     const handleAddToCart = () => {
-        for (let i = 0; i < quantity; i++) {
-            addToCart({
-                id: parseInt(product.id.replace(/\D/g, '') || '1'),
-                name: product.name,
-                weight: product.weight || "100g",
-                price: product.price || 5.99,
-                image: product.image,
-                inStock: true,
-            });
-        }
+        // Generate a consistent numeric ID from the string product ID
+        const numericId = product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+        addToCart({
+            id: numericId,
+            name: product.name,
+            weight: product.weight || "100g",
+            price: product.price || 5.99,
+            image: product.image,
+            inStock: true,
+        }, quantity);
+
         setAddedToCart(true);
         setTimeout(() => setAddedToCart(false), 2000);
     };

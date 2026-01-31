@@ -158,8 +158,8 @@ export default function ShopPage() {
             quality={100}
             style={{ objectFit: "cover" }}
           />
-          {/* Dark gradient overlay - solid dark on left for text, fading to transparent on right for image */}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(139, 30, 30, 0.95) 0%, rgba(139, 30, 30, 0.7) 60%, rgba(139, 30, 30, 0.35) 85%, transparent 100%)' }}></div>
+          {/* Darker gradient overlay */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(80, 15, 15, 0.98) 0%, rgba(100, 20, 20, 0.9) 50%, rgba(100, 20, 20, 0.75) 75%, rgba(80, 15, 15, 0.5) 100%)' }}></div>
         </div>
 
         {/* Content Container */}
@@ -205,217 +205,90 @@ export default function ShopPage() {
       </section>
 
       {/* Main Shop Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
-          {/* Left Sidebar - Collections */}
-          <aside className="lg:col-span-1 -ml-22">
-            {/* Pie Chart Circle */}
-            <div className="flex flex-col items-start">
-              <div className="relative w-96 h-96">
-                {/* SVG Pie Chart with labels */}
-                <svg className="w-full h-full" viewBox="0 0 240 240">
-                  <defs>
-                    {/* Gradients for segments */}
-                    <radialGradient id="redGrad" cx="50%" cy="50%">
-                      <stop offset="0%" stopColor="#8B1E1E" stopOpacity="0.9" />
-                      <stop offset="100%" stopColor="#A02C2C" stopOpacity="1" />
-                    </radialGradient>
-                    <radialGradient id="sandalGrad" cx="50%" cy="50%">
-                      <stop offset="0%" stopColor="#E5D4B8" stopOpacity="0.9" />
-                      <stop offset="100%" stopColor="#D4C4A8" stopOpacity="1" />
-                    </radialGradient>
-                  </defs>
-
-                  {/* All Products - Red segment when selected (top, 25%) */}
-                  <g
-                    className="cursor-pointer transition-all duration-300"
-                    onClick={() => setSelectedCollection('all')}
-                    style={{ filter: selectedCollection === 'all' ? 'drop-shadow(0 0 6px rgba(139, 30, 30, 0.5))' : 'none' }}
-                  >
-                    <path
-                      d="M 120 120 L 120 30 A 90 90 0 0 1 210 120 L 120 120 Z"
-                      fill={selectedCollection === 'all' ? 'url(#redGrad)' : 'url(#sandalGrad)'}
-                      className="opacity-100 hover:opacity-95"
-                      stroke="white"
-                      strokeWidth="2"
-                    />
-                    <text
-                      x="165"
-                      y="77"
-                      textAnchor="middle"
-                      className={`text-[10px] font-bold pointer-events-none ${selectedCollection === 'all' ? 'fill-white' : 'fill-[#8B1E1E]'}`}
-                      style={{ fontFamily: "'Lora', serif" }}
-                    >
-                      ALL
-                    </text>
-                    <text
-                      x="165"
-                      y="88"
-                      textAnchor="middle"
-                      className={`text-[8px] pointer-events-none ${selectedCollection === 'all' ? 'fill-white/90' : 'fill-[#8B1E1E]/80'}`}
-                      style={{ fontFamily: "'Lora', serif" }}
-                    >
-                      PRODUCTS
-                    </text>
-                  </g>
-                  {/* Whole Spices - Red when selected (right, 25%) */}
-                  <g
-                    className="cursor-pointer transition-all duration-300"
-                    onClick={() => setSelectedCollection('whole-spices')}
-                    style={{ filter: selectedCollection === 'whole-spices' ? 'drop-shadow(0 0 6px rgba(139, 30, 30, 0.5))' : 'none' }}
-                  >
-                    <path
-                      d="M 120 120 L 210 120 A 90 90 0 0 1 120 210 L 120 120 Z"
-                      fill={selectedCollection === 'whole-spices' ? 'url(#redGrad)' : 'url(#sandalGrad)'}
-                      className="opacity-100 hover:opacity-95"
-                      stroke="white"
-                      strokeWidth="2"
-                    />
-                    <text
-                      x="172"
-                      y="155"
-                      textAnchor="middle"
-                      className={`text-[10px] font-bold pointer-events-none ${selectedCollection === 'whole-spices' ? 'fill-white' : 'fill-[#8B1E1E]'}`}
-                      style={{ fontFamily: "'Lora', serif" }}
-                    >
-                      WHOLE
-                    </text>
-                    <text
-                      x="172"
-                      y="166"
-                      textAnchor="middle"
-                      className={`text-[8px] pointer-events-none ${selectedCollection === 'whole-spices' ? 'fill-white/90' : 'fill-[#8B1E1E]/80'}`}
-                      style={{ fontFamily: "'Lora', serif" }}
-                    >
-                      SPICES
-                    </text>
-                  </g>
-
-                  {/* Ground Powders - Red when selected (bottom, 25%) */}
-                  <g
-                    className="cursor-pointer transition-all duration-300"
-                    onClick={() => setSelectedCollection('ground-powders')}
-                    style={{ filter: selectedCollection === 'ground-powders' ? 'drop-shadow(0 0 6px rgba(139, 30, 30, 0.5))' : 'none' }}
-                  >
-                    <path
-                      d="M 120 120 L 120 210 A 90 90 0 0 1 30 120 L 120 120 Z"
-                      fill={selectedCollection === 'ground-powders' ? 'url(#redGrad)' : 'url(#sandalGrad)'}
-                      className="opacity-100 hover:opacity-95"
-                      stroke="white"
-                      strokeWidth="2"
-                    />
-                    <text
-                      x="75"
-                      y="157"
-                      textAnchor="middle"
-                      className={`text-[10px] font-bold pointer-events-none ${selectedCollection === 'ground-powders' ? 'fill-white' : 'fill-[#8B1E1E]'}`}
-                      style={{ fontFamily: "'Lora', serif" }}
-                    >
-                      GROUND
-                    </text>
-                    <text
-                      x="75"
-                      y="168"
-                      textAnchor="middle"
-                      className={`text-[8px] pointer-events-none ${selectedCollection === 'ground-powders' ? 'fill-white/90' : 'fill-[#8B1E1E]/80'}`}
-                      style={{ fontFamily: "'Lora', serif" }}
-                    >
-                      POWDERS
-                    </text>
-                  </g>
-
-                  {/* Secret Blends - Red when selected (left, 25%) */}
-                  <g
-                    className="cursor-pointer transition-all duration-300"
-                    onClick={() => setSelectedCollection('secret-blends')}
-                    style={{ filter: selectedCollection === 'secret-blends' ? 'drop-shadow(0 0 6px rgba(139, 30, 30, 0.5))' : 'none' }}
-                  >
-                    <path
-                      d="M 120 120 L 30 120 A 90 90 0 0 1 120 30 L 120 120 Z"
-                      fill={selectedCollection === 'secret-blends' ? 'url(#redGrad)' : 'url(#sandalGrad)'}
-                      className="opacity-100 hover:opacity-95"
-                      stroke="white"
-                      strokeWidth="2"
-                    />
-                    <text
-                      x="72"
-                      y="77"
-                      textAnchor="middle"
-                      className={`text-[10px] font-bold pointer-events-none ${selectedCollection === 'secret-blends' ? 'fill-white' : 'fill-[#8B1E1E]'}`}
-                      style={{ fontFamily: "'Lora', serif" }}
-                    >
-                      SECRET
-                    </text>
-                    <text
-                      x="72"
-                      y="88"
-                      textAnchor="middle"
-                      className={`text-[8px] pointer-events-none ${selectedCollection === 'secret-blends' ? 'fill-white/90' : 'fill-[#8B1E1E]/80'}`}
-                      style={{ fontFamily: "'Lora', serif" }}
-                    >
-                      BLENDS
-                    </text>
-                  </g>
-
-                  {/* Center white circle */}
-                  <circle cx="120" cy="120" r="35" fill="white" stroke="#D4AF37" strokeWidth="2" />
-                </svg>
-
-                {/* Center Text */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="text-sm text-[#755C48] tracking-widest uppercase font-extrabold text-center" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900 }}>
-                    Pantry<br />Items
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          {/* Right Content - Products */}
-          <div className="lg:col-span-3">
-            {/* Products Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredProducts.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isSelected={selectedProduct?.id === product.id}
-                  onSelect={handleProductSelect}
-                  index={index}
-                />
-              ))}
-            </div>
-
-            {/* Product Details Modal Overlay */}
-            <AnimatePresence>
-              {selectedProduct && (
-                <motion.div
-                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  onClick={handleCloseDetails}
-                >
-                  <motion.div
-                    className="relative w-full max-w-5xl"
-                    onClick={(e) => e.stopPropagation()}
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.9, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                  >
-                    <ProductDetails
-                      product={selectedProduct}
-                      onClose={handleCloseDetails}
-                    />
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Elegant Category Filter */}
+        <div className="flex flex-col items-center mb-10">
+          {/* Category Tabs */}
+          <div className="inline-flex items-center bg-white rounded-full p-1.5 shadow-lg border border-[#E5D2C5]">
+            <button
+              onClick={() => setSelectedCollection('all')}
+              className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'all'
+                  ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
+                  : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
+                }`}
+            >
+              All Spices
+            </button>
+            <button
+              onClick={() => setSelectedCollection('whole-spices')}
+              className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'whole-spices'
+                  ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
+                  : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
+                }`}
+            >
+              Whole Spices
+            </button>
+            <button
+              onClick={() => setSelectedCollection('ground-powders')}
+              className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'ground-powders'
+                  ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
+                  : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
+                }`}
+            >
+              Powders
+            </button>
+            <button
+              onClick={() => setSelectedCollection('secret-blends')}
+              className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'secret-blends'
+                  ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
+                  : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
+                }`}
+            >
+              Secret Blends
+            </button>
           </div>
         </div>
+
+        {/* Products Grid - Big Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product, index) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              isSelected={selectedProduct?.id === product.id}
+              onSelect={handleProductSelect}
+              index={index}
+            />
+          ))}
+        </div>
+
+        {/* Product Details Modal Overlay */}
+        <AnimatePresence>
+          {selectedProduct && (
+            <motion.div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={handleCloseDetails}
+            >
+              <motion.div
+                className="relative w-full max-w-5xl"
+                onClick={(e) => e.stopPropagation()}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <ProductDetails
+                  product={selectedProduct}
+                  onClose={handleCloseDetails}
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Footer */}

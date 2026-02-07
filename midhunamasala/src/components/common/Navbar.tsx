@@ -78,21 +78,21 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-12">
               <Link
                 href="/"
-                className={`text-[#8B1E1E] font-bold text-sm hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase pb-1 ${pathname === '/' ? 'border-b-2 border-[#D4AF37]' : ''
+                className={`text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase pb-1 ${pathname === '/' ? 'border-b-2 border-[#D4AF37]' : ''
                   }`}
               >
                 Home
               </Link>
               <Link
                 href="/shop"
-                className={`text-[#8B1E1E] font-bold text-sm hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase pb-1 ${pathname === '/shop' ? 'border-b-2 border-[#D4AF37]' : ''
+                className={`text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase pb-1 ${pathname === '/shop' ? 'border-b-2 border-[#D4AF37]' : ''
                   }`}
               >
                 Our Spices
               </Link>
               <Link
                 href="/track-order"
-                className={`text-[#8B1E1E] font-bold text-sm hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase pb-1 ${pathname === '/track-order' ? 'border-b-2 border-[#D4AF37]' : ''
+                className={`text-[#8B1E1E] font-bold text-xs hover:text-[#D4AF37] transition-colors tracking-[0.2em] uppercase pb-1 ${pathname === '/track-order' ? 'border-b-2 border-[#D4AF37]' : ''
                   }`}
               >
                 Track Order

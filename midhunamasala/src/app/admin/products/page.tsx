@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import {
     LayoutGrid, ShoppingBag, ShoppingCart, Package,
     BarChart3, Settings, LogOut, Plus, Search, Filter,
-    Leaf, MoreVertical, Edit2, Trash2, Eye
+    Leaf, MoreVertical, Edit2, Trash2, Eye, X, Tag, Hash, Scale, Calendar, ImageIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signOut } from 'firebase/auth';
@@ -100,6 +100,17 @@ export default function SpiceCatalogPage() {
     const [activeCategory, setActiveCategory] = useState('All Spices');
     const [searchQuery, setSearchQuery] = useState('');
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [imagePreview, setImagePreview] = useState('');
+    const [formData, setFormData] = useState({
+        name: '',
+        imageUrl: '',
+        price: '',
+        packWeight: '',
+        stockQty: '',
+        category: 'Ground Spices',
+        shelfLife: ''
+    });
 
     // Auth Check
     useEffect(() => {
@@ -214,11 +225,227 @@ export default function SpiceCatalogPage() {
                         <p className="text-gray-500 mt-1">Manage your premium product offerings</p>
                     </div>
 
-                    <button className="flex items-center gap-2 px-6 py-3 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#7A1A1A]/20 hover:bg-[#601010] transition-all hover:-translate-y-0.5">
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center gap-2 px-6 py-3 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#7A1A1A]/20 hover:bg-[#601010] transition-all hover:-translate-y-0.5"
+                    >
                         <Plus className="w-4 h-4" />
                         Add New Spice
                     </button>
                 </div>
+
+                {/* Add New Spice Modal */}
+                <AnimatePresence>
+                    {isModalOpen && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            onClick={() => setIsModalOpen(false)}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                                animate={{ scale: 1, opacity: 1, y: 0 }}
+                                exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                                className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {/* Modal Header */}
+                                <div className="p-6 pb-4">
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <h3 className="text-2xl font-serif font-bold text-[#7A1A1A]">Add New Spice</h3>
+                                            <p className="text-gray-500 text-sm mt-1">Fill in the details for your catalog item.</p>
+                                        </div>
+                                        <button
+                                            onClick={() => setIsModalOpen(false)}
+                                            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-colors"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Modal Body */}
+                                <div className="px-6 pb-6 space-y-5">
+                                    {/* Product Name */}
+                                    <div>
+                                        <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                            <Tag className="w-3 h-3" />
+                                            Product Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Royal Kashmiri Saffron"
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                        />
+                                    </div>
+
+                                    {/* Image URL */}
+                                    <div>
+                                        <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                            <ImageIcon className="w-3 h-3" />
+                                            Image URL
+                                        </label>
+                                        <div className="flex items-center gap-3">
+                                            <input
+                                                type="text"
+                                                placeholder="https://images.unsplash.com/photo-..."
+                                                value={formData.imageUrl}
+                                                onChange={(e) => {
+                                                    setFormData({ ...formData, imageUrl: e.target.value });
+                                                    setImagePreview(e.target.value);
+                                                }}
+                                                className="flex-1 px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                            />
+                                            {imagePreview && (
+                                                <div className="relative group">
+                                                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0 cursor-pointer">
+                                                        <img
+                                                            src={imagePreview}
+                                                            alt="Preview"
+                                                            className="w-full h-full object-cover"
+                                                            onError={() => setImagePreview('')}
+                                                        />
+                                                    </div>
+                                                    {/* Hover Preview */}
+                                                    <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block z-10">
+                                                        <div className="w-48 h-48 rounded-xl overflow-hidden border-2 border-white shadow-2xl">
+                                                            <img
+                                                                src={imagePreview}
+                                                                alt="Preview Large"
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Price, Pack Weight, Stock Qty Row */}
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {/* Price */}
+                                        <div>
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                                <Hash className="w-3 h-3" />
+                                                Price (₹)
+                                            </label>
+                                            <input
+                                                type="number"
+                                                placeholder="0.00"
+                                                value={formData.price}
+                                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                                className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                            />
+                                        </div>
+
+                                        {/* Pack Weight */}
+                                        <div>
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                                <Scale className="w-3 h-3" />
+                                                Pack Weight
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="500g"
+                                                value={formData.packWeight}
+                                                onChange={(e) => setFormData({ ...formData, packWeight: e.target.value })}
+                                                className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                            />
+                                        </div>
+
+                                        {/* Stock Qty */}
+                                        <div>
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                                <Hash className="w-3 h-3" />
+                                                Stock Qty
+                                            </label>
+                                            <input
+                                                type="number"
+                                                placeholder="0"
+                                                value={formData.stockQty}
+                                                onChange={(e) => setFormData({ ...formData, stockQty: e.target.value })}
+                                                className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Category and Expiry Date Row */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {/* Category */}
+                                        <div>
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                                <Tag className="w-3 h-3" />
+                                                Category
+                                            </label>
+                                            <select
+                                                value={formData.category}
+                                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                                className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A] cursor-pointer"
+                                            >
+                                                <option>Ground Spices</option>
+                                                <option>Whole Spices</option>
+                                                <option>Signature Blends</option>
+                                                <option>Herbs</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Shelf Life */}
+                                        <div>
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                                <Calendar className="w-3 h-3" />
+                                                Shelf Life
+                                            </label>
+                                            <select
+                                                value={formData.shelfLife}
+                                                onChange={(e) => setFormData({ ...formData, shelfLife: e.target.value })}
+                                                className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A] cursor-pointer"
+                                            >
+                                                <option value="">Select duration</option>
+                                                <option value="3">3 Months</option>
+                                                <option value="6">6 Months</option>
+                                                <option value="9">9 Months</option>
+                                                <option value="12">1 Year</option>
+                                                <option value="18">18 Months</option>
+                                                <option value="24">2 Years</option>
+                                                <option value="36">3 Years</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Modal Footer */}
+                                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end">
+                                    <button
+                                        onClick={() => {
+                                            // Handle form submission here
+                                            console.log('Form Data:', formData);
+                                            setIsModalOpen(false);
+                                            setFormData({
+                                                name: '',
+                                                imageUrl: '',
+                                                price: '',
+                                                packWeight: '',
+                                                stockQty: '',
+                                                category: 'Ground Spices',
+                                                shelfLife: ''
+                                            });
+                                            setImagePreview('');
+                                        }}
+                                        className="flex items-center gap-2 px-6 py-2.5 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#7A1A1A]/20 hover:bg-[#601010] transition-all"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        Create Product
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Filters & Search */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -239,20 +466,15 @@ export default function SpiceCatalogPage() {
                     </div>
 
                     {/* Search */}
-                    <div className="flex items-center gap-3">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Search catalog..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2.5 bg-[#7A1A1A] text-white placeholder-white/60 rounded-xl text-sm w-48 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
-                            />
-                        </div>
-                        <button className="p-2.5 bg-white border border-[#E5D2C5] rounded-xl text-gray-600 hover:border-[#7A1A1A] transition-colors">
-                            <Filter className="w-4 h-4" />
-                        </button>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search catalog..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm w-72 focus:outline-none focus:border-[#7A1A1A] focus:ring-1 focus:ring-[#7A1A1A]/20"
+                        />
                     </div>
                 </div>
 
@@ -353,19 +575,6 @@ export default function SpiceCatalogPage() {
                             </motion.div>
                         ))}
                     </AnimatePresence>
-
-                    {/* Add New Product Card */}
-                    <motion.button
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: filteredProducts.length * 0.05 }}
-                        className="bg-white rounded-2xl border-2 border-dashed border-[#E5D2C5] hover:border-[#7A1A1A] overflow-hidden min-h-[320px] flex flex-col items-center justify-center gap-3 transition-all group hover:bg-[#FDFBF7]"
-                    >
-                        <div className="w-12 h-12 rounded-full bg-gray-100 group-hover:bg-[#7A1A1A]/10 flex items-center justify-center transition-colors">
-                            <Plus className="w-6 h-6 text-gray-400 group-hover:text-[#7A1A1A] transition-colors" />
-                        </div>
-                        <span className="text-gray-500 group-hover:text-[#7A1A1A] font-medium transition-colors">Add New Product</span>
-                    </motion.button>
                 </div>
 
             </main>

@@ -53,7 +53,7 @@ export default function AdminDashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFBF7] font-sans text-gray-800">
+        <div className="h-screen bg-[#FDFBF7] font-sans text-gray-800 flex flex-col overflow-hidden">
 
             {/* 1. TOP BRANDING BAR */}
             <div className="bg-white px-6 py-3 flex items-center justify-between border-b border-[#F3EFEA]">
@@ -128,31 +128,17 @@ export default function AdminDashboard() {
             </div>
 
             {/* 3. MAIN DASHBOARD CONTENT */}
-            <main className="p-6 max-w-[1600px] mx-auto space-y-8">
+            <main className="flex-1 p-4 max-w-[1600px] mx-auto w-full flex flex-col gap-4 overflow-hidden">
 
                 {/* Header Actions */}
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                    <div>
-                        <h2 className="text-4xl font-serif font-bold text-[#7A1A1A]">Dashboard</h2>
-                        <p className="text-gray-500 mt-2">Welcome back, here&apos;s your daily spice briefing.</p>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#E5D2C5] rounded-xl text-sm font-medium text-gray-700 hover:border-[#7A1A1A] transition-colors shadow-sm">
-                            <Filter className="w-4 h-4" />
-                            Filter View
-                        </button>
-                        <button className="flex items-center gap-2 px-6 py-2.5 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#7A1A1A]/20 hover:bg-[#601010] transition-all hover:-translate-y-0.5">
-                            <Plus className="w-4 h-4" />
-                            Add New Harvest
-                        </button>
-                    </div>
+                <div>
+                    <h2 className="text-4xl font-serif font-bold text-[#7A1A1A]">Dashboard</h2>
+                    <p className="text-gray-500 mt-2">Welcome back, here&apos;s your daily spice briefing.</p>
                 </div>
 
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Card 1 */}
-                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white p-6 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between h-40 relative overflow-hidden group">
+                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white p-5 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between h-32 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4">
                             <div className="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
                                 <ArrowUpRight className="w-3 h-3" /> 12.5%
@@ -168,7 +154,7 @@ export default function AdminDashboard() {
                     </motion.div>
 
                     {/* Card 2 */}
-                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="bg-white p-6 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between h-40 relative overflow-hidden group">
+                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="bg-white p-5 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between h-32 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4">
                             <div className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full">
                                 <ArrowDownRight className="w-3 h-3" /> 2.4%
@@ -184,7 +170,7 @@ export default function AdminDashboard() {
                     </motion.div>
 
                     {/* Card 3 */}
-                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="bg-white p-6 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between h-40 relative overflow-hidden group">
+                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="bg-white p-5 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between h-32 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4">
                             <div className="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
                                 <ArrowUpRight className="w-3 h-3" /> 15%
@@ -200,9 +186,8 @@ export default function AdminDashboard() {
                     </motion.div>
                 </div>
 
-                {/* Graph Section */}
-                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="bg-white rounded-3xl p-8 border border-[#F3EFEA] shadow-sm relative">
-                    <div className="flex items-center justify-between mb-8">
+                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="bg-white rounded-2xl p-6 border border-[#F3EFEA] shadow-sm relative flex-1 min-h-0">
+                    <div className="flex items-center justify-between mb-4">
                         <div>
                             <h3 className="text-lg font-serif font-bold text-[#7A1A1A]">Sales Overview</h3>
                             <p className="text-sm text-gray-500">Weekly revenue performance</p>
@@ -214,7 +199,7 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Mock Graph Visualization */}
-                    <div className="relative h-64 w-full">
+                    <div className="relative h-[calc(100%-60px)] w-full">
                         {/* Grid Lines */}
                         <div className="absolute inset-0 flex flex-col justify-between text-xs text-gray-300 font-medium">
                             {['₹8000', '₹6000', '₹4000', '₹2000', '₹0'].map((label) => (

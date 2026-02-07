@@ -19,7 +19,7 @@ const GoogleIcon = () => (
 
 export default function LoginPage() {
     const router = useRouter();
-    const { signInWithGoogle, isAuthenticated, isLoading: authLoading } = useAuth();
+    const { signInWithGoogle, isAuthenticated, isAdmin, isLoading: authLoading } = useAuth();
 
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
@@ -27,11 +27,19 @@ export default function LoginPage() {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+
     const [focusedField, setFocusedField] = useState<string | null>(null);
 
     useEffect(() => {
-        if (isAuthenticated && !authLoading) router.push('/');
-    }, [isAuthenticated, authLoading, router]);
+        if (isAuthenticated && !authLoading) {
+            // Redirect based on role
+            if (isAdmin) {
+                router.push('/admin');
+            } else {
+                router.push('/');
+            }
+        }
+    }, [isAuthenticated, isAdmin, authLoading, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,18 +59,24 @@ export default function LoginPage() {
         const result = await signInWithGoogle();
 
         if (result.success) {
-            setSuccess(true);
-            setTimeout(() => router.push('/'), 1500);
+            // Redirect immediately without success animation
+            if (result.isAdmin) {
+                router.push('/admin');
+            } else {
+                router.push('/');
+            }
         } else {
             setError(result.error || 'Failed to sign in. Please try again.');
+            setIsGoogleLoading(false);
         }
-        setIsGoogleLoading(false);
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
         if (error) setError('');
     };
+
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#FFFDF5] via-[#F5E9DB] to-[#F0E4D6] flex items-center justify-center p-4 relative overflow-hidden">
@@ -112,8 +126,8 @@ export default function LoginPage() {
                                         whileHover={{ scale: isGoogleLoading ? 1 : 1.02 }}
                                         whileTap={{ scale: isGoogleLoading ? 1 : 0.98 }}
                                         className={`w-full py-3.5 rounded-xl font-semibold text-gray-700 flex items-center justify-center gap-3 transition-all border-2 ${isGoogleLoading
-                                                ? 'bg-gray-100 border-gray-200 cursor-not-allowed'
-                                                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 shadow-sm hover:shadow-md'
+                                            ? 'bg-gray-100 border-gray-200 cursor-not-allowed'
+                                            : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 shadow-sm hover:shadow-md'
                                             }`}
                                     >
                                         {isGoogleLoading ? (
@@ -147,11 +161,6 @@ export default function LoginPage() {
                                                 <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleInputChange} onFocus={() => setFocusedField('password')} onBlur={() => setFocusedField(null)} className={`w-full pl-12 pr-12 py-3.5 bg-gray-50 border-2 rounded-xl text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'password' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'}`} placeholder="••••••••" required />
                                                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#8B1E1E]">{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button>
                                             </div>
-                                        </div>
-
-                                        <div className="flex items-center justify-between">
-                                            <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#8B1E1E] focus:ring-[#8B1E1E]" /><span className="text-sm text-gray-600">Remember me</span></label>
-                                            <Link href="/forgot-password" className="text-sm text-[#8B1E1E] hover:text-[#6B1616] font-medium hover:underline">Forgot password?</Link>
                                         </div>
 
                                         <motion.button type="submit" disabled={isLoading || isGoogleLoading} whileHover={{ scale: isLoading ? 1 : 1.02 }} whileTap={{ scale: isLoading ? 1 : 0.98 }} className={`w-full py-4 rounded-xl font-bold text-white tracking-wide uppercase text-sm flex items-center justify-center gap-2 transition-all ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] hover:from-[#7A1A1A] hover:to-[#5A1313] shadow-lg shadow-[#8B1E1E]/30 hover:shadow-xl hover:shadow-[#8B1E1E]/40'}`}>

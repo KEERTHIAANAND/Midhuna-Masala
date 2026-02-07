@@ -68,8 +68,8 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                {/* Profile */}
-                <div className="flex items-center gap-4">
+                {/* Profile - Click to go to Settings */}
+                <Link href="/admin/settings" className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity">
                     <div className="text-right hidden sm:block">
                         <p className="text-sm font-bold text-gray-800">{user?.name || 'Admin User'}</p>
                         <p className="text-[10px] font-bold text-[#D4AF37] tracking-wider uppercase">Super Admin</p>
@@ -77,7 +77,7 @@ export default function AdminDashboard() {
                     <div className="w-10 h-10 rounded-full bg-[#7A1A1A] text-[#F6C84C] flex items-center justify-center font-serif font-bold text-lg shadow-md border-2 border-[#F6C84C]">
                         {user?.name?.charAt(0).toUpperCase() || 'A'}
                     </div>
-                </div>
+                </Link>
             </div>
 
             {/* 2. NAVIGATION STRIP */}
@@ -162,7 +162,7 @@ export default function AdminDashboard() {
                             <ShoppingBag className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="text-3xl font-serif font-bold text-[#7A1A1A]">1,248</h3>
+                            <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">1,248</h3>
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Total Orders</p>
                         </div>
                     </motion.div>
@@ -178,7 +178,7 @@ export default function AdminDashboard() {
                             <Package className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="text-3xl font-serif font-bold text-[#7A1A1A]">86</h3>
+                            <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">86</h3>
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Stock Varieties</p>
                         </div>
                     </motion.div>
@@ -194,7 +194,7 @@ export default function AdminDashboard() {
                             <Bell className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="text-3xl font-serif font-bold text-[#7A1A1A]">12</h3>
+                            <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">12</h3>
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Expiring Soon</p>
                         </div>
                     </motion.div>

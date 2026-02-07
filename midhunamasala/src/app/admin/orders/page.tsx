@@ -182,8 +182,8 @@ export default function OrdersPage() {
                     </div>
                 </div>
 
-                {/* Profile */}
-                <div className="flex items-center gap-4">
+                {/* Profile - Click to go to Settings */}
+                <Link href="/admin/settings" className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity">
                     <div className="text-right hidden sm:block">
                         <p className="text-sm font-bold text-gray-800">{user?.name || 'Admin User'}</p>
                         <p className="text-[10px] font-bold text-[#D4AF37] tracking-wider uppercase">Super Admin</p>
@@ -191,7 +191,7 @@ export default function OrdersPage() {
                     <div className="w-10 h-10 rounded-full bg-[#7A1A1A] text-[#F6C84C] flex items-center justify-center font-serif font-bold text-lg shadow-md border-2 border-[#F6C84C]">
                         {user?.name?.charAt(0).toUpperCase() || 'A'}
                     </div>
-                </div>
+                </Link>
             </div>
 
             {/* 2. NAVIGATION STRIP */}

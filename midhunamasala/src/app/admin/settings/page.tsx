@@ -94,7 +94,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Profile */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 cursor-pointer">
                     <div className="text-right hidden sm:block">
                         <p className="text-sm font-bold text-gray-800">{user?.name || 'Admin User'}</p>
                         <p className="text-[10px] font-bold text-[#D4AF37] tracking-wider uppercase">Super Admin</p>

@@ -38,90 +38,90 @@ const STATUS_STYLES: Record<string, string> = {
 // Mock Orders Data
 const ORDERS = [
     {
-        id: 'MM-9082',
+        id: 'MM-20260208-01',
         customer: { name: 'Anjali Menon', initial: 'A', color: 'bg-purple-100 text-purple-600' },
-        date: 'Oct 24, 2023',
+        date: 'Feb 08, 2026',
         items: 3,
         amount: 1250,
         payment: 'UPI',
         status: 'PENDING'
     },
     {
-        id: 'MM-9081',
+        id: 'MM-20260208-02',
         customer: { name: 'Rahul Verma', initial: 'R', color: 'bg-blue-100 text-blue-600' },
-        date: 'Oct 24, 2023',
+        date: 'Feb 08, 2026',
         items: 8,
         amount: 3400,
         payment: 'UPI',
         status: 'SHIPPED'
     },
     {
-        id: 'MM-9080',
+        id: 'MM-20260208-03',
         customer: { name: 'Priya Sharma', initial: 'P', color: 'bg-pink-100 text-pink-600' },
-        date: 'Oct 23, 2023',
+        date: 'Feb 08, 2026',
         items: 2,
         amount: 850,
         payment: 'UPI',
         status: 'DELIVERED'
     },
     {
-        id: 'MM-9079',
+        id: 'MM-20260207-01',
         customer: { name: 'The Taj Kitchen', initial: 'T', color: 'bg-amber-100 text-amber-600' },
-        date: 'Oct 23, 2023',
+        date: 'Feb 07, 2026',
         items: 25,
         amount: 12100,
         payment: 'UPI',
         status: 'PROCESSING'
     },
     {
-        id: 'MM-9078',
+        id: 'MM-20260207-02',
         customer: { name: 'Sneha Gupta', initial: 'S', color: 'bg-teal-100 text-teal-600' },
-        date: 'Oct 22, 2023',
+        date: 'Feb 07, 2026',
         items: 1,
         amount: 560,
         payment: 'UPI',
         status: 'DELIVERED'
     },
     {
-        id: 'MM-9077',
+        id: 'MM-20260206-01',
         customer: { name: 'Anjali Menon', initial: 'A', color: 'bg-purple-100 text-purple-600' },
-        date: 'Oct 24, 2023',
+        date: 'Feb 06, 2026',
         items: 3,
         amount: 1250,
         payment: 'UPI',
         status: 'PENDING'
     },
     {
-        id: 'MM-9076',
+        id: 'MM-20260206-02',
         customer: { name: 'Rahul Verma', initial: 'R', color: 'bg-blue-100 text-blue-600' },
-        date: 'Oct 24, 2023',
+        date: 'Feb 06, 2026',
         items: 8,
         amount: 3400,
         payment: 'UPI',
         status: 'SHIPPED'
     },
     {
-        id: 'MM-9075',
+        id: 'MM-20260205-01',
         customer: { name: 'Priya Sharma', initial: 'P', color: 'bg-pink-100 text-pink-600' },
-        date: 'Oct 23, 2023',
+        date: 'Feb 05, 2026',
         items: 2,
         amount: 850,
         payment: 'UPI',
         status: 'DELIVERED'
     },
     {
-        id: 'MM-9074',
+        id: 'MM-20260205-02',
         customer: { name: 'The Taj Kitchen', initial: 'T', color: 'bg-amber-100 text-amber-600' },
-        date: 'Oct 23, 2023',
+        date: 'Feb 05, 2026',
         items: 25,
         amount: 12100,
         payment: 'UPI',
         status: 'PROCESSING'
     },
     {
-        id: 'MM-9073',
+        id: 'MM-20260204-01',
         customer: { name: 'Sneha Gupta', initial: 'S', color: 'bg-teal-100 text-teal-600' },
-        date: 'Oct 22, 2023',
+        date: 'Feb 04, 2026',
         items: 1,
         amount: 560,
         payment: 'UPI',
@@ -136,6 +136,10 @@ export default function OrdersPage() {
     const [activeFilter, setActiveFilter] = useState('All Orders');
     const [searchQuery, setSearchQuery] = useState('');
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+    const [orderSize, setOrderSize] = useState('all');
+    const [priority, setPriority] = useState('all');
+    const [sortBy, setSortBy] = useState('newest');
 
     // Auth Check
     useEffect(() => {
@@ -158,8 +162,58 @@ export default function OrdersPage() {
             order.status.toLowerCase() === activeFilter.toLowerCase();
         const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
             order.customer.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesFilter && matchesSearch;
+
+        // Order size filter (by items)
+        let matchesSize = true;
+        if (orderSize === 'single') matchesSize = order.items === 1;
+        else if (orderSize === 'small') matchesSize = order.items >= 2 && order.items <= 5;
+        else if (orderSize === 'bulk') matchesSize = order.items > 5;
+
+        // Priority filter (by amount)
+        let matchesPriority = true;
+        if (priority === 'high') matchesPriority = order.amount >= 5000;
+        else if (priority === 'medium') matchesPriority = order.amount >= 1000 && order.amount < 5000;
+        else if (priority === 'low') matchesPriority = order.amount < 1000;
+
+        return matchesFilter && matchesSearch && matchesSize && matchesPriority;
+    }).sort((a, b) => {
+        if (sortBy === 'newest') return new Date(b.date).getTime() - new Date(a.date).getTime();
+        if (sortBy === 'oldest') return new Date(a.date).getTime() - new Date(b.date).getTime();
+        if (sortBy === 'highest') return b.amount - a.amount;
+        if (sortBy === 'lowest') return a.amount - b.amount;
+        if (sortBy === 'items_high') return b.items - a.items;
+        if (sortBy === 'items_low') return a.items - b.items;
+        return 0;
     });
+
+    // Export CSV function
+    const handleExportCSV = () => {
+        const headers = ['Order ID', 'Customer', 'Date', 'Items', 'Amount', 'Payment', 'Status'];
+        const csvData = filteredOrders.map(order => [
+            order.id,
+            order.customer.name,
+            order.date,
+            order.items,
+            order.amount,
+            order.payment,
+            order.status
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...csvData.map(row => row.join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `orders_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     if (authLoading || !isAdmin) {
         return (
@@ -250,14 +304,104 @@ export default function OrdersPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#E5D2C5] rounded-xl text-sm font-medium text-gray-700 hover:border-[#7A1A1A] transition-colors shadow-sm">
+                        <button
+                            onClick={handleExportCSV}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#E5D2C5] rounded-xl text-sm font-medium text-gray-700 hover:border-[#7A1A1A] transition-colors shadow-sm"
+                        >
                             <Download className="w-4 h-4" />
                             Export CSV
                         </button>
-                        <button className="flex items-center gap-2 px-5 py-2.5 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#7A1A1A]/20 hover:bg-[#601010] transition-all">
-                            <Filter className="w-4 h-4" />
-                            Filter
-                        </button>
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                                className="flex items-center gap-2 px-5 py-2.5 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#7A1A1A]/20 hover:bg-[#601010] transition-all"
+                            >
+                                <Filter className="w-4 h-4" />
+                                Filter
+                                <ChevronDown className={`w-4 h-4 transition-transform ${showFilterDropdown ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {/* Filter Dropdown */}
+                            <AnimatePresence>
+                                {showFilterDropdown && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="absolute right-0 mt-2 w-64 bg-white rounded-xl border border-gray-200 shadow-xl z-50 overflow-hidden"
+                                    >
+                                        <div className="p-4 space-y-4">
+                                            {/* Order Size Filter */}
+                                            <div>
+                                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">Order Size</label>
+                                                <select
+                                                    value={orderSize}
+                                                    onChange={(e) => setOrderSize(e.target.value)}
+                                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                                >
+                                                    <option value="all">All Orders</option>
+                                                    <option value="single">Single Item</option>
+                                                    <option value="small">Small (2-5 Items)</option>
+                                                    <option value="bulk">Bulk (6+ Items)</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Priority Filter */}
+                                            <div>
+                                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">Priority</label>
+                                                <select
+                                                    value={priority}
+                                                    onChange={(e) => setPriority(e.target.value)}
+                                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                                >
+                                                    <option value="all">All Priority</option>
+                                                    <option value="high">High (₹5,000+)</option>
+                                                    <option value="medium">Medium (₹1,000-₹5,000)</option>
+                                                    <option value="low">Low (Under ₹1,000)</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Sort By Filter */}
+                                            <div>
+                                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">Sort By</label>
+                                                <select
+                                                    value={sortBy}
+                                                    onChange={(e) => setSortBy(e.target.value)}
+                                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                                >
+                                                    <option value="newest">Date: Newest First</option>
+                                                    <option value="oldest">Date: Oldest First</option>
+                                                    <option value="highest">Amount: High to Low</option>
+                                                    <option value="lowest">Amount: Low to High</option>
+                                                    <option value="items_high">Items: Most First</option>
+                                                    <option value="items_low">Items: Least First</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Action Buttons */}
+                                            <div className="flex gap-2 pt-2">
+                                                <button
+                                                    onClick={() => {
+                                                        setOrderSize('all');
+                                                        setPriority('all');
+                                                        setSortBy('newest');
+                                                    }}
+                                                    className="flex-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 border border-gray-200 rounded-lg"
+                                                >
+                                                    Reset
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowFilterDropdown(false)}
+                                                    className="flex-1 px-3 py-2 text-sm font-bold text-white bg-[#7A1A1A] rounded-lg hover:bg-[#601010]"
+                                                >
+                                                    Apply
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </div>
 
@@ -323,7 +467,7 @@ export default function OrdersPage() {
                                     className="grid grid-cols-8 gap-4 px-6 py-4 items-center hover:bg-gray-50/50 transition-colors"
                                 >
                                     {/* Order ID */}
-                                    <div className="font-serif font-bold text-[#7A1A1A]">#{order.id}</div>
+                                    <div className="font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">#{order.id}</div>
 
                                     {/* Customer */}
                                     <div className="col-span-2 flex items-center gap-3">
@@ -337,7 +481,7 @@ export default function OrdersPage() {
                                     <div className="text-sm text-gray-500">{order.date}</div>
 
                                     {/* Items */}
-                                    <div className="text-sm text-gray-600">{order.items} Items</div>
+                                    <div className="text-sm text-gray-600 font-serif tabular-nums lining-nums">{order.items} Items</div>
 
                                     {/* Amount */}
                                     <div className="font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">₹{order.amount.toLocaleString()}</div>

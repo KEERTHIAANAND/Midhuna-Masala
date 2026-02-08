@@ -792,8 +792,14 @@ export default function SpiceCatalogPage() {
                                 transition={{ delay: index * 0.05 }}
                                 className="bg-white rounded-2xl border border-[#F3EFEA] overflow-hidden shadow-sm hover:shadow-lg transition-all group"
                             >
-                                {/* Image */}
-                                <div className="relative h-48 bg-gradient-to-br from-[#F5E9DB] to-[#E8DED0] overflow-hidden">
+                                {/* Image - Clickable */}
+                                <div
+                                    className="relative h-48 bg-gradient-to-br from-[#F5E9DB] to-[#E8DED0] overflow-hidden cursor-pointer"
+                                    onClick={() => {
+                                        setSelectedProduct(product);
+                                        setViewModalOpen(true);
+                                    }}
+                                >
                                     <div className="absolute inset-0 flex items-center justify-center text-[#8B1E1E]/20">
                                         <Leaf className="w-20 h-20" />
                                     </div>
@@ -807,59 +813,6 @@ export default function SpiceCatalogPage() {
                                         </div>
                                     )}
 
-                                    {/* Menu Button */}
-                                    <div className="absolute top-3 right-3">
-                                        <button
-                                            onClick={() => setOpenMenuId(openMenuId === product.id ? null : product.id)}
-                                            className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-all"
-                                        >
-                                            <MoreVertical className="w-4 h-4 text-gray-600" />
-                                        </button>
-
-                                        {/* Dropdown Menu */}
-                                        <AnimatePresence>
-                                            {openMenuId === product.id && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                                                    className="absolute top-10 right-0 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[140px] z-10"
-                                                >
-                                                    <button
-                                                        onClick={() => {
-                                                            setSelectedProduct(product);
-                                                            setViewModalOpen(true);
-                                                            setOpenMenuId(null);
-                                                        }}
-                                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                                    >
-                                                        <Eye className="w-4 h-4" /> View
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            setSelectedProduct(product);
-                                                            setEditModalOpen(true);
-                                                            setOpenMenuId(null);
-                                                        }}
-                                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                                    >
-                                                        <Edit2 className="w-4 h-4" /> Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            setSelectedProduct(product);
-                                                            setDeleteConfirmOpen(true);
-                                                            setOpenMenuId(null);
-                                                        }}
-                                                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" /> Delete
-                                                    </button>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
-
                                     {/* Featured badge for low stock */}
                                     {product.lowStock && (
                                         <div className="absolute top-3 left-3">
@@ -868,6 +821,13 @@ export default function SpiceCatalogPage() {
                                             </span>
                                         </div>
                                     )}
+
+                                    {/* Hover Overlay */}
+                                    <div className="absolute inset-0 bg-[#7A1A1A]/0 group-hover:bg-[#7A1A1A]/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                        <span className="bg-white/90 text-[#7A1A1A] text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                                            View Details
+                                        </span>
+                                    </div>
                                 </div>
 
                                 {/* Content */}

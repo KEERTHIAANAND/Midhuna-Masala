@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import {
     LayoutGrid, ShoppingBag, ShoppingCart, Package,
     BarChart3, Settings, LogOut, Download, Filter, Search,
-    Leaf, MoreVertical, Eye, Truck, CheckCircle, XCircle, ChevronDown
+    Leaf, MoreVertical, Eye, Truck, CheckCircle, XCircle, ChevronDown, X, Printer
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signOut } from 'firebase/auth';
@@ -44,7 +44,12 @@ const ORDERS = [
         items: 3,
         amount: 1250,
         payment: 'UPI',
-        status: 'PENDING'
+        status: 'PENDING',
+        products: [
+            { name: 'Kashmiri Chilli Powder', weight: '250g', qty: 2, price: 320 },
+            { name: 'Coriander Powder', weight: '500g', qty: 1, price: 280 },
+            { name: 'Turmeric Powder', weight: '100g', qty: 1, price: 150 }
+        ]
     },
     {
         id: 'MM-20260208-02',
@@ -53,7 +58,12 @@ const ORDERS = [
         items: 8,
         amount: 3400,
         payment: 'UPI',
-        status: 'SHIPPED'
+        status: 'SHIPPED',
+        products: [
+            { name: 'Royal Garam Masala', weight: '100g', qty: 3, price: 320 },
+            { name: 'Malabar Black Pepper', weight: '100g', qty: 2, price: 220 },
+            { name: 'Star Anise Premium', weight: '50g', qty: 3, price: 280 }
+        ]
     },
     {
         id: 'MM-20260208-03',
@@ -62,7 +72,11 @@ const ORDERS = [
         items: 2,
         amount: 850,
         payment: 'UPI',
-        status: 'DELIVERED'
+        status: 'DELIVERED',
+        products: [
+            { name: 'Kashmiri Chilli Powder', weight: '500g', qty: 1, price: 450 },
+            { name: 'Coriander Powder', weight: '250g', qty: 2, price: 160 }
+        ]
     },
     {
         id: 'MM-20260207-01',
@@ -71,7 +85,13 @@ const ORDERS = [
         items: 25,
         amount: 12100,
         payment: 'UPI',
-        status: 'PROCESSING'
+        status: 'PROCESSING',
+        products: [
+            { name: 'Kashmiri Chilli Powder', weight: '500g', qty: 10, price: 450 },
+            { name: 'Royal Garam Masala', weight: '250g', qty: 8, price: 650 },
+            { name: 'Coriander Powder', weight: '500g', qty: 5, price: 280 },
+            { name: 'Turmeric Powder', weight: '1kg', qty: 2, price: 580 }
+        ]
     },
     {
         id: 'MM-20260207-02',
@@ -80,7 +100,10 @@ const ORDERS = [
         items: 1,
         amount: 560,
         payment: 'UPI',
-        status: 'DELIVERED'
+        status: 'DELIVERED',
+        products: [
+            { name: 'Malabar Black Pepper', weight: '250g', qty: 1, price: 490 }
+        ]
     },
     {
         id: 'MM-20260206-01',
@@ -89,7 +112,12 @@ const ORDERS = [
         items: 3,
         amount: 1250,
         payment: 'UPI',
-        status: 'PENDING'
+        status: 'PENDING',
+        products: [
+            { name: 'Star Anise Premium', weight: '100g', qty: 1, price: 520 },
+            { name: 'Coriander Powder', weight: '250g', qty: 2, price: 160 },
+            { name: 'Turmeric Powder', weight: '250g', qty: 1, price: 180 }
+        ]
     },
     {
         id: 'MM-20260206-02',
@@ -98,7 +126,11 @@ const ORDERS = [
         items: 8,
         amount: 3400,
         payment: 'UPI',
-        status: 'SHIPPED'
+        status: 'SHIPPED',
+        products: [
+            { name: 'Royal Garam Masala', weight: '250g', qty: 4, price: 650 },
+            { name: 'Kashmiri Chilli Powder', weight: '100g', qty: 4, price: 150 }
+        ]
     },
     {
         id: 'MM-20260205-01',
@@ -107,7 +139,11 @@ const ORDERS = [
         items: 2,
         amount: 850,
         payment: 'UPI',
-        status: 'DELIVERED'
+        status: 'DELIVERED',
+        products: [
+            { name: 'Malabar Black Pepper', weight: '100g', qty: 2, price: 220 },
+            { name: 'Coriander Powder', weight: '500g', qty: 1, price: 280 }
+        ]
     },
     {
         id: 'MM-20260205-02',
@@ -116,7 +152,12 @@ const ORDERS = [
         items: 25,
         amount: 12100,
         payment: 'UPI',
-        status: 'PROCESSING'
+        status: 'PROCESSING',
+        products: [
+            { name: 'Kashmiri Chilli Powder', weight: '500g', qty: 12, price: 450 },
+            { name: 'Royal Garam Masala', weight: '100g', qty: 8, price: 320 },
+            { name: 'Turmeric Powder', weight: '500g', qty: 5, price: 320 }
+        ]
     },
     {
         id: 'MM-20260204-01',
@@ -125,7 +166,10 @@ const ORDERS = [
         items: 1,
         amount: 560,
         payment: 'UPI',
-        status: 'DELIVERED'
+        status: 'DELIVERED',
+        products: [
+            { name: 'Star Anise Premium', weight: '100g', qty: 1, price: 520 }
+        ]
     },
 ];
 
@@ -140,6 +184,13 @@ export default function OrdersPage() {
     const [orderSize, setOrderSize] = useState('all');
     const [priority, setPriority] = useState('all');
     const [sortBy, setSortBy] = useState('newest');
+
+    // Order management state
+    const [orders, setOrders] = useState(ORDERS);
+    const [selectedOrder, setSelectedOrder] = useState<typeof ORDERS[0] | null>(null);
+    const [viewOrderOpen, setViewOrderOpen] = useState(false);
+    const [updateStatusOpen, setUpdateStatusOpen] = useState(false);
+    const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
 
     // Auth Check
     useEffect(() => {
@@ -157,7 +208,7 @@ export default function OrdersPage() {
         }
     };
 
-    const filteredOrders = ORDERS.filter(order => {
+    const filteredOrders = orders.filter(order => {
         const matchesFilter = activeFilter === 'All Orders' ||
             order.status.toLowerCase() === activeFilter.toLowerCase();
         const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -448,10 +499,7 @@ export default function OrdersPage() {
                         <div>Items</div>
                         <div>Total Amount</div>
                         <div>Payment</div>
-                        <div className="flex justify-between">
-                            <span>Status</span>
-                            <span>Action</span>
-                        </div>
+                        <div>Status</div>
                     </div>
 
                     {/* Table Rows */}
@@ -469,12 +517,20 @@ export default function OrdersPage() {
                                     {/* Order ID */}
                                     <div className="font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">#{order.id}</div>
 
-                                    {/* Customer */}
-                                    <div className="col-span-2 flex items-center gap-3">
+                                    {/* Customer - Clickable */}
+                                    <div
+                                        className="col-span-2 flex items-center gap-3 cursor-pointer group"
+                                        onClick={() => {
+                                            setSelectedOrder(order);
+                                            setViewOrderOpen(true);
+                                        }}
+                                    >
                                         <div className={`w-8 h-8 rounded-full ${order.customer.color} flex items-center justify-center font-bold text-sm`}>
                                             {order.customer.initial}
                                         </div>
-                                        <span className="font-medium text-gray-800">{order.customer.name}</span>
+                                        <span className="font-medium text-gray-800 group-hover:text-[#7A1A1A] transition-colors underline-offset-2 group-hover:underline">
+                                            {order.customer.name}
+                                        </span>
                                     </div>
 
                                     {/* Date */}
@@ -493,45 +549,11 @@ export default function OrdersPage() {
                                         </span>
                                     </div>
 
-                                    {/* Status & Action */}
-                                    <div className="flex items-center justify-between">
+                                    {/* Status */}
+                                    <div>
                                         <span className={`px-3 py-1 text-[10px] font-bold rounded-full border ${STATUS_STYLES[order.status]} uppercase tracking-wide`}>
                                             {order.status}
                                         </span>
-
-                                        {/* Action Menu */}
-                                        <div className="relative">
-                                            <button
-                                                onClick={() => setOpenMenuId(openMenuId === order.id + index ? null : order.id + index)}
-                                                className="w-8 h-8 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors"
-                                            >
-                                                <MoreVertical className="w-4 h-4 text-gray-400" />
-                                            </button>
-
-                                            <AnimatePresence>
-                                                {openMenuId === order.id + index && (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                        exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                                                        className="absolute top-10 right-0 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[160px] z-10"
-                                                    >
-                                                        <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                                                            <Eye className="w-4 h-4" /> View Details
-                                                        </button>
-                                                        <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                                                            <Truck className="w-4 h-4" /> Update Status
-                                                        </button>
-                                                        <button className="w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2">
-                                                            <CheckCircle className="w-4 h-4" /> Mark Delivered
-                                                        </button>
-                                                        <button className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                                            <XCircle className="w-4 h-4" /> Cancel Order
-                                                        </button>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
                                     </div>
                                 </motion.div>
                             ))}
@@ -548,6 +570,420 @@ export default function OrdersPage() {
                 </div>
 
             </main>
+
+            {/* View Order Details Modal - Bill Format */}
+            <AnimatePresence>
+                {viewOrderOpen && selectedOrder && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        onClick={() => setViewOrderOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+                        >
+                            {/* Bill Header */}
+                            <div className="bg-gradient-to-r from-[#7A1A1A] to-[#601010] px-6 py-5 text-center relative">
+                                <button
+                                    onClick={() => setViewOrderOpen(false)}
+                                    className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                                >
+                                    <X className="w-4 h-4 text-white" />
+                                </button>
+                                <div className="flex items-center justify-center gap-2 mb-1">
+                                    <Leaf className="w-5 h-5 text-[#D4AF37]" />
+                                    <h2 className="text-xl font-serif font-bold text-white">Midhuna Masala</h2>
+                                </div>
+                                <p className="text-[#D4AF37] text-xs font-medium tracking-wider">INVOICE</p>
+                            </div>
+
+                            {/* Order Info Bar */}
+                            <div className="flex items-center justify-between px-6 py-3 bg-[#F5E9DB] border-b border-[#E5D5C5]">
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">Order ID</p>
+                                    <p className="font-serif font-bold text-[#7A1A1A] text-sm">#{selectedOrder.id}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">Date</p>
+                                    <p className="font-medium text-gray-700 text-sm">{selectedOrder.date}</p>
+                                </div>
+                            </div>
+
+                            {/* Customer & Payment Info */}
+                            <div className="px-6 py-4 border-b border-gray-100">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-full ${selectedOrder.customer.color} flex items-center justify-center font-bold`}>
+                                            {selectedOrder.customer.initial}
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-gray-800">{selectedOrder.customer.name}</p>
+                                            <p className="text-xs text-gray-500">Customer</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        {/* Status Dropdown */}
+                                        <select
+                                            value={selectedOrder.status}
+                                            onChange={(e) => {
+                                                const newStatus = e.target.value;
+                                                setOrders(orders.map(o =>
+                                                    o.id === selectedOrder.id ? { ...o, status: newStatus } : o
+                                                ));
+                                                setSelectedOrder({ ...selectedOrder, status: newStatus });
+                                            }}
+                                            className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#7A1A1A]/20 transition-all ${selectedOrder.status === 'DELIVERED' ? 'bg-green-50 border-green-300 text-green-700' :
+                                                selectedOrder.status === 'SHIPPED' ? 'bg-blue-50 border-blue-300 text-blue-700' :
+                                                    selectedOrder.status === 'PROCESSING' ? 'bg-orange-50 border-orange-300 text-orange-700' :
+                                                        'bg-gray-50 border-gray-300 text-gray-700'
+                                                }`}
+                                        >
+                                            <option value="PENDING">PENDING</option>
+                                            <option value="PROCESSING">PROCESSING</option>
+                                            <option value="SHIPPED">SHIPPED</option>
+                                            <option value="DELIVERED">DELIVERED</option>
+                                        </select>
+                                        <p className="text-xs text-gray-500 mt-1">{selectedOrder.payment}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Products Table */}
+                            <div className="px-6 py-4">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b-2 border-dashed border-gray-200">
+                                            <th className="text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider pb-2">Item</th>
+                                            <th className="text-center text-[10px] font-bold text-gray-400 uppercase tracking-wider pb-2">Qty</th>
+                                            <th className="text-right text-[10px] font-bold text-gray-400 uppercase tracking-wider pb-2">Rate</th>
+                                            <th className="text-right text-[10px] font-bold text-gray-400 uppercase tracking-wider pb-2">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {selectedOrder.products.map((product, idx) => (
+                                            <tr key={idx}>
+                                                <td className="py-2.5">
+                                                    <p className="font-medium text-gray-800 text-sm">{product.name}</p>
+                                                    <p className="text-xs text-gray-400">{product.weight}</p>
+                                                </td>
+                                                <td className="py-2.5 text-center">
+                                                    <span className="inline-flex items-center justify-center w-6 h-6 bg-gray-100 text-gray-700 text-xs font-bold rounded">
+                                                        {product.qty}
+                                                    </span>
+                                                </td>
+                                                <td className="py-2.5 text-right text-sm text-gray-600 tabular-nums lining-nums">₹{product.price}</td>
+                                                <td className="py-2.5 text-right font-serif font-bold text-[#7A1A1A] text-sm tabular-nums lining-nums">₹{(product.price * product.qty).toLocaleString()}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Total Section */}
+                            <div className="px-6 pb-4">
+                                <div className="border-t-2 border-dashed border-gray-200 pt-3 space-y-1">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-gray-500">Subtotal ({selectedOrder.items} items)</span>
+                                        <span className="font-medium text-gray-700 tabular-nums lining-nums">₹{selectedOrder.amount.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-gray-500">Delivery</span>
+                                        <span className="font-medium text-green-600">FREE</span>
+                                    </div>
+                                </div>
+                                <div className="border-t-2 border-gray-800 mt-3 pt-3 flex items-center justify-between">
+                                    <span className="text-lg font-bold text-gray-800">Grand Total</span>
+                                    <span className="text-2xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">₹{selectedOrder.amount.toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            {/* Footer Actions */}
+                            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-2">
+                                <button
+                                    onClick={() => window.print()}
+                                    className="flex items-center gap-2 px-4 py-2.5 text-gray-600 border border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all"
+                                >
+                                    <Printer className="w-4 h-4" />
+                                    Print Bill
+                                </button>
+                                <button
+                                    onClick={() => setViewOrderOpen(false)}
+                                    className="flex items-center gap-2 px-6 py-2.5 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold hover:bg-[#601010] transition-all"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Printable Invoice - Hidden on screen, visible only when printing */}
+            {selectedOrder && (
+                <div className="print-invoice hidden print:block">
+                    {/* Invoice Header */}
+                    <div className="flex items-start justify-between border-b-2 border-[#7A1A1A] pb-4 mb-6">
+                        <div>
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="w-10 h-10 bg-[#7A1A1A] rounded-full flex items-center justify-center">
+                                    <Leaf className="w-6 h-6 text-[#D4AF37]" />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-serif font-bold text-[#7A1A1A]">Midhuna Masala</h1>
+                                    <p className="text-xs text-gray-500 italic">Premium Stone Ground Spices</p>
+                                </div>
+                            </div>
+                            <div className="text-xs text-gray-600 space-y-0.5 mt-3">
+                                <p>No. 45, Spice Garden Road</p>
+                                <p>Kochi, Kerala - 682001</p>
+                                <p>Phone: +91 98765 43210</p>
+                                <p>Email: orders@midhunamasala.com</p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <h2 className="text-3xl font-bold text-[#7A1A1A] mb-2">INVOICE</h2>
+                            <div className="text-sm space-y-1">
+                                <p><span className="text-gray-500">Invoice No:</span> <span className="font-bold">{selectedOrder.id}</span></p>
+                                <p><span className="text-gray-500">Date:</span> <span className="font-medium">{selectedOrder.date}</span></p>
+                                <p><span className="text-gray-500">Status:</span> <span className="font-bold text-green-600">{selectedOrder.status}</span></p>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-3">GSTIN: 32AABCM1234A1ZM</p>
+                        </div>
+                    </div>
+
+                    {/* Bill To Section */}
+                    <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Bill To</p>
+                        <p className="font-bold text-gray-800 text-lg">{selectedOrder.customer.name}</p>
+                        <p className="text-sm text-gray-600">Payment Method: {selectedOrder.payment}</p>
+                    </div>
+
+                    {/* Products Table */}
+                    <table className="w-full mb-6">
+                        <thead>
+                            <tr className="bg-[#7A1A1A] text-white">
+                                <th className="text-left py-3 px-4 text-sm font-bold">S.No</th>
+                                <th className="text-left py-3 px-4 text-sm font-bold">Item Description</th>
+                                <th className="text-center py-3 px-4 text-sm font-bold">Weight</th>
+                                <th className="text-center py-3 px-4 text-sm font-bold">Qty</th>
+                                <th className="text-right py-3 px-4 text-sm font-bold">Rate (₹)</th>
+                                <th className="text-right py-3 px-4 text-sm font-bold">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {selectedOrder.products.map((product, idx) => (
+                                <tr key={idx} className="border-b border-gray-200">
+                                    <td className="py-3 px-4 text-sm text-gray-600">{idx + 1}</td>
+                                    <td className="py-3 px-4 text-sm font-medium text-gray-800">{product.name}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-600 text-center">{product.weight}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-800 text-center font-bold">{product.qty}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-600 text-right tabular-nums">{product.price.toFixed(2)}</td>
+                                    <td className="py-3 px-4 text-sm font-bold text-[#7A1A1A] text-right tabular-nums">{(product.price * product.qty).toFixed(2)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+
+                    {/* Totals Section */}
+                    <div className="flex justify-end mb-8">
+                        <div className="w-72">
+                            <div className="flex justify-between py-2 border-b border-gray-200">
+                                <span className="text-gray-600">Subtotal</span>
+                                <span className="font-medium tabular-nums">₹{selectedOrder.amount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between py-2 border-b border-gray-200">
+                                <span className="text-gray-600">Delivery Charges</span>
+                                <span className="font-medium text-green-600">FREE</span>
+                            </div>
+                            <div className="flex justify-between py-2 border-b border-gray-200">
+                                <span className="text-gray-600">Tax (0%)</span>
+                                <span className="font-medium tabular-nums">₹0.00</span>
+                            </div>
+                            <div className="flex justify-between py-3 bg-[#F5E9DB] px-3 rounded-lg mt-2">
+                                <span className="text-lg font-bold text-gray-800">Grand Total</span>
+                                <span className="text-xl font-bold text-[#7A1A1A] tabular-nums">₹{selectedOrder.amount.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Amount in Words */}
+                    <div className="mb-6 p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs text-gray-500">Amount in Words:</p>
+                        <p className="font-medium text-gray-800">Rupees {selectedOrder.amount.toLocaleString('en-IN')} Only</p>
+                    </div>
+
+                    {/* Terms & Footer */}
+                    <div className="border-t-2 border-dashed border-gray-300 pt-4 mt-6">
+                        <div className="grid grid-cols-2 gap-8">
+                            <div>
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Terms & Conditions</p>
+                                <ul className="text-xs text-gray-500 space-y-1">
+                                    <li>• Goods once sold cannot be returned</li>
+                                    <li>• Store in cool and dry place</li>
+                                    <li>• Best before 12 months from packing</li>
+                                    <li>• This is a computer generated invoice</li>
+                                </ul>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">For Midhuna Masala</p>
+                                <div className="h-12 mb-2"></div>
+                                <p className="text-sm text-gray-600 border-t border-gray-300 pt-2">Authorized Signatory</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Thank You Message */}
+                    <div className="text-center mt-8 pt-4 border-t border-gray-200">
+                        <p className="text-lg font-serif font-bold text-[#7A1A1A]">Thank you for your order!</p>
+                        <p className="text-sm text-gray-500">Visit us at www.midhunamasala.com</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Update Status Modal */}
+            <AnimatePresence>
+                {updateStatusOpen && selectedOrder && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        onClick={() => setUpdateStatusOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+                        >
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                                <div>
+                                    <h2 className="text-xl font-serif font-bold text-[#7A1A1A]">Update Status</h2>
+                                    <p className="text-sm text-gray-500">#{selectedOrder.id}</p>
+                                </div>
+                                <button
+                                    onClick={() => setUpdateStatusOpen(false)}
+                                    className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                >
+                                    <X className="w-4 h-4 text-gray-600" />
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="px-6 py-5 space-y-2">
+                                <p className="text-sm text-gray-500 mb-3">Select new status for this order:</p>
+
+                                {['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'].map((status) => (
+                                    <button
+                                        key={status}
+                                        onClick={() => {
+                                            setOrders(orders.map(o =>
+                                                o.id === selectedOrder.id ? { ...o, status } : o
+                                            ));
+                                            setSelectedOrder({ ...selectedOrder, status });
+                                            setUpdateStatusOpen(false);
+                                        }}
+                                        className={`w-full px-4 py-3 rounded-xl text-left font-medium transition-all flex items-center justify-between ${selectedOrder.status === status
+                                            ? 'bg-[#7A1A1A] text-white'
+                                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                            }`}
+                                    >
+                                        <span>{status}</span>
+                                        {selectedOrder.status === status && (
+                                            <CheckCircle className="w-5 h-5" />
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end">
+                                <button
+                                    onClick={() => setUpdateStatusOpen(false)}
+                                    className="px-6 py-2 text-gray-600 border border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Cancel Order Confirmation Modal */}
+            <AnimatePresence>
+                {cancelOrderOpen && selectedOrder && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        onClick={() => setCancelOrderOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+                        >
+                            {/* Modal Header */}
+                            <div className="px-6 py-5 text-center">
+                                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <XCircle className="w-8 h-8 text-red-500" />
+                                </div>
+                                <h2 className="text-xl font-serif font-bold text-gray-900 mb-2">Cancel Order?</h2>
+                                <p className="text-gray-500">
+                                    Are you sure you want to cancel order <span className="font-bold text-[#7A1A1A]">#{selectedOrder.id}</span>?
+                                    This will notify the customer.
+                                </p>
+                            </div>
+
+                            {/* Order Summary */}
+                            <div className="px-6 pb-4">
+                                <div className="p-3 bg-gray-50 rounded-xl flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-8 h-8 rounded-full ${selectedOrder.customer.color} flex items-center justify-center font-bold text-sm`}>
+                                            {selectedOrder.customer.initial}
+                                        </div>
+                                        <span className="font-medium text-gray-700">{selectedOrder.customer.name}</span>
+                                    </div>
+                                    <span className="font-serif font-bold text-[#7A1A1A]">₹{selectedOrder.amount.toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-center gap-3">
+                                <button
+                                    onClick={() => setCancelOrderOpen(false)}
+                                    className="px-6 py-2.5 text-gray-600 border border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all"
+                                >
+                                    Keep Order
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        // Cancel the order - remove from list
+                                        setOrders(orders.filter(o => o.id !== selectedOrder.id));
+                                        setCancelOrderOpen(false);
+                                        setSelectedOrder(null);
+                                    }}
+                                    className="px-6 py-2.5 bg-red-500 text-white rounded-xl text-sm font-bold hover:bg-red-600 transition-all"
+                                >
+                                    Cancel Order
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

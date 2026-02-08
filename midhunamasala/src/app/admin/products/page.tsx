@@ -108,6 +108,10 @@ export default function SpiceCatalogPage() {
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [imagePreview, setImagePreview] = useState('');
+    const [selectedProduct, setSelectedProduct] = useState<typeof PRODUCTS[0] | null>(null);
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         subtitle: 'Stone Ground',
@@ -517,6 +521,234 @@ export default function SpiceCatalogPage() {
                     )}
                 </AnimatePresence>
 
+                {/* View Product Modal */}
+                <AnimatePresence>
+                    {viewModalOpen && selectedProduct && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            onClick={() => setViewModalOpen(false)}
+                        >
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+                            >
+                                {/* Modal Header */}
+                                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                                    <div>
+                                        <h2 className="text-xl font-serif font-bold text-[#7A1A1A]">Product Details</h2>
+                                        <p className="text-sm text-gray-500">View complete product information</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setViewModalOpen(false)}
+                                        className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                    >
+                                        <X className="w-4 h-4 text-gray-600" />
+                                    </button>
+                                </div>
+
+                                {/* Modal Body */}
+                                <div className="px-6 py-5 max-h-[60vh] overflow-y-auto space-y-4">
+                                    {/* Category & Subtitle */}
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-bold text-white bg-[#7A1A1A] px-3 py-1 rounded-full uppercase">
+                                            {selectedProduct.category}
+                                        </span>
+                                        <span className="text-xs text-gray-500 italic">{selectedProduct.subtitle}</span>
+                                    </div>
+
+                                    {/* Name */}
+                                    <h3 className="text-2xl font-serif font-bold text-[#7A1A1A]">{selectedProduct.name}</h3>
+
+                                    {/* Benefits */}
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Benefits</p>
+                                        <div className="space-y-1">
+                                            {selectedProduct.benefits.map((benefit, idx) => (
+                                                <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
+                                                    <span className="text-[#D4AF37]">✦</span>
+                                                    {benefit}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Weight Options */}
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Weight Options & Prices</p>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {selectedProduct.weightOptions.map((opt, idx) => (
+                                                <div key={idx} className="bg-[#F5E9DB] rounded-lg p-3 text-center">
+                                                    <p className="text-sm font-bold text-[#7A1A1A]">{opt.weight}</p>
+                                                    <p className="text-lg font-serif font-bold text-[#D4AF37]">₹{opt.price}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Stock */}
+                                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Stock</p>
+                                            <p className={`text-lg font-bold ${selectedProduct.stock === 0 ? 'text-red-500' : selectedProduct.lowStock ? 'text-orange-500' : 'text-[#7A1A1A]'}`}>
+                                                {selectedProduct.stock} Units
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Status</p>
+                                            <span className={`text-sm font-bold ${selectedProduct.inStock ? 'text-green-600' : 'text-red-500'}`}>
+                                                {selectedProduct.inStock ? 'In Stock' : 'Out of Stock'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Modal Footer */}
+                                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
+                                    <button
+                                        onClick={() => {
+                                            setViewModalOpen(false);
+                                            setEditModalOpen(true);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 text-[#7A1A1A] border border-[#7A1A1A] rounded-xl text-sm font-bold hover:bg-[#7A1A1A]/5 transition-all"
+                                    >
+                                        <Edit2 className="w-4 h-4" />
+                                        Edit Product
+                                    </button>
+                                    <button
+                                        onClick={() => setViewModalOpen(false)}
+                                        className="px-6 py-2 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold hover:bg-[#601010] transition-all"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Delete Confirmation Modal */}
+                <AnimatePresence>
+                    {deleteConfirmOpen && selectedProduct && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            onClick={() => setDeleteConfirmOpen(false)}
+                        >
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+                            >
+                                {/* Modal Header */}
+                                <div className="px-6 py-5 text-center">
+                                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Trash2 className="w-8 h-8 text-red-500" />
+                                    </div>
+                                    <h2 className="text-xl font-serif font-bold text-gray-900 mb-2">Delete Product?</h2>
+                                    <p className="text-gray-500">
+                                        Are you sure you want to delete <span className="font-bold text-[#7A1A1A]">{selectedProduct.name}</span>?
+                                        This action cannot be undone.
+                                    </p>
+                                </div>
+
+                                {/* Modal Footer */}
+                                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-center gap-3">
+                                    <button
+                                        onClick={() => setDeleteConfirmOpen(false)}
+                                        className="px-6 py-2.5 text-gray-600 border border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            // Handle delete here
+                                            console.log('Deleting product:', selectedProduct.id);
+                                            setDeleteConfirmOpen(false);
+                                            setSelectedProduct(null);
+                                        }}
+                                        className="px-6 py-2.5 bg-red-500 text-white rounded-xl text-sm font-bold hover:bg-red-600 transition-all"
+                                    >
+                                        Delete Product
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Edit Product Modal */}
+                <AnimatePresence>
+                    {editModalOpen && selectedProduct && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            onClick={() => setEditModalOpen(false)}
+                        >
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+                            >
+                                {/* Modal Header */}
+                                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                                    <div>
+                                        <h2 className="text-xl font-serif font-bold text-[#7A1A1A]">Edit Product</h2>
+                                        <p className="text-sm text-gray-500">Update product information</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setEditModalOpen(false)}
+                                        className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                    >
+                                        <X className="w-4 h-4 text-gray-600" />
+                                    </button>
+                                </div>
+
+                                {/* Modal Body */}
+                                <div className="px-6 py-5 max-h-[60vh] overflow-y-auto space-y-4">
+                                    <p className="text-sm text-gray-500 text-center py-8">
+                                        Edit functionality will be implemented with backend integration.
+                                        <br />
+                                        <span className="text-[#7A1A1A] font-medium">Currently editing: {selectedProduct.name}</span>
+                                    </p>
+                                </div>
+
+                                {/* Modal Footer */}
+                                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
+                                    <button
+                                        onClick={() => setEditModalOpen(false)}
+                                        className="px-4 py-2 text-gray-600 border border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            console.log('Saving product:', selectedProduct.id);
+                                            setEditModalOpen(false);
+                                        }}
+                                        className="px-6 py-2 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold hover:bg-[#601010] transition-all"
+                                    >
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 {/* Filters & Search */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     {/* Category Tabs */}
@@ -593,13 +825,34 @@ export default function SpiceCatalogPage() {
                                                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
                                                     className="absolute top-10 right-0 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[140px] z-10"
                                                 >
-                                                    <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedProduct(product);
+                                                            setViewModalOpen(true);
+                                                            setOpenMenuId(null);
+                                                        }}
+                                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                                    >
                                                         <Eye className="w-4 h-4" /> View
                                                     </button>
-                                                    <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedProduct(product);
+                                                            setEditModalOpen(true);
+                                                            setOpenMenuId(null);
+                                                        }}
+                                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                                    >
                                                         <Edit2 className="w-4 h-4" /> Edit
                                                     </button>
-                                                    <button className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedProduct(product);
+                                                            setDeleteConfirmOpen(true);
+                                                            setOpenMenuId(null);
+                                                        }}
+                                                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                                    >
                                                         <Trash2 className="w-4 h-4" /> Delete
                                                     </button>
                                                 </motion.div>
@@ -668,17 +921,11 @@ export default function SpiceCatalogPage() {
                                             </div>
                                         </div>
                                         {/* Stock */}
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Stock</p>
-                                                <p className={`text-sm font-bold tabular-nums lining-nums ${product.stock === 0 ? 'text-red-500' : product.lowStock ? 'text-orange-500' : 'text-[#7A1A1A]'}`}>
-                                                    {product.stock} Units
-                                                </p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Variants</p>
-                                                <p className="text-sm font-bold text-[#7A1A1A]">{product.weightOptions.length}</p>
-                                            </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Stock</p>
+                                            <p className={`text-sm font-bold tabular-nums lining-nums ${product.stock === 0 ? 'text-red-500' : product.lowStock ? 'text-orange-500' : 'text-[#7A1A1A]'}`}>
+                                                {product.stock} Units
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

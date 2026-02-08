@@ -25,71 +25,77 @@ const NAV_ITEMS = [
 ];
 
 // Category Filters
-const CATEGORIES = ['All Spices', 'Ground Spices', 'Whole Spices', 'Signature Blends'];
+const CATEGORIES = ['All Spices', 'Powder', 'Whole Spices', 'Blends'];
 
 // Mock Product Data
 const PRODUCTS = [
     {
         id: 1,
         name: 'Kashmiri Chilli Powder',
-        category: 'GROUND SPICES',
-        price: 450,
+        subtitle: 'Stone Ground',
+        category: 'POWDER',
         stock: 124,
-        packSize: '500g',
         image: '/products/kashmiri-chilli.jpg',
-        inStock: true
+        inStock: true,
+        benefits: ['Rich in antioxidants', 'Vibrant natural color', 'No artificial colors'],
+        weightOptions: [{ weight: '100g', price: 150 }, { weight: '250g', price: 320 }, { weight: '500g', price: 450 }]
     },
     {
         id: 2,
         name: 'Wayanad Turmeric Root',
+        subtitle: 'Hand Picked',
         category: 'WHOLE SPICES',
-        price: 320,
         stock: 15,
-        packSize: '1kg',
         image: '/products/turmeric-root.jpg',
         inStock: true,
-        lowStock: true
+        lowStock: true,
+        benefits: ['High curcumin content', 'Organic certified', 'Anti-inflammatory'],
+        weightOptions: [{ weight: '250g', price: 180 }, { weight: '500g', price: 320 }, { weight: '1kg', price: 580 }]
     },
     {
         id: 3,
         name: 'Royal Garam Masala',
-        category: 'SIGNATURE BLENDS',
-        price: 650,
+        subtitle: 'Traditional Recipe',
+        category: 'BLENDS',
         stock: 0,
-        packSize: '250g',
         image: '/products/garam-masala.jpg',
-        inStock: false
+        inStock: false,
+        benefits: ['12 premium spices', 'Family recipe', 'No preservatives'],
+        weightOptions: [{ weight: '50g', price: 180 }, { weight: '100g', price: 320 }, { weight: '250g', price: 650 }]
     },
     {
         id: 4,
         name: 'Coriander Powder',
-        category: 'GROUND SPICES',
-        price: 280,
+        subtitle: 'Stone Ground',
+        category: 'POWDER',
         stock: 200,
-        packSize: '500g',
         image: '/products/coriander.jpg',
-        inStock: true
+        inStock: true,
+        benefits: ['Fresh aroma', 'Digestive aid', '100% pure'],
+        weightOptions: [{ weight: '100g', price: 80 }, { weight: '250g', price: 160 }, { weight: '500g', price: 280 }]
     },
     {
         id: 5,
         name: 'Malabar Black Pepper',
+        subtitle: 'Premium Quality',
         category: 'WHOLE SPICES',
-        price: 890,
         stock: 45,
-        packSize: '250g',
         image: '/products/black-pepper.jpg',
-        inStock: true
+        inStock: true,
+        benefits: ['Bold flavor', 'Hand sorted', 'High piperine'],
+        weightOptions: [{ weight: '50g', price: 120 }, { weight: '100g', price: 220 }, { weight: '250g', price: 490 }]
     },
     {
         id: 6,
         name: 'Star Anise Premium',
+        subtitle: 'Hand Picked',
         category: 'WHOLE SPICES',
-        price: 1200,
         stock: 8,
-        packSize: '100g',
         image: '/products/star-anise.jpg',
         inStock: true,
-        lowStock: true
+        lowStock: true,
+        benefits: ['Aromatic flavor', 'Perfect shape', 'Premium grade'],
+        weightOptions: [{ weight: '25g', price: 150 }, { weight: '50g', price: 280 }, { weight: '100g', price: 520 }]
     },
 ];
 
@@ -104,13 +110,13 @@ export default function SpiceCatalogPage() {
     const [imagePreview, setImagePreview] = useState('');
     const [formData, setFormData] = useState({
         name: '',
+        subtitle: 'Stone Ground',
         imageUrl: '',
-        price: '',
-        packWeight: '',
-        stockQty: '',
-        category: 'Ground Spices',
-        shelfLife: ''
+        category: 'Powder',
+        stockQty: ''
     });
+    const [benefits, setBenefits] = useState<string[]>(['']);
+    const [weightOptions, setWeightOptions] = useState<{ weight: string, price: string }[]>([{ weight: '', price: '' }]);
 
     // Auth Check
     useEffect(() => {
@@ -130,7 +136,7 @@ export default function SpiceCatalogPage() {
 
     const filteredProducts = PRODUCTS.filter(product => {
         const matchesCategory = activeCategory === 'All Spices' ||
-            product.category.toLowerCase().includes(activeCategory.toLowerCase().replace(' spices', '').replace(' blends', ''));
+            product.category.toLowerCase() === activeCategory.toLowerCase();
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
     });
@@ -268,7 +274,48 @@ export default function SpiceCatalogPage() {
                                 </div>
 
                                 {/* Modal Body */}
-                                <div className="px-6 pb-6 space-y-5">
+                                <div className="px-6 pb-6 space-y-5 max-h-[60vh] overflow-y-auto">
+                                    {/* Category & Subtitle Row */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {/* Category */}
+                                        <div>
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                                <Tag className="w-3 h-3" />
+                                                Category
+                                            </label>
+                                            <select
+                                                value={formData.category}
+                                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                                className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A] cursor-pointer"
+                                            >
+                                                <option>Powder</option>
+                                                <option>Whole Spices</option>
+                                                <option>Blends</option>
+                                                <option>Herbs</option>
+                                                <option>Masala</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Subtitle */}
+                                        <div>
+                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                                <Tag className="w-3 h-3" />
+                                                Subtitle
+                                            </label>
+                                            <select
+                                                value={formData.subtitle}
+                                                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                                                className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A] cursor-pointer"
+                                            >
+                                                <option>Stone Ground</option>
+                                                <option>Hand Picked</option>
+                                                <option>Traditional Recipe</option>
+                                                <option>Premium Quality</option>
+                                                <option>Organic</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     {/* Product Name */}
                                     <div>
                                         <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
@@ -277,7 +324,7 @@ export default function SpiceCatalogPage() {
                                         </label>
                                         <input
                                             type="text"
-                                            placeholder="e.g. Royal Kashmiri Saffron"
+                                            placeholder="e.g. Erode Turmeric Powder (Manjal)"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
@@ -288,12 +335,12 @@ export default function SpiceCatalogPage() {
                                     <div>
                                         <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
                                             <ImageIcon className="w-3 h-3" />
-                                            Image URL
+                                            Product Image URL
                                         </label>
                                         <div className="flex items-center gap-3">
                                             <input
                                                 type="text"
-                                                placeholder="https://images.unsplash.com/photo-..."
+                                                placeholder="https://example.com/product-image.jpg"
                                                 value={formData.imageUrl}
                                                 onChange={(e) => {
                                                     setFormData({ ...formData, imageUrl: e.target.value });
@@ -326,95 +373,118 @@ export default function SpiceCatalogPage() {
                                         </div>
                                     </div>
 
-                                    {/* Price, Pack Weight, Stock Qty Row */}
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {/* Price */}
-                                        <div>
-                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                                                <Hash className="w-3 h-3" />
-                                                Price (₹)
-                                            </label>
-                                            <input
-                                                type="number"
-                                                placeholder="0.00"
-                                                value={formData.price}
-                                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                                className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
-                                            />
-                                        </div>
-
-                                        {/* Pack Weight */}
-                                        <div>
-                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                                                <Scale className="w-3 h-3" />
-                                                Pack Weight
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="500g"
-                                                value={formData.packWeight}
-                                                onChange={(e) => setFormData({ ...formData, packWeight: e.target.value })}
-                                                className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
-                                            />
-                                        </div>
-
-                                        {/* Stock Qty */}
-                                        <div>
-                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                                                <Hash className="w-3 h-3" />
-                                                Stock Qty
-                                            </label>
-                                            <input
-                                                type="number"
-                                                placeholder="0"
-                                                value={formData.stockQty}
-                                                onChange={(e) => setFormData({ ...formData, stockQty: e.target.value })}
-                                                className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
-                                            />
+                                    {/* Benefits Section */}
+                                    <div>
+                                        <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                            <Leaf className="w-3 h-3" />
+                                            Benefits
+                                        </label>
+                                        <div className="space-y-2">
+                                            {benefits.map((benefit, index) => (
+                                                <div key={index} className="flex items-center gap-2">
+                                                    <span className="text-[#D4AF37]">✦</span>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. Rich in antioxidants & natural oils"
+                                                        value={benefit}
+                                                        onChange={(e) => {
+                                                            const newBenefits = [...benefits];
+                                                            newBenefits[index] = e.target.value;
+                                                            setBenefits(newBenefits);
+                                                        }}
+                                                        className="flex-1 px-4 py-2.5 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                                    />
+                                                    {benefits.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setBenefits(benefits.filter((_, i) => i !== index))}
+                                                            className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            <button
+                                                type="button"
+                                                onClick={() => setBenefits([...benefits, ''])}
+                                                className="flex items-center gap-2 text-sm text-[#7A1A1A] hover:text-[#601010] font-medium mt-2"
+                                            >
+                                                <Plus className="w-4 h-4" />
+                                                Add Benefit
+                                            </button>
                                         </div>
                                     </div>
 
-                                    {/* Category and Expiry Date Row */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {/* Category */}
-                                        <div>
-                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                                                <Tag className="w-3 h-3" />
-                                                Category
-                                            </label>
-                                            <select
-                                                value={formData.category}
-                                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                                className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A] cursor-pointer"
+                                    {/* Weight Options with Prices */}
+                                    <div>
+                                        <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                            <Scale className="w-3 h-3" />
+                                            Weight Options & Prices
+                                        </label>
+                                        <div className="space-y-2">
+                                            {weightOptions.map((option, index) => (
+                                                <div key={index} className="flex items-center gap-2">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. 100g"
+                                                        value={option.weight}
+                                                        onChange={(e) => {
+                                                            const newOptions = [...weightOptions];
+                                                            newOptions[index].weight = e.target.value;
+                                                            setWeightOptions(newOptions);
+                                                        }}
+                                                        className="w-24 px-3 py-2.5 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                                    />
+                                                    <div className="flex items-center flex-1 bg-gray-100 border border-gray-200 rounded-xl overflow-hidden">
+                                                        <span className="px-3 text-gray-500 text-sm">₹</span>
+                                                        <input
+                                                            type="number"
+                                                            placeholder="0.00"
+                                                            value={option.price}
+                                                            onChange={(e) => {
+                                                                const newOptions = [...weightOptions];
+                                                                newOptions[index].price = e.target.value;
+                                                                setWeightOptions(newOptions);
+                                                            }}
+                                                            className="flex-1 px-2 py-2.5 bg-transparent text-gray-700 placeholder-gray-400 text-sm focus:outline-none"
+                                                        />
+                                                    </div>
+                                                    {weightOptions.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setWeightOptions(weightOptions.filter((_, i) => i !== index))}
+                                                            className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            <button
+                                                type="button"
+                                                onClick={() => setWeightOptions([...weightOptions, { weight: '', price: '' }])}
+                                                className="flex items-center gap-2 text-sm text-[#7A1A1A] hover:text-[#601010] font-medium mt-2"
                                             >
-                                                <option>Ground Spices</option>
-                                                <option>Whole Spices</option>
-                                                <option>Signature Blends</option>
-                                                <option>Herbs</option>
-                                            </select>
+                                                <Plus className="w-4 h-4" />
+                                                Add Weight Option
+                                            </button>
                                         </div>
+                                    </div>
 
-                                        {/* Shelf Life */}
-                                        <div>
-                                            <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                                                <Calendar className="w-3 h-3" />
-                                                Shelf Life
-                                            </label>
-                                            <select
-                                                value={formData.shelfLife}
-                                                onChange={(e) => setFormData({ ...formData, shelfLife: e.target.value })}
-                                                className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A] cursor-pointer"
-                                            >
-                                                <option value="">Select duration</option>
-                                                <option value="3">3 Months</option>
-                                                <option value="6">6 Months</option>
-                                                <option value="9">9 Months</option>
-                                                <option value="12">1 Year</option>
-                                                <option value="18">18 Months</option>
-                                                <option value="24">2 Years</option>
-                                                <option value="36">3 Years</option>
-                                            </select>
-                                        </div>
+                                    {/* Stock Quantity */}
+                                    <div>
+                                        <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                            <Hash className="w-3 h-3" />
+                                            Stock Quantity (Total Units)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            placeholder="e.g. 100"
+                                            value={formData.stockQty}
+                                            onChange={(e) => setFormData({ ...formData, stockQty: e.target.value })}
+                                            className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
+                                        />
                                     </div>
                                 </div>
 
@@ -423,17 +493,17 @@ export default function SpiceCatalogPage() {
                                     <button
                                         onClick={() => {
                                             // Handle form submission here
-                                            console.log('Form Data:', formData);
+                                            console.log('Form Data:', formData, 'Benefits:', benefits, 'Weight Options:', weightOptions);
                                             setIsModalOpen(false);
                                             setFormData({
                                                 name: '',
+                                                subtitle: 'Stone Ground',
                                                 imageUrl: '',
-                                                price: '',
-                                                packWeight: '',
-                                                stockQty: '',
-                                                category: 'Ground Spices',
-                                                shelfLife: ''
+                                                category: 'Powder',
+                                                stockQty: ''
                                             });
+                                            setBenefits(['']);
+                                            setWeightOptions([{ weight: '', price: '' }]);
                                             setImagePreview('');
                                         }}
                                         className="flex items-center gap-2 px-6 py-2.5 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#7A1A1A]/20 hover:bg-[#601010] transition-all"
@@ -549,26 +619,66 @@ export default function SpiceCatalogPage() {
 
                                 {/* Content */}
                                 <div className="p-4">
-                                    {/* Title & Price */}
-                                    <div className="flex items-start justify-between gap-2 mb-1">
-                                        <h3 className="font-serif font-bold text-[#7A1A1A] leading-tight">{product.name}</h3>
-                                        <span className="text-[#D4AF37] font-serif font-bold text-lg tabular-nums lining-nums">₹{product.price}</span>
+                                    {/* Category Badge */}
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[10px] font-bold text-[#7A1A1A] bg-[#7A1A1A]/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                            {product.category}
+                                        </span>
                                     </div>
 
-                                    {/* Category */}
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4">{product.category}</p>
-
-                                    {/* Stock & Pack Size */}
-                                    <div className="flex items-center justify-between pt-3 border-t border-[#F3EFEA]">
+                                    {/* Title & Price */}
+                                    <div className="flex items-start justify-between gap-2 mb-1">
                                         <div>
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Stock</p>
-                                            <p className={`text-sm font-bold tabular-nums lining-nums ${product.stock === 0 ? 'text-red-500' : product.lowStock ? 'text-orange-500' : 'text-[#7A1A1A]'}`}>
-                                                {product.stock} Units
-                                            </p>
+                                            <h3 className="font-serif font-bold text-[#7A1A1A] leading-tight">{product.name}</h3>
+                                            <p className="text-xs text-gray-500 italic">{product.subtitle}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pack Size</p>
-                                            <p className="text-sm font-bold text-[#7A1A1A]">{product.packSize}</p>
+                                            <span className="text-[#D4AF37] font-serif font-bold text-lg tabular-nums lining-nums">
+                                                ₹{product.weightOptions[0]?.price}
+                                            </span>
+                                            <p className="text-[10px] text-gray-400">onwards</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Benefits Preview */}
+                                    <div className="mb-3">
+                                        <div className="flex flex-wrap gap-1">
+                                            {product.benefits.slice(0, 2).map((benefit, idx) => (
+                                                <span key={idx} className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                                    ✦ {benefit}
+                                                </span>
+                                            ))}
+                                            {product.benefits.length > 2 && (
+                                                <span className="text-[10px] text-[#7A1A1A] font-medium">+{product.benefits.length - 2} more</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Weight Options & Stock */}
+                                    <div className="pt-3 border-t border-[#F3EFEA]">
+                                        {/* Weight Options */}
+                                        <div className="mb-2">
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Weights</p>
+                                            <div className="flex flex-wrap gap-1">
+                                                {product.weightOptions.map((opt, idx) => (
+                                                    <span key={idx} className="text-[10px] bg-[#F5E9DB] text-[#7A1A1A] px-2 py-0.5 rounded font-medium">
+                                                        {opt.weight}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        {/* Stock */}
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Stock</p>
+                                                <p className={`text-sm font-bold tabular-nums lining-nums ${product.stock === 0 ? 'text-red-500' : product.lowStock ? 'text-orange-500' : 'text-[#7A1A1A]'}`}>
+                                                    {product.stock} Units
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Variants</p>
+                                                <p className="text-sm font-bold text-[#7A1A1A]">{product.weightOptions.length}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

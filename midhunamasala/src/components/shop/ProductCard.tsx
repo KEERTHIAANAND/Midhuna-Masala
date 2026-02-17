@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import CloudImage from "@/components/common/CloudImage";
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -59,7 +59,7 @@ export default function ProductCard({ product, isSelected, onSelect, index = 0 }
             whileHover={{ scale: 1.08 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            <Image
+            <CloudImage
               src={product.image}
               alt={product.name}
               fill

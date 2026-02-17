@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import CloudImage from "@/components/common/CloudImage";
 import React from "react";
 import { ShoppingCart, Heart, X, Star } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -97,7 +97,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <Image
+                        <CloudImage
                             src={product.image}
                             alt={product.name}
                             fill

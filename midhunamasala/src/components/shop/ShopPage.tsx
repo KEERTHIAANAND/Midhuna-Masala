@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
+import CloudImage from "@/components/common/CloudImage";
 import ProductCard from "@/components/shop/ProductCard";
 import ProductDetails from "@/components/shop/ProductDetails";
 import Footer from "@/components/layout/Footer";
@@ -149,14 +149,13 @@ export default function ShopPage() {
       <section className="relative w-full h-[400px] overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0">
-          <Image
+          <CloudImage
             src="/images/banners/shopbanner.jpg"
             alt="The Royal Spice Pantry"
             fill
             priority
             className="object-cover"
-            quality={100}
-            style={{ objectFit: "cover" }}
+            quality={85}
           />
           {/* Darker gradient overlay */}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(80, 15, 15, 0.98) 0%, rgba(100, 20, 20, 0.9) 50%, rgba(100, 20, 20, 0.75) 75%, rgba(80, 15, 15, 0.5) 100%)' }}></div>
@@ -213,8 +212,8 @@ export default function ShopPage() {
             <button
               onClick={() => setSelectedCollection('all')}
               className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'all'
-                  ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
-                  : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
+                ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
+                : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
                 }`}
             >
               All Spices
@@ -222,8 +221,8 @@ export default function ShopPage() {
             <button
               onClick={() => setSelectedCollection('whole-spices')}
               className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'whole-spices'
-                  ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
-                  : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
+                ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
+                : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
                 }`}
             >
               Whole Spices
@@ -231,8 +230,8 @@ export default function ShopPage() {
             <button
               onClick={() => setSelectedCollection('ground-powders')}
               className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'ground-powders'
-                  ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
-                  : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
+                ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
+                : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
                 }`}
             >
               Powders
@@ -240,8 +239,8 @@ export default function ShopPage() {
             <button
               onClick={() => setSelectedCollection('secret-blends')}
               className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'secret-blends'
-                  ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
-                  : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
+                ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
+                : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
                 }`}
             >
               Secret Blends

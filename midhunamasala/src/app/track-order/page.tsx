@@ -223,8 +223,8 @@ export default function TrackOrderPage() {
                     {order.timeline.map((step, index) => (
                       <div key={index} className="flex flex-col items-center flex-1">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step.completed
-                            ? 'bg-gradient-to-br from-[#8B1E1E] to-[#A02C2C] border-[#8B1E1E] text-white'
-                            : 'bg-white border-[#E5D4B8] text-gray-300'
+                          ? 'bg-gradient-to-br from-[#8B1E1E] to-[#A02C2C] border-[#8B1E1E] text-white'
+                          : 'bg-white border-[#E5D4B8] text-gray-300'
                           } shadow-sm z-10`}>
                           {step.completed ? (
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

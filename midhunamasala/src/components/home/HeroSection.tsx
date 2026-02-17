@@ -1,14 +1,23 @@
 'use client';
 
 import Link from 'next/link';
+import CloudImage from '@/components/common/CloudImage';
 
 export default function HeroSection() {
   return (
     <section className="relative h-[calc(100vh-140px)] bg-[#992c2c] flex items-center justify-center overflow-hidden">
-      {/* Background Image Placeholder with Overlay */}
+      {/* Background Image with Cloudinary CDN */}
       <div className="absolute inset-0 z-0">
-        {/* In a real app, use next/image here with object-cover */}
-        <div className="w-full h-full bg-[url('/images/banners/banner3.jpg')] bg-cover bg-center opacity-60"></div>
+        <div className="w-full h-full opacity-60 relative">
+          <CloudImage
+            src="/images/banners/banner3.jpg"
+            alt="Midhuna Masala Hero Background"
+            fill
+            priority
+            className="object-cover"
+            quality={80}
+          />
+        </div>
         <div className="absolute inset-0 bg-[#8B1E1E]/40"></div>
       </div>
 
@@ -43,7 +52,7 @@ export default function HeroSection() {
           </p>
 
           {/* Button */}
-          <Link 
+          <Link
             href="/shop"
             className="inline-block border border-white text-white px-8 py-3 text-sm font-bold tracking-[0.2em] hover:bg-white hover:text-[#8B1E1E] transition-all duration-300 uppercase"
           >

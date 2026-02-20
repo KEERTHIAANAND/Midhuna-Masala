@@ -28,22 +28,22 @@ export default function CartPage() {
     <div className="min-h-screen bg-[#FAF8F3] px-4 py-6">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#8B1E1E] to-[#A02C2C] rounded-full mb-4 shadow-md">
-            <svg className="w-8 h-8 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-[#8B1E1E] to-[#A02C2C] rounded-full mb-3 sm:mb-4 shadow-md">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-[#8B1E1E] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#8B1E1E] mb-1.5 sm:mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
             Your Cart
           </h1>
-          <p className="text-base text-[#D4AF37] italic" style={{ fontFamily: 'Crimson Text, serif' }}>
+          <p className="text-sm sm:text-base text-[#D4AF37] italic" style={{ fontFamily: 'Crimson Text, serif' }}>
             {items.length} {items.length === 1 ? 'item' : 'items'} in cart • {selectedItems.length} selected
           </p>
         </div>
 
         {items.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center max-w-md mx-auto">
+          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center max-w-md mx-auto">
             <div className="w-20 h-20 bg-gradient-to-br from-[#FAF8F3] to-[#F0E6D8] rounded-full mx-auto mb-6 flex items-center justify-center">
               <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -55,10 +55,10 @@ export default function CartPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Cart Items - Clean Card Grid Layout */}
             <div className="lg:col-span-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-fr">
+              <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 auto-rows-fr">
                 {items.map((item) => {
                   const isSelected = selectedItems.includes(item.id);
 
@@ -88,7 +88,7 @@ export default function CartPage() {
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-contain p-2 sm:p-3 group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                             e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-[#E5D4B8] to-[#D4C4A8] flex items-center justify-center text-3xl">🌶️</div>';
@@ -97,10 +97,10 @@ export default function CartPage() {
                       </div>
 
                       {/* Product Info Section - Compact Design */}
-                      <div className="p-3 text-center flex flex-col flex-grow">
+                      <div className="p-2 sm:p-3 text-center flex flex-col flex-grow">
                         {/* Product Name - Reduced min height */}
-                        <div className="min-h-[44px] flex items-start justify-center">
-                          <h3 className="text-base font-semibold text-[#8B1E1E] line-clamp-2 leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
+                        <div className="min-h-[36px] sm:min-h-[44px] flex items-start justify-center">
+                          <h3 className="text-xs sm:text-sm md:text-base font-semibold text-[#8B1E1E] line-clamp-2 leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
                             {item.name}
                           </h3>
                         </div>
@@ -111,7 +111,7 @@ export default function CartPage() {
                         </p>
 
                         {/* Price */}
-                        <p className="text-xl font-bold text-[#8B1E1E] mb-3" style={{ fontFamily: 'Playfair Display, serif' }}>
+                        <p className="text-lg sm:text-xl font-bold text-[#8B1E1E] mb-2 sm:mb-3" style={{ fontFamily: 'Playfair Display, serif' }}>
                           ${(item.price * item.quantity).toFixed(2)}
                         </p>
 
@@ -119,19 +119,19 @@ export default function CartPage() {
                         <div className="flex-grow"></div>
 
                         {/* Quantity Controls - Smaller buttons */}
-                        <div className="flex items-center justify-center gap-2 mb-3" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-2 sm:mb-3" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity - 1); }}
-                            className="w-8 h-8 rounded-full bg-[#FAF8F3] border border-[#E5D4B8] text-[#8B1E1E] font-bold text-sm hover:bg-[#8B1E1E] hover:text-white hover:border-[#8B1E1E] transition-all flex items-center justify-center"
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FAF8F3] border border-[#E5D4B8] text-[#8B1E1E] font-bold text-xs sm:text-sm hover:bg-[#8B1E1E] hover:text-white hover:border-[#8B1E1E] transition-all flex items-center justify-center"
                           >
                             −
                           </button>
-                          <span className="w-6 text-center font-bold text-base text-[#8B1E1E]">
+                          <span className="w-5 sm:w-6 text-center font-bold text-sm sm:text-base text-[#8B1E1E]">
                             {item.quantity}
                           </span>
                           <button
                             onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity + 1); }}
-                            className="w-8 h-8 rounded-full bg-[#FAF8F3] border border-[#E5D4B8] text-[#8B1E1E] font-bold text-sm hover:bg-[#8B1E1E] hover:text-white hover:border-[#8B1E1E] transition-all flex items-center justify-center"
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FAF8F3] border border-[#E5D4B8] text-[#8B1E1E] font-bold text-xs sm:text-sm hover:bg-[#8B1E1E] hover:text-white hover:border-[#8B1E1E] transition-all flex items-center justify-center"
                           >
                             +
                           </button>
@@ -140,7 +140,7 @@ export default function CartPage() {
                         {/* Remove Button - More compact */}
                         <button
                           onClick={(e) => { e.stopPropagation(); removeFromCart(item.id); }}
-                          className="w-full py-2.5 text-xs font-semibold text-white bg-[#8B1E1E] hover:bg-[#6B1515] rounded-full transition-all flex items-center justify-center gap-1.5"
+                          className="w-full py-2 sm:py-2.5 text-[10px] sm:text-xs font-semibold text-white bg-[#8B1E1E] hover:bg-[#6B1515] rounded-full transition-all flex items-center justify-center gap-1 sm:gap-1.5"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

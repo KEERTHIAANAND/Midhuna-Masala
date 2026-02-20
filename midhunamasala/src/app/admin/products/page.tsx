@@ -4,100 +4,33 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import {
-    LayoutGrid, ShoppingBag, ShoppingCart, Package,
-    BarChart3, Settings, LogOut, Plus, Search, Filter,
-    Leaf, MoreVertical, Edit2, Trash2, Eye, X, Tag, Hash, Scale, Calendar, ImageIcon
+    Plus, Search, Filter, Leaf,
+    Edit2, Trash2, Eye, X, Tag, Hash, Scale, Calendar, ImageIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import Link from 'next/link';
 import Image from 'next/image';
+import AdminNavbar from '@/components/admin/AdminNavbar';
 
-// Navigation Items Configuration
-const NAV_ITEMS = [
-    { name: 'Garden View', icon: LayoutGrid, href: '/admin' },
-    { name: 'Spice Catalog', icon: ShoppingBag, href: '/admin/products', active: true },
-    { name: 'Orders', icon: ShoppingCart, href: '/admin/orders', badge: 5 },
-    { name: 'Inventory', icon: Package, href: '/admin/inventory', notification: true },
-    { name: 'Sales Growth', icon: BarChart3, href: '/admin/reports' },
-    { name: 'Settings', icon: Settings, href: '/admin/settings' },
-];
 
 // Category Filters
 const CATEGORIES = ['All Spices', 'Powder', 'Whole Spices', 'Blends'];
 
-// Mock Product Data
-const PRODUCTS = [
-    {
-        id: 1,
-        name: 'Kashmiri Chilli Powder',
-        subtitle: 'Stone Ground',
-        category: 'POWDER',
-        stock: 124,
-        image: '/products/kashmiri-chilli.jpg',
-        inStock: true,
-        benefits: ['Rich in antioxidants', 'Vibrant natural color', 'No artificial colors'],
-        weightOptions: [{ weight: '100g', price: 150 }, { weight: '250g', price: 320 }, { weight: '500g', price: 450 }]
-    },
-    {
-        id: 2,
-        name: 'Wayanad Turmeric Root',
-        subtitle: 'Hand Picked',
-        category: 'WHOLE SPICES',
-        stock: 15,
-        image: '/products/turmeric-root.jpg',
-        inStock: true,
-        lowStock: true,
-        benefits: ['High curcumin content', 'Organic certified', 'Anti-inflammatory'],
-        weightOptions: [{ weight: '250g', price: 180 }, { weight: '500g', price: 320 }, { weight: '1kg', price: 580 }]
-    },
-    {
-        id: 3,
-        name: 'Royal Garam Masala',
-        subtitle: 'Traditional Recipe',
-        category: 'BLENDS',
-        stock: 0,
-        image: '/products/garam-masala.jpg',
-        inStock: false,
-        benefits: ['12 premium spices', 'Family recipe', 'No preservatives'],
-        weightOptions: [{ weight: '50g', price: 180 }, { weight: '100g', price: 320 }, { weight: '250g', price: 650 }]
-    },
-    {
-        id: 4,
-        name: 'Coriander Powder',
-        subtitle: 'Stone Ground',
-        category: 'POWDER',
-        stock: 200,
-        image: '/products/coriander.jpg',
-        inStock: true,
-        benefits: ['Fresh aroma', 'Digestive aid', '100% pure'],
-        weightOptions: [{ weight: '100g', price: 80 }, { weight: '250g', price: 160 }, { weight: '500g', price: 280 }]
-    },
-    {
-        id: 5,
-        name: 'Malabar Black Pepper',
-        subtitle: 'Premium Quality',
-        category: 'WHOLE SPICES',
-        stock: 45,
-        image: '/products/black-pepper.jpg',
-        inStock: true,
-        benefits: ['Bold flavor', 'Hand sorted', 'High piperine'],
-        weightOptions: [{ weight: '50g', price: 120 }, { weight: '100g', price: 220 }, { weight: '250g', price: 490 }]
-    },
-    {
-        id: 6,
-        name: 'Star Anise Premium',
-        subtitle: 'Hand Picked',
-        category: 'WHOLE SPICES',
-        stock: 8,
-        image: '/products/star-anise.jpg',
-        inStock: true,
-        lowStock: true,
-        benefits: ['Aromatic flavor', 'Perfect shape', 'Premium grade'],
-        weightOptions: [{ weight: '25g', price: 150 }, { weight: '50g', price: 280 }, { weight: '100g', price: 520 }]
-    },
-];
+// Product Data
+type Product = {
+    id: number;
+    name: string;
+    subtitle: string;
+    category: string;
+    stock: number;
+    image: string;
+    inStock: boolean;
+    lowStock?: boolean;
+    benefits: string[];
+    weightOptions: { weight: string; price: number }[];
+};
+const PRODUCTS: Product[] = [];
 
 export default function SpiceCatalogPage() {
     const { user, isAdmin, isLoading: authLoading } = useAuth();
@@ -156,74 +89,7 @@ export default function SpiceCatalogPage() {
     return (
         <div className="min-h-screen bg-[#FDFBF7] font-sans text-gray-800">
 
-            {/* 1. TOP BRANDING BAR */}
-            <div className="bg-white px-6 py-3 flex items-center justify-between border-b border-[#F3EFEA]">
-                {/* Logo */}
-                <div className="flex items-center gap-3">
-                    <div>
-                        <h1 className="text-xl font-serif font-bold text-[#7A1A1A] leading-tight">Midhuna Masala</h1>
-                        <p className="text-[9px] font-bold text-[#D4AF37] tracking-[0.12em] uppercase">Traditional Stone Ground Spices</p>
-                    </div>
-                </div>
-
-                {/* Profile - Click to go to Settings */}
-                <Link href="/admin/settings" className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity">
-                    <div className="text-right hidden sm:block">
-                        <p className="text-sm font-bold text-gray-800">{user?.name || 'Admin User'}</p>
-                        <p className="text-[10px] font-bold text-[#D4AF37] tracking-wider uppercase">Super Admin</p>
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-[#7A1A1A] text-[#F6C84C] flex items-center justify-center font-serif font-bold text-lg shadow-md border-2 border-[#F6C84C]">
-                        {user?.name?.charAt(0).toUpperCase() || 'A'}
-                    </div>
-                </Link>
-            </div>
-
-            {/* 2. NAVIGATION STRIP */}
-            <div className="bg-[#7A1A1A] text-white px-6 shadow-xl shadow-[#7A1A1A]/10 sticky top-0 z-40">
-                <div className="flex items-center justify-between overflow-x-auto scrollbar-hide">
-                    <nav className="flex items-center gap-1">
-                        {NAV_ITEMS.map((item) => (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className={`
-                                    flex items-center gap-2 px-4 py-4 text-sm font-medium transition-all relative group
-                                    ${item.active ? 'text-white' : 'text-[#E5D2C5] hover:text-white hover:bg-white/5'}
-                                `}
-                            >
-                                <item.icon className={`w-4 h-4 ${item.active ? 'text-[#F6C84C]' : 'text-current group-hover:text-[#F6C84C]'}`} />
-                                <span className="whitespace-nowrap">{item.name}</span>
-
-                                {/* Active Indicator */}
-                                {item.active && (
-                                    <motion.div
-                                        layoutId="activeTab"
-                                        className="absolute bottom-0 left-0 right-0 h-1 bg-[#F6C84C] rounded-t-full"
-                                    />
-                                )}
-
-                                {/* Badge */}
-                                {item.badge && (
-                                    <span className="absolute top-2 right-0 w-4 h-4 bg-[#F6C84C] text-[#7A1A1A] text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
-                                        {item.badge}
-                                    </span>
-                                )}
-                                {item.notification && (
-                                    <div className="absolute top-3 right-2 w-1.5 h-1.5 bg-[#F6C84C] rounded-full animate-pulse" />
-                                )}
-                            </Link>
-                        ))}
-                    </nav>
-
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 text-xs font-bold text-[#E5D2C5] hover:text-red-200 uppercase tracking-wider py-4 pl-6 border-l border-white/10 ml-4 transition-colors"
-                    >
-                        <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
-                    </button>
-                </div>
-            </div>
+            <AdminNavbar user={user} onLogout={handleLogout} />
 
             {/* 3. MAIN CONTENT */}
             <main className="p-6 max-w-[1600px] mx-auto space-y-6">

@@ -63,8 +63,8 @@ export default function ProductCard({ product, isSelected, onSelect, index = 0 }
               src={product.image}
               alt={product.name}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-contain p-6"
+              sizes="(max-width: 640px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              className="object-contain p-3 sm:p-6"
             />
           </motion.div>
 
@@ -101,9 +101,9 @@ export default function ProductCard({ product, isSelected, onSelect, index = 0 }
         </div>
 
         {/* Product Info - Fixed Height */}
-        <div className="p-4 text-center bg-white flex-1 flex flex-col items-center justify-center gap-2 min-h-[130px]">
+        <div className="p-3 sm:p-4 text-center bg-white flex-1 flex flex-col items-center justify-center gap-1.5 sm:gap-2 min-h-[100px] sm:min-h-[130px]">
           <motion.h3
-            className="text-base font-bold text-[#8B1E1E] line-clamp-2 leading-tight"
+            className="text-sm sm:text-base font-bold text-[#8B1E1E] line-clamp-2 leading-tight"
             style={{ fontFamily: "'Playfair Display', serif" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -128,7 +128,7 @@ export default function ProductCard({ product, isSelected, onSelect, index = 0 }
             <div className="flex items-baseline justify-center gap-0.5">
               <span className="text-sm text-[#D4AF37] font-medium">₹</span>
               <span
-                className="text-2xl font-bold text-[#333]"
+                className="text-xl sm:text-2xl font-bold text-[#333]"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 {product.price?.toFixed(0) || "5"}

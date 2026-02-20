@@ -19,8 +19,8 @@ const crimsonText = Crimson_Text({
 });
 
 export const metadata: Metadata = {
-  title: "MasalaHeritage - Authentic Flavors, Homemade with Love",
-  description: "Discover traditional masalas crafted with care, bringing the rich heritage of Indian kitchens directly to your home.",
+  title: "Midhuna Masala - Traditional Stone Ground Spices",
+  description: "Hand-pounded, sun-dried, stone ground masalas from the heart of Chettinad. Pure, authentic spices crafted with love — from our village to your kitchen.",
 };
 
 export default function RootLayout({

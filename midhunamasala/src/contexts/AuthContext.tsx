@@ -8,6 +8,12 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 
+// Admin emails that are allowed to access admin panel
+export const ADMIN_EMAILS = [
+    'keerthiaanand77@gmail.com',
+    // Add more admin emails here
+];
+
 export interface User {
     id: string;
     name: string;
@@ -20,7 +26,8 @@ interface AuthContextType {
     user: User | null;
     isLoading: boolean;
     isAuthenticated: boolean;
-    signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+    isAdmin: boolean;
+    signInWithGoogle: () => Promise<{ success: boolean; error?: string; isAdmin?: boolean }>;
     logout: () => Promise<void>;
     updateUser: (data: Partial<User>) => void;
 }
@@ -30,6 +37,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Check if current user is admin
+    const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email.toLowerCase()) : false;
 
     // Listen to Firebase auth state changes
     useEffect(() => {
@@ -54,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => unsubscribe();
     }, []);
 
-    const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
+    const signInWithGoogle = async (): Promise<{ success: boolean; error?: string; isAdmin?: boolean }> => {
         setIsLoading(true);
         try {
             const result = await signInWithPopup(auth, googleProvider);
@@ -70,7 +80,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             setUser(userData);
             setIsLoading(false);
-            return { success: true };
+
+            // Check if the signed-in user is an admin
+            const userIsAdmin = ADMIN_EMAILS.includes(userData.email.toLowerCase());
+            return { success: true, isAdmin: userIsAdmin };
         } catch (error: unknown) {
             setIsLoading(false);
             const errorMessage = error instanceof Error ? error.message : 'Failed to sign in with Google';
@@ -100,6 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 user,
                 isLoading,
                 isAuthenticated: !!user,
+                isAdmin,
                 signInWithGoogle,
                 logout,
                 updateUser,

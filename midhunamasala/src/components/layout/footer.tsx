@@ -4,17 +4,17 @@ export default function Footer() {
   return (
     <footer className="relative bg-[#8B1E1E] overflow-hidden">
       {/* Dotted background pattern */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none" 
-           style={{ 
-             backgroundImage: 'radial-gradient(#F6C84C 1px, transparent 1px)', 
-             backgroundSize: '30px 30px' 
-           }}>
+      <div className="absolute inset-0 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(#F6C84C 1px, transparent 1px)',
+          backgroundSize: '30px 30px'
+        }}>
       </div>
 
       {/* Content */}
       <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto">
-          
+
           {/* Left side - Brand name */}
           <div className="mb-8 md:mb-0 text-center md:text-left">
             <h2 className="text-3xl md:text-4xl font-bold text-white font-serif tracking-wide">
@@ -57,7 +57,7 @@ export default function Footer() {
               aria-label="YouTube"
             >
               <svg className="w-6 h-6 text-[#F6C84C]" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
               </svg>
             </a>
 
@@ -78,7 +78,7 @@ export default function Footer() {
 
       {/* Bottom copyright */}
       <div className="w-full text-center py-6 relative z-10 border-t border-[#F6C84C]/20">
-        <p className="text-sm text-[#F6C84C]/80 font-serif">© 2025 Mithuna Masala. All rights reserved.</p>
+        <p className="text-sm text-[#F6C84C]/80 font-serif">© 2026 Midhuna Masala. All rights reserved.</p>
       </div>
     </footer>
   );

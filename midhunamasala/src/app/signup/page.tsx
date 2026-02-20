@@ -30,6 +30,7 @@ export default function SignupPage() {
     const [success, setSuccess] = useState(false);
     const [focusedField, setFocusedField] = useState<string | null>(null);
     const [agreeTerms, setAgreeTerms] = useState(false);
+    const [signupMethod, setSignupMethod] = useState<'choice' | 'email'>('choice');
 
     useEffect(() => {
         if (isAuthenticated && !authLoading) router.push('/');
@@ -68,6 +69,13 @@ export default function SignupPage() {
         if (error) setError('');
     };
 
+    const handleBackToChoice = () => {
+        setSignupMethod('choice');
+        setError('');
+        setFormData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+        setAgreeTerms(false);
+    };
+
     const getPasswordStrength = () => {
         const p = formData.password;
         if (!p) return { strength: 0, label: '', color: '' };
@@ -96,7 +104,24 @@ export default function SignupPage() {
             {/* Signup Card */}
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="relative w-full max-w-md z-10">
                 <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden">
-                    {/* Back Icon - Top Right */}
+                    {/* Back Icon - Top Left (only when on email form) */}
+                    <AnimatePresence>
+                        {signupMethod === 'email' && (
+                            <motion.button
+                                type="button"
+                                onClick={handleBackToChoice}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                transition={{ duration: 0.3 }}
+                                className="absolute top-4 left-4 z-20 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
+                            >
+                                <ArrowRight className="w-5 h-5 rotate-180" />
+                            </motion.button>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Close Icon - Top Right */}
                     <Link href="/" className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors">
                         <X className="w-5 h-5" />
                     </Link>
@@ -120,20 +145,29 @@ export default function SignupPage() {
                                     <h3 className="text-xl font-serif font-bold text-gray-800">Welcome to the Family!</h3>
                                     <p className="text-gray-500 mt-2">Redirecting you...</p>
                                 </motion.div>
-                            ) : (
-                                <motion.div key="form" className="space-y-4">
+                            ) : signupMethod === 'choice' ? (
+                                <motion.div
+                                    key="choice"
+                                    initial={{ opacity: 0, x: -30, scale: 0.98 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    exit={{ opacity: 0, x: -30, scale: 0.98 }}
+                                    transition={{ duration: 0.35, ease: "easeInOut" }}
+                                    className="space-y-4 py-4"
+                                >
                                     <AnimatePresence>{error && (<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-3"><AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" /><p className="text-sm text-red-600">{error}</p></motion.div>)}</AnimatePresence>
 
-                                    {/* Google Sign In Button */}
+                                    <p className="text-center text-gray-600 text-sm mb-2">Choose how you&apos;d like to sign up</p>
+
+                                    {/* Google Sign Up Button */}
                                     <motion.button
                                         type="button"
                                         onClick={handleGoogleSignIn}
-                                        disabled={isGoogleLoading || isLoading}
+                                        disabled={isGoogleLoading}
                                         whileHover={{ scale: isGoogleLoading ? 1 : 1.02 }}
                                         whileTap={{ scale: isGoogleLoading ? 1 : 0.98 }}
-                                        className={`w-full py-3.5 rounded-xl font-semibold text-gray-700 flex items-center justify-center gap-3 transition-all border-2 ${isGoogleLoading
-                                                ? 'bg-gray-100 border-gray-200 cursor-not-allowed'
-                                                : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 shadow-sm hover:shadow-md'
+                                        className={`w-full py-4 rounded-xl font-semibold text-gray-700 flex items-center justify-center gap-3 transition-all border-2 ${isGoogleLoading
+                                            ? 'bg-gray-100 border-gray-200 cursor-not-allowed'
+                                            : 'bg-white border-gray-200 hover:border-[#8B1E1E]/30 hover:bg-gray-50 shadow-sm hover:shadow-md'
                                             }`}
                                     >
                                         {isGoogleLoading ? (
@@ -143,74 +177,95 @@ export default function SignupPage() {
                                         )}
                                     </motion.button>
 
-                                    {/* Divider */}
-                                    <div className="relative">
-                                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
-                                        <div className="relative flex justify-center text-xs"><span className="px-4 bg-white text-gray-400">or sign up with email</span></div>
-                                    </div>
+                                    {/* Email Sign Up Button */}
+                                    <motion.button
+                                        type="button"
+                                        onClick={() => setSignupMethod('email')}
+                                        disabled={isGoogleLoading}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full py-4 rounded-xl font-semibold text-white flex items-center justify-center gap-3 transition-all bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] hover:from-[#7A1A1A] hover:to-[#5A1313] shadow-lg shadow-[#8B1E1E]/30 hover:shadow-xl hover:shadow-[#8B1E1E]/40"
+                                    >
+                                        <Mail className="w-5 h-5" />
+                                        <span>Sign up with Email</span>
+                                    </motion.button>
 
-                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                    <p className="text-center mt-6 text-xs text-gray-500">Already have an account? <Link href="/login" className="text-[#8B1E1E] font-semibold hover:underline">Sign in</Link></p>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="email-form"
+                                    initial={{ opacity: 0, x: 30, scale: 0.98 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    exit={{ opacity: 0, x: 30, scale: 0.98 }}
+                                    transition={{ duration: 0.35, ease: "easeInOut" }}
+                                    className="space-y-3"
+                                >
+
+                                    <AnimatePresence>{error && (<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-3"><AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" /><p className="text-sm text-red-600">{error}</p></motion.div>)}</AnimatePresence>
+
+                                    <form onSubmit={handleSubmit} className="space-y-3">
                                         {/* Name */}
-                                        <div className="space-y-1.5">
-                                            <label className="block text-sm font-semibold text-gray-700">Full Name</label>
+                                        <div className="space-y-1">
+                                            <label className="block text-xs font-semibold text-gray-700">Full Name</label>
                                             <div className={`relative transition-all duration-300 ${focusedField === 'name' ? 'transform scale-[1.01]' : ''}`}>
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><User className={`h-5 w-5 transition-colors ${focusedField === 'name' ? 'text-[#8B1E1E]' : 'text-gray-400'}`} /></div>
-                                                <input type="text" name="name" value={formData.name} onChange={handleInputChange} onFocus={() => setFocusedField('name')} onBlur={() => setFocusedField(null)} className={`w-full pl-12 pr-4 py-3 bg-gray-50 border-2 rounded-xl text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'name' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'}`} placeholder="Your full name" required />
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><User className={`h-4 w-4 transition-colors ${focusedField === 'name' ? 'text-[#8B1E1E]' : 'text-gray-400'}`} /></div>
+                                                <input type="text" name="name" value={formData.name} onChange={handleInputChange} onFocus={() => setFocusedField('name')} onBlur={() => setFocusedField(null)} className={`w-full pl-10 pr-3 py-2 text-sm bg-gray-50 border-2 rounded-lg text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'name' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'}`} placeholder="Your full name" required />
                                             </div>
                                         </div>
 
                                         {/* Email */}
-                                        <div className="space-y-1.5">
-                                            <label className="block text-sm font-semibold text-gray-700">Email Address</label>
+                                        <div className="space-y-1">
+                                            <label className="block text-xs font-semibold text-gray-700">Email Address</label>
                                             <div className={`relative transition-all duration-300 ${focusedField === 'email' ? 'transform scale-[1.01]' : ''}`}>
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><Mail className={`h-5 w-5 transition-colors ${focusedField === 'email' ? 'text-[#8B1E1E]' : 'text-gray-400'}`} /></div>
-                                                <input type="email" name="email" value={formData.email} onChange={handleInputChange} onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)} className={`w-full pl-12 pr-4 py-3 bg-gray-50 border-2 rounded-xl text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'email' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'}`} placeholder="you@example.com" required />
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Mail className={`h-4 w-4 transition-colors ${focusedField === 'email' ? 'text-[#8B1E1E]' : 'text-gray-400'}`} /></div>
+                                                <input type="email" name="email" value={formData.email} onChange={handleInputChange} onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)} className={`w-full pl-10 pr-3 py-2 text-sm bg-gray-50 border-2 rounded-lg text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'email' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'}`} placeholder="you@example.com" required />
                                             </div>
                                         </div>
 
                                         {/* Phone */}
-                                        <div className="space-y-1.5">
-                                            <label className="block text-sm font-semibold text-gray-700">Phone <span className="text-gray-400 font-normal">(Optional)</span></label>
+                                        <div className="space-y-1">
+                                            <label className="block text-xs font-semibold text-gray-700">Phone <span className="text-gray-400 font-normal">(Optional)</span></label>
                                             <div className={`relative transition-all duration-300 ${focusedField === 'phone' ? 'transform scale-[1.01]' : ''}`}>
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><Phone className={`h-5 w-5 transition-colors ${focusedField === 'phone' ? 'text-[#8B1E1E]' : 'text-gray-400'}`} /></div>
-                                                <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} onFocus={() => setFocusedField('phone')} onBlur={() => setFocusedField(null)} className={`w-full pl-12 pr-4 py-3 bg-gray-50 border-2 rounded-xl text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'phone' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'}`} placeholder="+91 98765 43210" />
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Phone className={`h-4 w-4 transition-colors ${focusedField === 'phone' ? 'text-[#8B1E1E]' : 'text-gray-400'}`} /></div>
+                                                <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} onFocus={() => setFocusedField('phone')} onBlur={() => setFocusedField(null)} className={`w-full pl-10 pr-3 py-2 text-sm bg-gray-50 border-2 rounded-lg text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'phone' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'}`} placeholder="+91 98765 43210" />
                                             </div>
                                         </div>
 
                                         {/* Password */}
-                                        <div className="space-y-1.5">
-                                            <label className="block text-sm font-semibold text-gray-700">Password</label>
+                                        <div className="space-y-1">
+                                            <label className="block text-xs font-semibold text-gray-700">Password</label>
                                             <div className={`relative transition-all duration-300 ${focusedField === 'password' ? 'transform scale-[1.01]' : ''}`}>
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><Lock className={`h-5 w-5 transition-colors ${focusedField === 'password' ? 'text-[#8B1E1E]' : 'text-gray-400'}`} /></div>
-                                                <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleInputChange} onFocus={() => setFocusedField('password')} onBlur={() => setFocusedField(null)} className={`w-full pl-12 pr-12 py-3 bg-gray-50 border-2 rounded-xl text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'password' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'}`} placeholder="Min 6 characters" required />
-                                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#8B1E1E]">{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button>
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Lock className={`h-4 w-4 transition-colors ${focusedField === 'password' ? 'text-[#8B1E1E]' : 'text-gray-400'}`} /></div>
+                                                <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleInputChange} onFocus={() => setFocusedField('password')} onBlur={() => setFocusedField(null)} className={`w-full pl-10 pr-10 py-2 text-sm bg-gray-50 border-2 rounded-lg text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'password' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'}`} placeholder="Min 6 characters" required />
+                                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-[#8B1E1E]">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
                                             </div>
                                             {formData.password && (
-                                                <div className="flex items-center gap-2 mt-1.5">
-                                                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: `${passwordStrength.strength}%` }} className={`h-full ${passwordStrength.color}`} /></div>
-                                                    <span className={`text-xs font-medium ${passwordStrength.strength <= 40 ? 'text-red-500' : passwordStrength.strength <= 60 ? 'text-yellow-600' : 'text-green-600'}`}>{passwordStrength.label}</span>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: `${passwordStrength.strength}%` }} className={`h-full ${passwordStrength.color}`} /></div>
+                                                    <span className={`text-[10px] font-medium ${passwordStrength.strength <= 40 ? 'text-red-500' : passwordStrength.strength <= 60 ? 'text-yellow-600' : 'text-green-600'}`}>{passwordStrength.label}</span>
                                                 </div>
                                             )}
                                         </div>
 
                                         {/* Confirm Password */}
-                                        <div className="space-y-1.5">
-                                            <label className="block text-sm font-semibold text-gray-700">Confirm Password</label>
+                                        <div className="space-y-1">
+                                            <label className="block text-xs font-semibold text-gray-700">Confirm Password</label>
                                             <div className={`relative transition-all duration-300 ${focusedField === 'confirmPassword' ? 'transform scale-[1.01]' : ''}`}>
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><Lock className={`h-5 w-5 transition-colors ${focusedField === 'confirmPassword' ? 'text-[#8B1E1E]' : 'text-gray-400'}`} /></div>
-                                                <input type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={handleInputChange} onFocus={() => setFocusedField('confirmPassword')} onBlur={() => setFocusedField(null)} className={`w-full pl-12 pr-12 py-3 bg-gray-50 border-2 rounded-xl text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'confirmPassword' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'} ${formData.confirmPassword && formData.password !== formData.confirmPassword ? 'border-red-300' : ''}`} placeholder="Re-enter password" required />
-                                                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#8B1E1E]">{showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button>
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Lock className={`h-4 w-4 transition-colors ${focusedField === 'confirmPassword' ? 'text-[#8B1E1E]' : 'text-gray-400'}`} /></div>
+                                                <input type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={handleInputChange} onFocus={() => setFocusedField('confirmPassword')} onBlur={() => setFocusedField(null)} className={`w-full pl-10 pr-10 py-2 text-sm bg-gray-50 border-2 rounded-lg text-gray-800 placeholder-gray-400 transition-all focus:outline-none ${focusedField === 'confirmPassword' ? 'border-[#8B1E1E] bg-white shadow-lg shadow-[#8B1E1E]/10' : 'border-gray-200 hover:border-gray-300'} ${formData.confirmPassword && formData.password !== formData.confirmPassword ? 'border-red-300' : ''}`} placeholder="Re-enter password" required />
+                                                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-[#8B1E1E]">{showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
                                             </div>
                                         </div>
 
                                         {/* Terms */}
-                                        <label className="flex items-start gap-3 cursor-pointer pt-2">
-                                            <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} className="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#8B1E1E] focus:ring-[#8B1E1E]" />
-                                            <span className="text-sm text-gray-600">I agree to the <Link href="/terms" className="text-[#8B1E1E] hover:underline font-medium">Terms & Conditions</Link> and <Link href="/privacy" className="text-[#8B1E1E] hover:underline font-medium">Privacy Policy</Link></span>
+                                        <label className="flex items-start gap-2 cursor-pointer pt-1">
+                                            <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} className="w-3.5 h-3.5 mt-0.5 rounded border-gray-300 text-[#8B1E1E] focus:ring-[#8B1E1E]" />
+                                            <span className="text-xs text-gray-600">I agree to the <Link href="/terms" className="text-[#8B1E1E] hover:underline font-medium">Terms & Conditions</Link> and <Link href="/privacy" className="text-[#8B1E1E] hover:underline font-medium">Privacy Policy</Link></span>
                                         </label>
 
-                                        <motion.button type="submit" disabled={isLoading || isGoogleLoading} whileHover={{ scale: isLoading ? 1 : 1.02 }} whileTap={{ scale: isLoading ? 1 : 0.98 }} className={`w-full py-4 rounded-xl font-bold text-white tracking-wide uppercase text-sm flex items-center justify-center gap-2 transition-all ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] hover:from-[#7A1A1A] hover:to-[#5A1313] shadow-lg shadow-[#8B1E1E]/30 hover:shadow-xl hover:shadow-[#8B1E1E]/40'}`}>
-                                            {isLoading ? (<><Loader2 className="w-5 h-5 animate-spin" /><span>Creating Account...</span></>) : (<><span>Create Account</span><ArrowRight className="w-5 h-5" /></>)}
+                                        <motion.button type="submit" disabled={isLoading || isGoogleLoading} whileHover={{ scale: isLoading ? 1 : 1.02 }} whileTap={{ scale: isLoading ? 1 : 0.98 }} className={`w-full py-3 rounded-lg font-bold text-white tracking-wide uppercase text-xs flex items-center justify-center gap-2 transition-all ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] hover:from-[#7A1A1A] hover:to-[#5A1313] shadow-lg shadow-[#8B1E1E]/30 hover:shadow-xl hover:shadow-[#8B1E1E]/40'}`}>
+                                            {isLoading ? (<><Loader2 className="w-4 h-4 animate-spin" /><span>Creating Account...</span></>) : (<><span>Create Account</span><ArrowRight className="w-4 h-4" /></>)}
                                         </motion.button>
                                     </form>
 

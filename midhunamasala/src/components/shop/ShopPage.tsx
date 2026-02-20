@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
+import CloudImage from "@/components/common/CloudImage";
 import ProductCard from "@/components/shop/ProductCard";
 import ProductDetails from "@/components/shop/ProductDetails";
 import Footer from "@/components/layout/Footer";
@@ -146,56 +146,55 @@ export default function ShopPage() {
   return (
     <div className="bg-[#EBE3D5]">
       {/* Classical Shop Banner */}
-      <section className="relative w-full h-[400px] overflow-hidden">
+      <section className="relative w-full h-[250px] sm:h-[300px] md:h-[400px] overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0">
-          <Image
+          <CloudImage
             src="/images/banners/shopbanner.jpg"
             alt="The Royal Spice Pantry"
             fill
             priority
             className="object-cover"
-            quality={100}
-            style={{ objectFit: "cover" }}
+            quality={85}
           />
           {/* Darker gradient overlay */}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(80, 15, 15, 0.98) 0%, rgba(100, 20, 20, 0.9) 50%, rgba(100, 20, 20, 0.75) 75%, rgba(80, 15, 15, 0.5) 100%)' }}></div>
         </div>
 
         {/* Content Container */}
-        <div className="relative h-full flex flex-col items-start justify-center px-8 md:px-16 lg:px-24 max-w-3xl">
+        <div className="relative h-full flex flex-col items-start justify-center px-5 sm:px-8 md:px-16 lg:px-24 max-w-3xl">
           {/* Premium Selection Badge */}
-          <div className="flex items-center gap-3 mb-6">
-            <svg className="w-5 h-5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-6">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
             </svg>
-            <span className="text-[#D4AF37] text-sm tracking-[0.3em] uppercase font-medium">
+            <span className="text-[#D4AF37] text-xs sm:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase font-medium">
               Premium Selection
             </span>
-            <svg className="w-5 h-5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
             </svg>
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-[#F5E6D3] leading-tight" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-[#F5E6D3] leading-tight" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
             The Royal
           </h1>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-[#D4AF37] mb-6 leading-tight" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-[#D4AF37] mb-3 sm:mb-6 leading-tight" style={{ fontFamily: "'Crimson Text', serif", fontWeight: 700 }}>
             Spice Pantry
           </h1>
 
           {/* Decorative Divider */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-[2px] bg-[#D4AF37]"></div>
-            <svg className="w-4 h-4 text-[#D4AF37]" viewBox="0 0 24 24" fill="currentColor">
+          <div className="flex items-center gap-3 mb-3 sm:mb-4">
+            <div className="w-8 sm:w-12 h-[2px] bg-[#D4AF37]"></div>
+            <svg className="w-3 h-3 sm:w-4 sm:h-4 text-[#D4AF37]" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
             </svg>
-            <div className="w-12 h-[2px] bg-[#D4AF37]"></div>
+            <div className="w-8 sm:w-12 h-[2px] bg-[#D4AF37]"></div>
           </div>
 
           {/* Subheading */}
-          <p className="text-[#F5E6D3] text-base md:text-lg leading-relaxed italic" style={{ fontFamily: "'Crimson Text', serif" }}>
+          <p className="text-[#F5E6D3] text-sm sm:text-base md:text-lg leading-relaxed italic" style={{ fontFamily: "'Crimson Text', serif" }}>
             Curated for the connoisseurs of authentic Chettinad cuisine
           </p>
         </div>
@@ -205,52 +204,54 @@ export default function ShopPage() {
       </section>
 
       {/* Main Shop Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Elegant Category Filter */}
-        <div className="flex flex-col items-center mb-10">
-          {/* Category Tabs */}
-          <div className="inline-flex items-center bg-white rounded-full p-1.5 shadow-lg border border-[#E5D2C5]">
-            <button
-              onClick={() => setSelectedCollection('all')}
-              className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'all'
+        <div className="flex flex-col items-center mb-6 sm:mb-10">
+          {/* Category Tabs - scrollable on mobile */}
+          <div className="w-full overflow-x-auto scrollbar-hide pb-2">
+            <div className="inline-flex items-center bg-white rounded-full p-1 sm:p-1.5 shadow-lg border border-[#E5D2C5] mx-auto min-w-max">
+              <button
+                onClick={() => setSelectedCollection('all')}
+                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'all'
                   ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
                   : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
-                }`}
-            >
-              All Spices
-            </button>
-            <button
-              onClick={() => setSelectedCollection('whole-spices')}
-              className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'whole-spices'
+                  }`}
+              >
+                All Spices
+              </button>
+              <button
+                onClick={() => setSelectedCollection('whole-spices')}
+                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'whole-spices'
                   ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
                   : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
-                }`}
-            >
-              Whole Spices
-            </button>
-            <button
-              onClick={() => setSelectedCollection('ground-powders')}
-              className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'ground-powders'
+                  }`}
+              >
+                Whole Spices
+              </button>
+              <button
+                onClick={() => setSelectedCollection('ground-powders')}
+                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'ground-powders'
                   ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
                   : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
-                }`}
-            >
-              Powders
-            </button>
-            <button
-              onClick={() => setSelectedCollection('secret-blends')}
-              className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'secret-blends'
+                  }`}
+              >
+                Powders
+              </button>
+              <button
+                onClick={() => setSelectedCollection('secret-blends')}
+                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'secret-blends'
                   ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
                   : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
-                }`}
-            >
-              Secret Blends
-            </button>
+                  }`}
+              >
+                Secret Blends
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Products Grid - Big Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Products Grid - Responsive columns */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {filteredProducts.map((product, index) => (
             <ProductCard
               key={product.id}

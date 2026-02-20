@@ -5,7 +5,7 @@ export default function Testimonials() {
     {
       id: 1,
       name: "Priya Sharma",
-      text: "Masala Heritage has brought back the taste of my grandmother's cooking! The Garam Masala is truly exceptional.",
+      text: "Midhuna Masala has brought back the taste of my grandmother's cooking! The Garam Masala is truly exceptional.",
       rating: 5
     },
     {
@@ -35,7 +35,7 @@ export default function Testimonials() {
     {
       id: 6,
       name: "Vikram Kumar",
-      text: "Fresh, aromatic, and perfectly balanced spices. Masala Heritage has become a staple in our kitchen.",
+      text: "Fresh, aromatic, and perfectly balanced spices. Midhuna Masala has become a staple in our kitchen.",
       rating: 4.5
     }
   ];
@@ -79,11 +79,11 @@ export default function Testimonials() {
       </div>
 
       {/* Dotted background pattern */}
-      <div className="absolute inset-0 opacity-30 pointer-events-none" 
-           style={{ 
-             backgroundImage: 'radial-gradient(#8B1E1E 1px, transparent 1px)', 
-             backgroundSize: '30px 30px' 
-           }}>
+      <div className="absolute inset-0 opacity-30 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(#8B1E1E 1px, transparent 1px)',
+          backgroundSize: '30px 30px'
+        }}>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -117,17 +117,17 @@ export default function Testimonials() {
                 <div className="bg-white rounded-2xl p-8 shadow-xl h-full border-4 border-[#D4AF37]/30 relative">
                   {/* Decorative corner accent */}
                   <div className="absolute top-2 right-2 w-2 h-2 bg-[#F6C84C] rounded-full"></div>
-                  
+
                   {/* Star Rating */}
                   <div className="flex mb-6">
                     {renderStars(testimonial.rating)}
                   </div>
-                  
+
                   {/* Review Text */}
                   <p className="text-[#4A4A4A] leading-relaxed font-sans mb-6 text-base">
                     "{testimonial.text}"
                   </p>
-                  
+
                   {/* Customer Name */}
                   <p className="text-[#8B1E1E] font-bold font-serif text-lg">
                     — {testimonial.name}
@@ -135,24 +135,24 @@ export default function Testimonials() {
                 </div>
               </div>
             ))}
-            
+
             {/* Duplicate set for seamless loop */}
             {testimonials.map((testimonial) => (
               <div key={`duplicate-${testimonial.id}`} className="flex-shrink-0 w-80 mx-4">
                 <div className="bg-white rounded-2xl p-8 shadow-xl h-full border-4 border-[#D4AF37]/30 relative">
                   {/* Decorative corner accent */}
                   <div className="absolute top-2 right-2 w-2 h-2 bg-[#F6C84C] rounded-full"></div>
-                  
+
                   {/* Star Rating */}
                   <div className="flex mb-6">
                     {renderStars(testimonial.rating)}
                   </div>
-                  
+
                   {/* Review Text */}
                   <p className="text-[#4A4A4A] leading-relaxed font-sans mb-6 text-base">
                     "{testimonial.text}"
                   </p>
-                  
+
                   {/* Customer Name */}
                   <p className="text-[#8B1E1E] font-bold font-serif text-lg">
                     — {testimonial.name}

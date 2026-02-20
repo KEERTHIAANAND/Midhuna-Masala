@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
 
                     {/* Header Section */}
                     <div className="bg-[#8B1E1E] px-8 py-10 text-center relative overflow-hidden">
-                        <div className="absolute inset-0 opacity-10 bg-[url('/noise.png')]"></div>
+                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")" }}></div>
 
                         {/* Logo Icon */}
                         <div className="relative mx-auto w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center border border-white/20 mb-4 backdrop-blur-sm shadow-inner transform rotate-3 hover:rotate-0 transition-transform duration-500">

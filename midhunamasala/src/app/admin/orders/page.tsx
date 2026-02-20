@@ -4,24 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import {
-    LayoutGrid, ShoppingBag, ShoppingCart, Package,
-    BarChart3, Settings, LogOut, Download, Filter, Search,
-    Leaf, MoreVertical, Eye, Truck, CheckCircle, XCircle, ChevronDown, X, Printer
+    Download, Filter, Search, Leaf,
+    MoreVertical, Eye, Truck, CheckCircle, XCircle, ChevronDown, X, Printer
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import Link from 'next/link';
+import AdminNavbar from '@/components/admin/AdminNavbar';
 
-// Navigation Items Configuration
-const NAV_ITEMS = [
-    { name: 'Garden View', icon: LayoutGrid, href: '/admin' },
-    { name: 'Spice Catalog', icon: ShoppingBag, href: '/admin/products' },
-    { name: 'Orders', icon: ShoppingCart, href: '/admin/orders', active: true, badge: 5 },
-    { name: 'Inventory', icon: Package, href: '/admin/inventory', notification: true },
-    { name: 'Sales Growth', icon: BarChart3, href: '/admin/reports' },
-    { name: 'Settings', icon: Settings, href: '/admin/settings' },
-];
 
 // Status Filters
 const STATUS_FILTERS = ['All Orders', 'Pending', 'Processing', 'Shipped', 'Delivered'];
@@ -35,143 +25,18 @@ const STATUS_STYLES: Record<string, string> = {
     'CANCELLED': 'bg-red-100 text-red-600 border-red-200',
 };
 
-// Mock Orders Data
-const ORDERS = [
-    {
-        id: 'MM-20260208-01',
-        customer: { name: 'Anjali Menon', initial: 'A', color: 'bg-purple-100 text-purple-600' },
-        date: 'Feb 08, 2026',
-        items: 3,
-        amount: 1250,
-        payment: 'UPI',
-        status: 'PENDING',
-        products: [
-            { name: 'Kashmiri Chilli Powder', weight: '250g', qty: 2, price: 320 },
-            { name: 'Coriander Powder', weight: '500g', qty: 1, price: 280 },
-            { name: 'Turmeric Powder', weight: '100g', qty: 1, price: 150 }
-        ]
-    },
-    {
-        id: 'MM-20260208-02',
-        customer: { name: 'Rahul Verma', initial: 'R', color: 'bg-blue-100 text-blue-600' },
-        date: 'Feb 08, 2026',
-        items: 8,
-        amount: 3400,
-        payment: 'UPI',
-        status: 'SHIPPED',
-        products: [
-            { name: 'Royal Garam Masala', weight: '100g', qty: 3, price: 320 },
-            { name: 'Malabar Black Pepper', weight: '100g', qty: 2, price: 220 },
-            { name: 'Star Anise Premium', weight: '50g', qty: 3, price: 280 }
-        ]
-    },
-    {
-        id: 'MM-20260208-03',
-        customer: { name: 'Priya Sharma', initial: 'P', color: 'bg-pink-100 text-pink-600' },
-        date: 'Feb 08, 2026',
-        items: 2,
-        amount: 850,
-        payment: 'UPI',
-        status: 'DELIVERED',
-        products: [
-            { name: 'Kashmiri Chilli Powder', weight: '500g', qty: 1, price: 450 },
-            { name: 'Coriander Powder', weight: '250g', qty: 2, price: 160 }
-        ]
-    },
-    {
-        id: 'MM-20260207-01',
-        customer: { name: 'The Taj Kitchen', initial: 'T', color: 'bg-amber-100 text-amber-600' },
-        date: 'Feb 07, 2026',
-        items: 25,
-        amount: 12100,
-        payment: 'UPI',
-        status: 'PROCESSING',
-        products: [
-            { name: 'Kashmiri Chilli Powder', weight: '500g', qty: 10, price: 450 },
-            { name: 'Royal Garam Masala', weight: '250g', qty: 8, price: 650 },
-            { name: 'Coriander Powder', weight: '500g', qty: 5, price: 280 },
-            { name: 'Turmeric Powder', weight: '1kg', qty: 2, price: 580 }
-        ]
-    },
-    {
-        id: 'MM-20260207-02',
-        customer: { name: 'Sneha Gupta', initial: 'S', color: 'bg-teal-100 text-teal-600' },
-        date: 'Feb 07, 2026',
-        items: 1,
-        amount: 560,
-        payment: 'UPI',
-        status: 'DELIVERED',
-        products: [
-            { name: 'Malabar Black Pepper', weight: '250g', qty: 1, price: 490 }
-        ]
-    },
-    {
-        id: 'MM-20260206-01',
-        customer: { name: 'Anjali Menon', initial: 'A', color: 'bg-purple-100 text-purple-600' },
-        date: 'Feb 06, 2026',
-        items: 3,
-        amount: 1250,
-        payment: 'UPI',
-        status: 'PENDING',
-        products: [
-            { name: 'Star Anise Premium', weight: '100g', qty: 1, price: 520 },
-            { name: 'Coriander Powder', weight: '250g', qty: 2, price: 160 },
-            { name: 'Turmeric Powder', weight: '250g', qty: 1, price: 180 }
-        ]
-    },
-    {
-        id: 'MM-20260206-02',
-        customer: { name: 'Rahul Verma', initial: 'R', color: 'bg-blue-100 text-blue-600' },
-        date: 'Feb 06, 2026',
-        items: 8,
-        amount: 3400,
-        payment: 'UPI',
-        status: 'SHIPPED',
-        products: [
-            { name: 'Royal Garam Masala', weight: '250g', qty: 4, price: 650 },
-            { name: 'Kashmiri Chilli Powder', weight: '100g', qty: 4, price: 150 }
-        ]
-    },
-    {
-        id: 'MM-20260205-01',
-        customer: { name: 'Priya Sharma', initial: 'P', color: 'bg-pink-100 text-pink-600' },
-        date: 'Feb 05, 2026',
-        items: 2,
-        amount: 850,
-        payment: 'UPI',
-        status: 'DELIVERED',
-        products: [
-            { name: 'Malabar Black Pepper', weight: '100g', qty: 2, price: 220 },
-            { name: 'Coriander Powder', weight: '500g', qty: 1, price: 280 }
-        ]
-    },
-    {
-        id: 'MM-20260205-02',
-        customer: { name: 'The Taj Kitchen', initial: 'T', color: 'bg-amber-100 text-amber-600' },
-        date: 'Feb 05, 2026',
-        items: 25,
-        amount: 12100,
-        payment: 'UPI',
-        status: 'PROCESSING',
-        products: [
-            { name: 'Kashmiri Chilli Powder', weight: '500g', qty: 12, price: 450 },
-            { name: 'Royal Garam Masala', weight: '100g', qty: 8, price: 320 },
-            { name: 'Turmeric Powder', weight: '500g', qty: 5, price: 320 }
-        ]
-    },
-    {
-        id: 'MM-20260204-01',
-        customer: { name: 'Sneha Gupta', initial: 'S', color: 'bg-teal-100 text-teal-600' },
-        date: 'Feb 04, 2026',
-        items: 1,
-        amount: 560,
-        payment: 'UPI',
-        status: 'DELIVERED',
-        products: [
-            { name: 'Star Anise Premium', weight: '100g', qty: 1, price: 520 }
-        ]
-    },
-];
+// Orders Data
+type Order = {
+    id: string;
+    customer: { name: string; initial: string; color: string };
+    date: string;
+    items: number;
+    amount: number;
+    payment: string;
+    status: string;
+    products: { name: string; weight: string; qty: number; price: number }[];
+};
+const ORDERS: Order[] = [];
 
 export default function OrdersPage() {
     const { user, isAdmin, isLoading: authLoading } = useAuth();
@@ -277,72 +142,7 @@ export default function OrdersPage() {
     return (
         <div className="min-h-screen bg-[#FDFBF7] font-sans text-gray-800">
 
-            {/* 1. TOP BRANDING BAR */}
-            <div className="bg-white px-6 py-3 flex items-center justify-between border-b border-[#F3EFEA]">
-                {/* Logo */}
-                <div className="flex items-center gap-3">
-                    <div>
-                        <h1 className="text-xl font-serif font-bold text-[#7A1A1A] leading-tight">Midhuna Masala</h1>
-                        <p className="text-[9px] font-bold text-[#D4AF37] tracking-[0.12em] uppercase">Traditional Stone Ground Spices</p>
-                    </div>
-                </div>
-
-                {/* Profile - Click to go to Settings */}
-                <Link href="/admin/settings" className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity">
-                    <div className="text-right hidden sm:block">
-                        <p className="text-sm font-bold text-gray-800">{user?.name || 'Admin User'}</p>
-                        <p className="text-[10px] font-bold text-[#D4AF37] tracking-wider uppercase">Super Admin</p>
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-[#7A1A1A] text-[#F6C84C] flex items-center justify-center font-serif font-bold text-lg shadow-md border-2 border-[#F6C84C]">
-                        {user?.name?.charAt(0).toUpperCase() || 'A'}
-                    </div>
-                </Link>
-            </div>
-
-            {/* 2. NAVIGATION STRIP */}
-            <div className="bg-[#7A1A1A] text-white px-6 shadow-xl shadow-[#7A1A1A]/10 sticky top-0 z-40">
-                <div className="flex items-center justify-between overflow-x-auto scrollbar-hide">
-                    <nav className="flex items-center gap-1">
-                        {NAV_ITEMS.map((item) => (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className={`
-                                    flex items-center gap-2 px-4 py-4 text-sm font-medium transition-all relative group
-                                    ${item.active ? 'text-white' : 'text-[#E5D2C5] hover:text-white hover:bg-white/5'}
-                                `}
-                            >
-                                <item.icon className={`w-4 h-4 ${item.active ? 'text-[#F6C84C]' : 'text-current group-hover:text-[#F6C84C]'}`} />
-                                <span className="whitespace-nowrap">{item.name}</span>
-
-                                {item.active && (
-                                    <motion.div
-                                        layoutId="activeTab"
-                                        className="absolute bottom-0 left-0 right-0 h-1 bg-[#F6C84C] rounded-t-full"
-                                    />
-                                )}
-
-                                {item.badge && (
-                                    <span className="absolute top-2 right-0 w-4 h-4 bg-[#F6C84C] text-[#7A1A1A] text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
-                                        {item.badge}
-                                    </span>
-                                )}
-                                {item.notification && (
-                                    <div className="absolute top-3 right-2 w-1.5 h-1.5 bg-[#F6C84C] rounded-full animate-pulse" />
-                                )}
-                            </Link>
-                        ))}
-                    </nav>
-
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 text-xs font-bold text-[#E5D2C5] hover:text-red-200 uppercase tracking-wider py-4 pl-6 border-l border-white/10 ml-4 transition-colors"
-                    >
-                        <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
-                    </button>
-                </div>
-            </div>
+            <AdminNavbar user={user} onLogout={handleLogout} />
 
             {/* 3. MAIN CONTENT */}
             <main className="p-6 max-w-[1600px] mx-auto space-y-6">

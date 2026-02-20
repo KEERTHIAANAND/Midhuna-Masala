@@ -55,7 +55,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
 
     return (
         <motion.div
-            className="bg-gradient-to-br from-[#FAF7F2] to-[#EBE3D5] rounded-2xl shadow-2xl border border-[#D4AF37]/30"
+            className="bg-gradient-to-br from-[#FAF7F2] to-[#EBE3D5] rounded-xl sm:rounded-2xl shadow-2xl border border-[#D4AF37]/30 max-h-[90vh] overflow-y-auto"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
@@ -63,17 +63,17 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
             {/* Close Button */}
             <motion.button
                 onClick={onClose}
-                className="absolute top-4 right-4 z-10 w-10 h-10 bg-[#8B1E1E] text-white rounded-full flex items-center justify-center hover:bg-[#6B1515] transition-all shadow-lg"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-[#8B1E1E] text-white rounded-full flex items-center justify-center hover:bg-[#6B1515] transition-all shadow-lg"
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
             >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
 
             <div className="flex flex-col lg:flex-row">
                 {/* Left Side - Product Image */}
                 <motion.div
-                    className="lg:w-1/2 bg-gradient-to-br from-white to-[#FAF7F2] p-10 flex items-center justify-center relative"
+                    className="lg:w-1/2 bg-gradient-to-br from-white to-[#FAF7F2] p-5 sm:p-10 flex items-center justify-center relative"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: 0.15 }}
@@ -109,7 +109,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
 
                 {/* Right Side - Product Details */}
                 <motion.div
-                    className="lg:w-1/2 p-8 lg:p-10 bg-gradient-to-br from-[#8B1E1E] to-[#6B1515] text-white relative"
+                    className="lg:w-1/2 p-5 sm:p-8 lg:p-10 bg-gradient-to-br from-[#8B1E1E] to-[#6B1515] text-white relative"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.2 }}
@@ -137,7 +137,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
 
                         {/* Product Name */}
                         <motion.h2
-                            className="text-3xl lg:text-4xl font-bold mb-2 text-[#F5E6D3]"
+                            className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-[#F5E6D3]"
                             style={{ fontFamily: "'Playfair Display', serif" }}
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}

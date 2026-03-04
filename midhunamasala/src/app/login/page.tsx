@@ -19,7 +19,7 @@ const GoogleIcon = () => (
 
 export default function LoginPage() {
     const router = useRouter();
-    const { signInWithGoogle, isAuthenticated, isAdmin, isLoading: authLoading } = useAuth();
+    const { signInWithGoogle, signInWithEmail, isAuthenticated, isAdmin, isLoading: authLoading } = useAuth();
 
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
@@ -46,9 +46,17 @@ export default function LoginPage() {
         setError('');
         setIsLoading(true);
 
-        // For now, email/password login just shows an error since we're using Google Auth
-        // You can implement Firebase email/password auth later if needed
-        setError('Please use Google Sign-in to continue.');
+        const result = await signInWithEmail(formData.email, formData.password);
+
+        if (result.success) {
+            if (result.isAdmin) {
+                router.push('/admin');
+            } else {
+                router.push('/');
+            }
+        } else {
+            setError(result.error || 'Failed to sign in. Please try again.');
+        }
         setIsLoading(false);
     };
 

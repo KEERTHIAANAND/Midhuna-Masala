@@ -45,7 +45,7 @@ export default function TrackOrderPage() {
   const [selectedOrder, setSelectedOrder] = React.useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#FAF8F3] px-4 py-6">
+    <div className="min-h-screen bg-[#F0EAE0] px-4 py-6">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="text-center mb-8">

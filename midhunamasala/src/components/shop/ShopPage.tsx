@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import CloudImage from "@/components/common/CloudImage";
 import ProductCard from "@/components/shop/ProductCard";
 import ProductDetails from "@/components/shop/ProductDetails";
 import Footer from "@/components/layout/Footer";
-import { ChevronRight, Filter } from "lucide-react";
+import { ChevronRight, Filter, Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 type Product = {
   id: string;
@@ -20,67 +22,14 @@ type Product = {
   rating?: number;
 };
 
-const products = [
-  {
-    id: "guntur-red-chilli",
-    name: "Guntur Red Chilli Powder",
-    category: "POWDER",
-    weight: "200g",
-    type: "Stone Ground",
-    image: "/images/products/IMG-20250726-WA0019.jpg",
-    price: 6.49,
-    description: "Sun-dried Guntur chillies, stone-ground to preserve the fiery heat.."
-  },
-  {
-    id: "erode-turmeric",
-    name: "Erode Turmeric Powder (Manjal)",
-    category: "POWDER",
-    weight: "100g",
-    type: "Stone Ground",
-    image: "/images/products/IMG-20250727-WA0006.jpg",
-    price: 4.99,
-    description: "Pure Erode turmeric with high curcumin content. Traditionally..."
-  },
-  {
-    id: "chettinad-masala",
-    name: "Chettinad Masala Blend",
-    category: "BLEND",
-    weight: "100g",
-    type: "Stone Ground",
-    image: "/images/products/IMG-20250726-WA0021.jpg",
-    price: 9.99,
-    description: "Authentic 18-spice blend roasted in iron woks. The secret to the..."
-  },
-  {
-    id: "cumin",
-    name: "Cumin Seeds",
-    category: "POWDER",
-    weight: "100g",
-    type: "Stone Ground",
-    image: "/images/products/IMG-20250726-WA0022.jpg",
-    price: 5.49,
-    description: "Premium cumin seeds with rich aroma and flavor"
-  },
-  {
-    id: "coriander",
-    name: "Coriander Seeds",
-    category: "POWDER",
-    weight: "100g",
-    type: "Stone Ground",
-    image: "/images/products/IMG-20250726-WA0023.jpg",
-    price: 4.49,
-    description: "Fresh coriander seeds for authentic taste"
-  },
-  {
-    id: "fennel",
-    name: "Fennel Seeds",
-    category: "WHOLE SPICES",
-    weight: "100g",
-    type: "Seeds & Pods",
-    image: "/images/products/IMG-20250726-WA0022.jpg",
-    price: 5.99,
-    description: "Sweet and aromatic fennel seeds"
-  },
+// Fallback products in case API is unreachable
+const fallbackProducts: Product[] = [
+  { id: "guntur-red-chilli", name: "Guntur Red Chilli Powder", category: "POWDER", weight: "200g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0019.jpg", price: 6.49, description: "Sun-dried Guntur chillies, stone-ground to preserve the fiery heat.." },
+  { id: "erode-turmeric", name: "Erode Turmeric Powder (Manjal)", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250727-WA0006.jpg", price: 4.99, description: "Pure Erode turmeric with high curcumin content. Traditionally..." },
+  { id: "chettinad-masala", name: "Chettinad Masala Blend", category: "BLEND", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0021.jpg", price: 9.99, description: "Authentic 18-spice blend roasted in iron woks. The secret to the..." },
+  { id: "cumin", name: "Cumin Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.49, description: "Premium cumin seeds with rich aroma and flavor" },
+  { id: "coriander", name: "Coriander Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0023.jpg", price: 4.49, description: "Fresh coriander seeds for authentic taste" },
+  { id: "fennel", name: "Fennel Seeds", category: "WHOLE SPICES", weight: "100g", type: "Seeds & Pods", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.99, description: "Sweet and aromatic fennel seeds" },
 ];
 
 const collections = [
@@ -111,13 +60,34 @@ const collections = [
 ];
 
 export default function ShopPage() {
-  const [selectedCollection, setSelectedCollection] = React.useState("all");
-  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
+  const [selectedCollection, setSelectedCollection] = useState("all");
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>(fallbackProducts);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const detailsRef = React.useRef<HTMLDivElement>(null);
+
+  // Fetch products from API
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const response = await fetch(`${API_URL}/api/products`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.products.length > 0) {
+            setProducts(data.products);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch products, using fallback:', error);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    }
+    fetchProducts();
+  }, []);
 
   const handleProductSelect = (product: Product) => {
     setSelectedProduct(product);
-    // Scroll to details section
     setTimeout(() => {
       detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
@@ -141,7 +111,7 @@ export default function ShopPage() {
 
     const allowedCategories = categoryMap[selectedCollection] || [];
     return products.filter(p => allowedCategories.includes(p.category));
-  }, [selectedCollection]);
+  }, [selectedCollection, products]);
 
   return (
     <div className="bg-[#EBE3D5]">

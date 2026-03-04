@@ -99,7 +99,7 @@ export default function Navbar() {
             {/* Right Side Icons */}
             <div className="flex items-center gap-4 sm:gap-6 md:gap-12 overflow-visible">
               {/* Cart */}
-              <Link href="/cart" className="text-[#8B1E1E] hover:text-[#D4AF37] transition-colors relative">
+              <Link href="/cart" id="navbar-cart-icon" className="text-[#8B1E1E] hover:text-[#D4AF37] transition-all duration-300 relative">
                 <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
                 {cartCount > 0 && (
                   <span className="absolute -top-2 -right-2 w-4 h-4 sm:w-5 sm:h-5 bg-[#D4AF37] text-white text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center">

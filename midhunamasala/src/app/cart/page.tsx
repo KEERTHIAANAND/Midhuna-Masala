@@ -25,7 +25,7 @@ export default function CartPage() {
   const selectedTotal = selectedSubtotal + selectedShipping;
 
   return (
-    <div className="min-h-screen bg-[#FAF8F3] px-4 py-6">
+    <div className="min-h-screen bg-[#F0EAE0] px-4 py-6">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
@@ -206,12 +206,12 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    <button className="w-full bg-gradient-to-r from-[#8B1E1E] to-[#A02C2C] text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all mb-3 flex items-center justify-center gap-2 text-sm">
+                    <Link href="/checkout" className="w-full bg-gradient-to-r from-[#8B1E1E] to-[#A02C2C] text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all mb-3 flex items-center justify-center gap-2 text-sm">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                       </svg>
                       Checkout ({selectedItems.length})
-                    </button>
+                    </Link>
 
                     <Link href="/shop" className="block w-full text-center border-2 border-[#8B1E1E] text-[#8B1E1E] py-2.5 rounded-xl font-semibold hover:bg-[#8B1E1E] hover:text-white transition-all text-sm">
                       Continue Shopping

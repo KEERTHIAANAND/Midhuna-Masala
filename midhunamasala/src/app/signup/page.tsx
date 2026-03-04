@@ -19,7 +19,7 @@ const GoogleIcon = () => (
 
 export default function SignupPage() {
     const router = useRouter();
-    const { signInWithGoogle, isAuthenticated, isLoading: authLoading } = useAuth();
+    const { signInWithGoogle, signUpWithEmail, isAuthenticated, isLoading: authLoading } = useAuth();
 
     const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
     const [showPassword, setShowPassword] = useState(false);
@@ -44,8 +44,14 @@ export default function SignupPage() {
         if (!agreeTerms) { setError('Please agree to the Terms & Conditions'); return; }
 
         setIsLoading(true);
-        // For now, email/password signup just shows an error since we're using Google Auth
-        setError('Please use Google Sign-in to create your account.');
+        const result = await signUpWithEmail(formData.name, formData.email, formData.password, formData.phone || undefined);
+
+        if (result.success) {
+            setSuccess(true);
+            setTimeout(() => router.push('/'), 1500);
+        } else {
+            setError(result.error || 'Failed to create account. Please try again.');
+        }
         setIsLoading(false);
     };
 

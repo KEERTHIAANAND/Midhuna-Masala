@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 
 type Product = {
   id: string;
+  dbId?: string;
   name: string;
   category: string;
   image: string;

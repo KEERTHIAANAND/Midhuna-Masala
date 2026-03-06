@@ -52,7 +52,7 @@ CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 
 
 -- ─────────────────────────────────────────
--- 3. ADDRESSES TABLE  (Run when needed)
+-- 3. ADDRESSES TABLE  ✅ (Already Created)
 -- ─────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS addresses (
@@ -118,7 +118,7 @@ CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 
 
 -- ─────────────────────────────────────────
--- 6. CART ITEMS TABLE  (Run when needed)
+-- 6. CART ITEMS TABLE  ✅ (Already Created)
 -- ─────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS cart_items (

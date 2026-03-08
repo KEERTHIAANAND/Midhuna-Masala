@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/common/Navbar";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import LenisProvider from "@/components/providers/LenisProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,14 +30,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${crimsonText.variable} antialiased`}
+        suppressHydrationWarning
       >
         <AuthProvider>
           <CartProvider>
-            <Navbar />
-            {children}
+            <LenisProvider>
+              <Navbar />
+              {children}
+            </LenisProvider>
           </CartProvider>
         </AuthProvider>
       </body>

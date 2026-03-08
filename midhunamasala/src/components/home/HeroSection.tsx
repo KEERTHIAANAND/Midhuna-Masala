@@ -23,7 +23,7 @@ export default function HeroSection() {
 
       {/* Main Content Box */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 w-full">
-        <div className="border-2 border-[#F6C84C] p-6 sm:p-10 md:p-12 lg:p-16 text-center relative backdrop-blur-sm bg-[#8B1E1E]/50">
+        <div className="p-6 sm:p-10 md:p-12 lg:p-16 text-center relative bg-red-900/80 backdrop-blur-md border border-yellow-500/30">
           {/* Inner Border Effect (Double Border) */}
           <div className="absolute inset-1 border border-[#F6C84C]/50 pointer-events-none"></div>
 

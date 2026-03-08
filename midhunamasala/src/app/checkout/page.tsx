@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import {
@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import CheckoutHeader from '@/components/checkout/CheckoutHeader';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 /* ═══════════════════════════════════════════
    Constants & Types
    ═══════════════════════════════════════════ */
@@ -20,6 +22,7 @@ const SERIF = "'Playfair Display', serif";
 
 
 interface Address {
+    id?: string;       // Supabase UUID (undefined for new addresses)
     fullName: string;
     phone: string;
     street: string;
@@ -28,6 +31,7 @@ interface Address {
     state: string;
     pincode: string;
     label: 'home' | 'work' | 'other';
+    isDefault?: boolean;
 }
 
 const EMPTY_ADDRESS: Address = {
@@ -157,9 +161,31 @@ function SelectionIndicator({ selected }: { selected: boolean }) {
    ═══════════════════════════════════════════ */
 
 export default function CheckoutPage() {
-    const { items, clearCart } = useCart();
-    const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+    const { items: cartItems, clearCart } = useCart();
+    const { user, isAuthenticated, isLoading: authLoading, getIdToken } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // ─── Buy Now Mode: only bill the single product ───
+    const isBuyNow = searchParams.get('buyNow') === 'true';
+    const [buyNowItems, setBuyNowItems] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (isBuyNow) {
+            try {
+                const raw = sessionStorage.getItem('mm-buy-now');
+                if (raw) {
+                    const item = JSON.parse(raw);
+                    setBuyNowItems([item]);
+                }
+            } catch {
+                // Invalid data, fall back to cart
+            }
+        }
+    }, [isBuyNow]);
+
+    // Use buyNow item if in buyNow mode, otherwise use full cart
+    const items = isBuyNow && buyNowItems.length > 0 ? buyNowItems : cartItems;
 
     const [step, setStep] = useState(0);
     const [dir, setDir] = useState(1);
@@ -173,20 +199,71 @@ export default function CheckoutPage() {
     const [orderId, setOrderId] = useState('');
     const [errs, setErrs] = useState<Partial<Record<keyof Address, string>>>({});
     const [confetti, setConfetti] = useState(false);
+    const [loadingAddresses, setLoadingAddresses] = useState(true);
+    const [savingAddress, setSavingAddress] = useState(false);
 
+    // ─── Load addresses from API (or localStorage fallback) ───
     useEffect(() => {
-        const raw = localStorage.getItem('mm-addresses');
-        if (raw) {
+        async function loadAddresses() {
+            setLoadingAddresses(true);
             try {
-                const arr = JSON.parse(raw);
-                setSaved(arr);
-                if (arr.length > 0) setSelIdx(0); else setShowForm(true);
-            } catch { setShowForm(true); }
-        } else setShowForm(true);
-    }, []);
+                const token = await getIdToken();
+                if (token) {
+                    // Fetch from backend
+                    const response = await fetch(`${API_URL}/api/addresses`, {
+                        headers: { 'Authorization': `Bearer ${token}` },
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.addresses.length > 0) {
+                            setSaved(data.addresses);
+                            setSelIdx(0);  // Select first (default) address
+                            setShowForm(false);
+                            setLoadingAddresses(false);
+                            return;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load addresses from API:', error);
+            }
+
+            // Fallback: try localStorage
+            try {
+                const raw = localStorage.getItem('mm-addresses');
+                if (raw) {
+                    const arr = JSON.parse(raw);
+                    if (arr.length > 0) {
+                        setSaved(arr);
+                        setSelIdx(0);
+                        setShowForm(false);
+                        setLoadingAddresses(false);
+                        return;
+                    }
+                }
+            } catch { /* ignore */ }
+
+            // No saved addresses → show form
+            setShowForm(true);
+            setLoadingAddresses(false);
+        }
+
+        if (!authLoading && isAuthenticated) {
+            loadAddresses();
+        } else if (!authLoading) {
+            setShowForm(true);
+            setLoadingAddresses(false);
+        }
+    }, [authLoading, isAuthenticated]);
 
     useEffect(() => { if (!authLoading && !isAuthenticated) router.push('/login'); }, [authLoading, isAuthenticated, router]);
-    useEffect(() => { if (!authLoading && items.length === 0 && !done) router.push('/cart'); }, [authLoading, items, done, router]);
+    useEffect(() => {
+        if (!authLoading && items.length === 0 && !done) {
+            // For buyNow mode, wait a moment for sessionStorage to load
+            if (isBuyNow && buyNowItems.length === 0) return;
+            router.push('/cart');
+        }
+    }, [authLoading, items, done, router, isBuyNow, buyNowItems]);
     useEffect(() => { if (user && !address.fullName) setAddress(p => ({ ...p, fullName: user.name || '' })); }, [user, address.fullName]);
 
     const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -213,16 +290,70 @@ export default function CheckoutPage() {
         return Object.keys(e).length === 0;
     };
 
-    const go = (s: number) => {
+    const go = async (s: number) => {
         if (s === step) return;
         setDir(s > step ? 1 : -1);
         if (s > step && step === 0 && !validate()) return;
+
+        // Save new address to backend when moving forward from step 0
         if (step === 0 && showForm && address.fullName) {
-            const arr = [...saved, address];
-            setSaved(arr);
-            localStorage.setItem('mm-addresses', JSON.stringify(arr));
-            setSelIdx(arr.length - 1);
-            setShowForm(false);
+            setSavingAddress(true);
+            try {
+                const token = await getIdToken();
+                if (token) {
+                    const response = await fetch(`${API_URL}/api/addresses`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({
+                            fullName: address.fullName,
+                            phone: address.phone,
+                            street: address.street,
+                            landmark: address.landmark,
+                            city: address.city,
+                            state: address.state,
+                            pincode: address.pincode,
+                            label: address.label,
+                            isDefault: saved.length === 0,
+                        }),
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        const newAddress = data.address;
+                        const arr = [...saved, newAddress];
+                        setSaved(arr);
+                        setSelIdx(arr.length - 1);
+                        setShowForm(false);
+                    } else {
+                        // Fallback to localStorage
+                        const arr = [...saved, address];
+                        setSaved(arr);
+                        localStorage.setItem('mm-addresses', JSON.stringify(arr));
+                        setSelIdx(arr.length - 1);
+                        setShowForm(false);
+                    }
+                } else {
+                    // Not authenticated — save to localStorage
+                    const arr = [...saved, address];
+                    setSaved(arr);
+                    localStorage.setItem('mm-addresses', JSON.stringify(arr));
+                    setSelIdx(arr.length - 1);
+                    setShowForm(false);
+                }
+            } catch (error) {
+                console.error('Save address error:', error);
+                // Fallback
+                const arr = [...saved, address];
+                setSaved(arr);
+                localStorage.setItem('mm-addresses', JSON.stringify(arr));
+                setSelIdx(arr.length - 1);
+                setShowForm(false);
+            } finally {
+                setSavingAddress(false);
+            }
         }
         setStep(s);
     };
@@ -235,7 +366,12 @@ export default function CheckoutPage() {
         setProcessing(false);
         setDone(true);
         setConfetti(true);
-        clearCart();
+        // In buyNow mode, only clear the sessionStorage (not the full cart)
+        if (isBuyNow) {
+            sessionStorage.removeItem('mm-buy-now');
+        } else {
+            clearCart();
+        }
         setTimeout(() => setConfetti(false), 6000);
     };
 
@@ -377,108 +513,121 @@ export default function CheckoutPage() {
                                 {/* ─── STEP 1: ADDRESS ─── */}
                                 {step === 0 && (
                                     <SectionCard title="Delivery Address">
-                                        {/* Saved addresses */}
-                                        {saved.length > 0 && !showForm && (
-                                            <motion.div variants={staggerParent} initial="initial" animate="animate" className="space-y-3 mb-5">
-                                                {saved.map((a, idx) => (
-                                                    <motion.div key={idx} variants={staggerChild}
-                                                        onClick={() => setSelIdx(idx)}
-                                                        className={`p-4 rounded-md cursor-pointer transition-all duration-300 ${selIdx === idx
-                                                            ? 'border border-[#8B1E1E] bg-[#8B1E1E]/[.02]'
-                                                            : 'border border-gray-100 hover:border-gray-200'
-                                                            }`}>
-                                                        <div className="flex items-start justify-between gap-3">
-                                                            <div className="flex-1 min-w-0">
-                                                                <span className={`text-[10px] uppercase font-medium px-2 py-0.5 rounded tracking-wider ${a.label === 'home' ? 'bg-[#F5F0EB] text-[#8B6914]'
-                                                                    : a.label === 'work' ? 'bg-gray-50 text-gray-500'
-                                                                        : 'bg-gray-50 text-gray-400'
-                                                                    }`}>{a.label}</span>
-                                                                <p className="font-medium text-gray-800 mt-2 text-[13px]">{a.fullName}</p>
-                                                                <p className="text-xs text-gray-400 mt-0.5 leading-relaxed font-light">
-                                                                    {a.street}{a.landmark && `, ${a.landmark}`}<br />
-                                                                    {a.city}, {a.state} — {a.pincode}
-                                                                </p>
-                                                                <p className="text-xs text-gray-300 mt-1.5 flex items-center gap-1">
-                                                                    <Phone className="w-3 h-3" strokeWidth={1.5} /> +91 {a.phone}
-                                                                </p>
-                                                            </div>
-                                                            <div className="mt-1"><SelectionIndicator selected={selIdx === idx} /></div>
-                                                        </div>
-                                                    </motion.div>
-                                                ))}
-                                                <motion.button variants={staggerChild}
-                                                    onClick={() => { setShowForm(true); setAddress({ ...EMPTY_ADDRESS, fullName: user?.name || '' }); }}
-                                                    className="w-full py-3 border border-dashed border-gray-200 rounded-md text-sm font-medium text-gray-400 hover:text-[#8B1E1E] hover:border-[#8B1E1E]/30 transition-all flex items-center justify-center gap-2">
-                                                    <Plus className="w-4 h-4" strokeWidth={1.5} /> Add New Address
-                                                </motion.button>
-                                            </motion.div>
-                                        )}
-
-                                        {/* New address form */}
-                                        {(showForm || saved.length === 0) && (
-                                            <motion.div variants={staggerParent} initial="initial" animate="animate" className="space-y-4">
-                                                {saved.length > 0 && (
-                                                    <motion.button variants={staggerChild}
-                                                        onClick={() => { setShowForm(false); setSelIdx(0); }}
-                                                        className="text-sm text-[#8B1E1E] font-medium hover:underline flex items-center gap-1">
-                                                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} /> Saved addresses
-                                                    </motion.button>
-                                                )}
-                                                <motion.div variants={staggerChild} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    <InputField label="Full Name" value={address.fullName} error={errs.fullName}
-                                                        onChange={v => setAddress(p => ({ ...p, fullName: v }))} />
-                                                    <InputField label="Phone Number" value={address.phone} error={errs.phone} prefix="+91"
-                                                        onChange={v => setAddress(p => ({ ...p, phone: v.replace(/\D/g, '').slice(0, 10) }))} />
-                                                </motion.div>
-                                                <motion.div variants={staggerChild}>
-                                                    <InputField label="Street Address" value={address.street} error={errs.street}
-                                                        onChange={v => setAddress(p => ({ ...p, street: v }))} />
-                                                </motion.div>
-                                                <motion.div variants={staggerChild}>
-                                                    <InputField label="Landmark (Optional)" value={address.landmark}
-                                                        onChange={v => setAddress(p => ({ ...p, landmark: v }))} />
-                                                </motion.div>
-                                                <motion.div variants={staggerChild} className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                                    <InputField label="City" value={address.city} error={errs.city}
-                                                        onChange={v => setAddress(p => ({ ...p, city: v }))} />
-                                                    <div>
-                                                        <label className="block text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-1.5">State</label>
-                                                        <select value={address.state}
-                                                            onChange={e => setAddress(p => ({ ...p, state: e.target.value }))}
-                                                            className={`w-full px-3 py-2.5 rounded-md border text-sm bg-white text-gray-700 ${errs.state ? 'border-red-300' : 'border-gray-200 focus:border-[#8B1E1E]/50'} focus:outline-none transition-colors`}>
-                                                            <option value="">Select</option>
-                                                            {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                                                        </select>
-                                                        {errs.state && <p className="text-[11px] text-red-400 mt-1">{errs.state}</p>}
-                                                    </div>
-                                                    <InputField label="Pincode" value={address.pincode} error={errs.pincode}
-                                                        onChange={v => setAddress(p => ({ ...p, pincode: v.replace(/\D/g, '').slice(0, 6) }))} />
-                                                </motion.div>
-                                                <motion.div variants={staggerChild}>
-                                                    <label className="block text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-2">Save As</label>
-                                                    <div className="flex gap-2">
-                                                        {([
-                                                            { k: 'home' as const, ic: Home, l: 'Home' },
-                                                            { k: 'work' as const, ic: Briefcase, l: 'Work' },
-                                                            { k: 'other' as const, ic: Pin, l: 'Other' },
-                                                        ]).map(t => (
-                                                            <button key={t.k} onClick={() => setAddress(p => ({ ...p, label: t.k }))}
-                                                                className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium transition-all duration-300 ${address.label === t.k
-                                                                    ? 'bg-[#8B1E1E] text-white'
-                                                                    : 'border border-gray-200 text-gray-500 hover:border-[#8B1E1E]/30 hover:text-[#8B1E1E]'
+                                        {/* Loading addresses */}
+                                        {loadingAddresses ? (
+                                            <div className="flex items-center justify-center py-8">
+                                                <Loader2 className="w-5 h-5 text-[#8B1E1E] animate-spin mr-2" strokeWidth={1.5} />
+                                                <span className="text-sm text-gray-400">Loading saved addresses...</span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {/* Saved addresses */}
+                                                {saved.length > 0 && !showForm && (
+                                                    <motion.div variants={staggerParent} initial="initial" animate="animate" className="space-y-3 mb-5">
+                                                        {saved.map((a, idx) => (
+                                                            <motion.div key={idx} variants={staggerChild}
+                                                                onClick={() => setSelIdx(idx)}
+                                                                className={`p-4 rounded-md cursor-pointer transition-all duration-300 ${selIdx === idx
+                                                                    ? 'border border-[#8B1E1E] bg-[#8B1E1E]/[.02]'
+                                                                    : 'border border-gray-100 hover:border-gray-200'
                                                                     }`}>
-                                                                <t.ic className="w-3.5 h-3.5" strokeWidth={1.5} /> {t.l}
-                                                            </button>
+                                                                <div className="flex items-start justify-between gap-3">
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <span className={`text-[10px] uppercase font-medium px-2 py-0.5 rounded tracking-wider ${a.label === 'home' ? 'bg-[#F5F0EB] text-[#8B6914]'
+                                                                            : a.label === 'work' ? 'bg-gray-50 text-gray-500'
+                                                                                : 'bg-gray-50 text-gray-400'
+                                                                            }`}>{a.label}</span>
+                                                                        <p className="font-medium text-gray-800 mt-2 text-[13px]">{a.fullName}</p>
+                                                                        <p className="text-xs text-gray-400 mt-0.5 leading-relaxed font-light">
+                                                                            {a.street}{a.landmark && `, ${a.landmark}`}<br />
+                                                                            {a.city}, {a.state} — {a.pincode}
+                                                                        </p>
+                                                                        <p className="text-xs text-gray-300 mt-1.5 flex items-center gap-1">
+                                                                            <Phone className="w-3 h-3" strokeWidth={1.5} /> +91 {a.phone}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div className="mt-1"><SelectionIndicator selected={selIdx === idx} /></div>
+                                                                </div>
+                                                            </motion.div>
                                                         ))}
-                                                    </div>
-                                                </motion.div>
-                                            </motion.div>
-                                        )}
+                                                        <motion.button variants={staggerChild}
+                                                            onClick={() => { setShowForm(true); setAddress({ ...EMPTY_ADDRESS, fullName: user?.name || '' }); }}
+                                                            className="w-full py-3 border border-dashed border-gray-200 rounded-md text-sm font-medium text-gray-400 hover:text-[#8B1E1E] hover:border-[#8B1E1E]/30 transition-all flex items-center justify-center gap-2">
+                                                            <Plus className="w-4 h-4" strokeWidth={1.5} /> Add New Address
+                                                        </motion.button>
+                                                    </motion.div>
+                                                )}
 
-                                        <button onClick={() => go(1)}
-                                            className="w-full mt-6 bg-[#8B1E1E] text-white py-3 rounded-md font-medium text-sm hover:bg-[#6B1515] transition-colors flex items-center justify-center gap-1.5">
-                                            Continue to Review <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
-                                        </button>
+                                                {/* New address form */}
+                                                {(showForm || saved.length === 0) && (
+                                                    <motion.div variants={staggerParent} initial="initial" animate="animate" className="space-y-4">
+                                                        {saved.length > 0 && (
+                                                            <motion.button variants={staggerChild}
+                                                                onClick={() => { setShowForm(false); setSelIdx(0); }}
+                                                                className="text-sm text-[#8B1E1E] font-medium hover:underline flex items-center gap-1">
+                                                                <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} /> Saved addresses
+                                                            </motion.button>
+                                                        )}
+                                                        <motion.div variants={staggerChild} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                            <InputField label="Full Name" value={address.fullName} error={errs.fullName}
+                                                                onChange={v => setAddress(p => ({ ...p, fullName: v }))} />
+                                                            <InputField label="Phone Number" value={address.phone} error={errs.phone} prefix="+91"
+                                                                onChange={v => setAddress(p => ({ ...p, phone: v.replace(/\D/g, '').slice(0, 10) }))} />
+                                                        </motion.div>
+                                                        <motion.div variants={staggerChild}>
+                                                            <InputField label="Street Address" value={address.street} error={errs.street}
+                                                                onChange={v => setAddress(p => ({ ...p, street: v }))} />
+                                                        </motion.div>
+                                                        <motion.div variants={staggerChild}>
+                                                            <InputField label="Landmark (Optional)" value={address.landmark}
+                                                                onChange={v => setAddress(p => ({ ...p, landmark: v }))} />
+                                                        </motion.div>
+                                                        <motion.div variants={staggerChild} className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                                            <InputField label="City" value={address.city} error={errs.city}
+                                                                onChange={v => setAddress(p => ({ ...p, city: v }))} />
+                                                            <div>
+                                                                <label className="block text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-1.5">State</label>
+                                                                <select value={address.state}
+                                                                    onChange={e => setAddress(p => ({ ...p, state: e.target.value }))}
+                                                                    className={`w-full px-3 py-2.5 rounded-md border text-sm bg-white text-gray-700 ${errs.state ? 'border-red-300' : 'border-gray-200 focus:border-[#8B1E1E]/50'} focus:outline-none transition-colors`}>
+                                                                    <option value="">Select</option>
+                                                                    {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                                                                </select>
+                                                                {errs.state && <p className="text-[11px] text-red-400 mt-1">{errs.state}</p>}
+                                                            </div>
+                                                            <InputField label="Pincode" value={address.pincode} error={errs.pincode}
+                                                                onChange={v => setAddress(p => ({ ...p, pincode: v.replace(/\D/g, '').slice(0, 6) }))} />
+                                                        </motion.div>
+                                                        <motion.div variants={staggerChild}>
+                                                            <label className="block text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-2">Save As</label>
+                                                            <div className="flex gap-2">
+                                                                {([
+                                                                    { k: 'home' as const, ic: Home, l: 'Home' },
+                                                                    { k: 'work' as const, ic: Briefcase, l: 'Work' },
+                                                                    { k: 'other' as const, ic: Pin, l: 'Other' },
+                                                                ]).map(t => (
+                                                                    <button key={t.k} onClick={() => setAddress(p => ({ ...p, label: t.k }))}
+                                                                        className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium transition-all duration-300 ${address.label === t.k
+                                                                            ? 'bg-[#8B1E1E] text-white'
+                                                                            : 'border border-gray-200 text-gray-500 hover:border-[#8B1E1E]/30 hover:text-[#8B1E1E]'
+                                                                            }`}>
+                                                                        <t.ic className="w-3.5 h-3.5" strokeWidth={1.5} /> {t.l}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </motion.div>
+                                                    </motion.div>
+                                                )}
+
+                                                <button onClick={() => go(1)} disabled={savingAddress || loadingAddresses}
+                                                    className="w-full mt-6 bg-[#8B1E1E] text-white py-3 rounded-md font-medium text-sm hover:bg-[#6B1515] transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50">
+                                                    {savingAddress ? (
+                                                        <><Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> Saving Address...</>
+                                                    ) : (
+                                                        <>Continue to Review <ChevronRight className="w-4 h-4" strokeWidth={1.5} /></>
+                                                    )}
+                                                </button>
+                                            </>)}
                                     </SectionCard>
                                 )}
 

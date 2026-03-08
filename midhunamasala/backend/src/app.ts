@@ -8,6 +8,8 @@ import { errorHandler } from './middleware/errorHandler';
 // Routes
 import authRoutes from './routes/auth.routes';
 import productsRoutes from './routes/products.routes';
+import cartRoutes from './routes/cart.routes';
+import addressesRoutes from './routes/addresses.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -57,6 +59,12 @@ app.use('/api/auth', authRoutes);
 
 // Products routes
 app.use('/api/products', productsRoutes);
+
+// Cart routes
+app.use('/api/cart', cartRoutes);
+
+// Addresses routes
+app.use('/api/addresses', addressesRoutes);
 
 /* ════════════════════════════════════
    Error Handling

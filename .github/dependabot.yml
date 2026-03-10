@@ -2,7 +2,7 @@ version: 2
 updates:
   # Frontend dependencies
   - package-ecosystem: "npm"
-    directory: "/"
+    directory: "/midhunamasala"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
@@ -12,7 +12,7 @@ updates:
 
   # Backend dependencies
   - package-ecosystem: "npm"
-    directory: "/backend"
+    directory: "/midhunamasala/backend"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5

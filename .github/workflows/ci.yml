@@ -17,6 +17,10 @@ jobs:
     name: 🎨 Frontend - Lint & Build
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./midhunamasala
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -26,6 +30,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: midhunamasala/package-lock.json
 
       - name: 📥 Install dependencies
         run: npm ci
@@ -55,7 +60,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./midhunamasala/backend
 
     steps:
       - name: 📥 Checkout code
@@ -66,7 +71,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: midhunamasala/backend/package-lock.json
 
       - name: 📥 Install dependencies
         run: npm ci
@@ -90,9 +95,10 @@ jobs:
 
       - name: 🔍 Audit frontend dependencies
         run: npm audit --audit-level=high
+        working-directory: ./midhunamasala
         continue-on-error: true
 
       - name: 🔍 Audit backend dependencies
         run: npm audit --audit-level=high
-        working-directory: ./backend
+        working-directory: ./midhunamasala/backend
         continue-on-error: true

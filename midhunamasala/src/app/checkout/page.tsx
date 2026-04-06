@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -161,6 +161,20 @@ function SelectionIndicator({ selected }: { selected: boolean }) {
    ═══════════════════════════════════════════ */
 
 export default function CheckoutPage() {
+    return (
+        <Suspense
+            fallback={(
+                <div className="min-h-screen bg-[#FFFDF5] flex items-center justify-center">
+                    <Loader2 className="w-10 h-10 animate-spin text-[#8B1E1E]" />
+                </div>
+            )}
+        >
+            <CheckoutPageInner />
+        </Suspense>
+    );
+}
+
+function CheckoutPageInner() {
     const { items: cartItems, clearCart } = useCart();
     const { user, isAuthenticated, isLoading: authLoading, getIdToken } = useAuth();
     const router = useRouter();
@@ -360,19 +374,68 @@ export default function CheckoutPage() {
 
     const placeOrder = async () => {
         setProcessing(true);
-        await new Promise(r => setTimeout(r, 2800));
-        const id = `MM-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9999)).padStart(4, '0')}`;
-        setOrderId(id);
-        setProcessing(false);
-        setDone(true);
-        setConfetti(true);
-        // In buyNow mode, only clear the sessionStorage (not the full cart)
-        if (isBuyNow) {
-            sessionStorage.removeItem('mm-buy-now');
-        } else {
-            clearCart();
+        try {
+            const token = await getIdToken();
+            if (!token) {
+                alert('Please sign in again to place your order.');
+                return;
+            }
+
+            const addr = activeAddr();
+            if (!addr.id) {
+                alert('Please select a saved address to place your order.');
+                return;
+            }
+
+            const orderItems = items.map((i: any) => ({
+                productId: i.productId,
+                quantity: i.quantity,
+            }));
+
+            const missingProduct = orderItems.find(i => !i.productId);
+            if (missingProduct) {
+                alert('Some items are missing product information. Please refresh and try again.');
+                return;
+            }
+
+            const response = await fetch(`${API_URL}/api/orders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    addressId: addr.id,
+                    paymentMethod: payment,
+                    items: orderItems,
+                }),
+            });
+
+            const data = await response.json().catch(() => null);
+            if (!response.ok || !data?.success || !data?.order?.orderNumber) {
+                const message = data?.error || 'Failed to place order.';
+                alert(message);
+                return;
+            }
+
+            setOrderId(String(data.order.orderNumber));
+            setDone(true);
+            setConfetti(true);
+
+            // In buyNow mode, only clear the sessionStorage (not the full cart)
+            if (isBuyNow) {
+                sessionStorage.removeItem('mm-buy-now');
+            } else {
+                clearCart();
+            }
+
+            setTimeout(() => setConfetti(false), 6000);
+        } catch (e) {
+            console.error('Place order failed:', e);
+            alert('Something went wrong while placing your order. Please try again.');
+        } finally {
+            setProcessing(false);
         }
-        setTimeout(() => setConfetti(false), 6000);
     };
 
     /* ── Loading ── */

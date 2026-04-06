@@ -28,6 +28,7 @@ export interface User {
     phone?: string;
     avatar?: string;
     role?: string;        // 'customer' or 'admin' from backend
+    createdAt?: string;
 }
 
 interface AuthContextType {
@@ -87,6 +88,7 @@ async function syncUserToBackend(idToken: string): Promise<User | null> {
                 phone: data.user.phone || undefined,
                 avatar: data.user.avatarUrl || undefined,
                 role: data.user.role,
+                createdAt: data.user.createdAt,
             };
         }
         return null;
@@ -94,6 +96,49 @@ async function syncUserToBackend(idToken: string): Promise<User | null> {
         console.error('Backend sync error:', error);
         return null;
     }
+}
+
+/**
+ * Helper: Load the latest user profile from the backend Supabase DB
+ */
+async function fetchCurrentUserProfile(idToken: string): Promise<User | null> {
+    try {
+        const response = await fetch(`${API_URL}/api/auth/me`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${idToken}`,
+            },
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const data = await response.json();
+        if (data.success && data.user) {
+            return {
+                id: data.user.id,
+                firebaseUid: data.user.firebaseUid,
+                name: data.user.name,
+                email: data.user.email,
+                phone: data.user.phone || undefined,
+                avatar: data.user.avatarUrl || undefined,
+                role: data.user.role,
+                createdAt: data.user.createdAt,
+            };
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Fetch user profile error:', error);
+        return null;
+    }
+}
+
+async function syncAndLoadUserProfile(idToken: string): Promise<User | null> {
+    await syncUserToBackend(idToken);
+    const profile = await fetchCurrentUserProfile(idToken);
+    return profile;
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -123,7 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // Sync to backend in the background (enriches with Supabase data)
                 try {
                     const idToken = await firebaseUser.getIdToken();
-                    const backendUser = await syncUserToBackend(idToken);
+                    const backendUser = await syncAndLoadUserProfile(idToken);
                     if (backendUser) {
                         setUser(backendUser);
                     }
@@ -159,7 +204,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Sync to backend
             const idToken = await firebaseUser.getIdToken();
-            const backendUser = await syncUserToBackend(idToken);
+            const backendUser = await syncAndLoadUserProfile(idToken);
             if (backendUser) {
                 setUser(backendUser);
                 return { success: true, isAdmin: backendUser.role === 'admin' };
@@ -202,7 +247,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Sync to backend (creates user in Supabase)
             const idToken = await firebaseUser.getIdToken(true); // force refresh to get updated name
-            const backendUser = await syncUserToBackend(idToken);
+            const backendUser = await syncAndLoadUserProfile(idToken);
             if (backendUser) {
                 // If phone was provided, update it in Supabase too
                 if (phone) {
@@ -260,7 +305,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Sync to backend
             const idToken = await firebaseUser.getIdToken();
-            const backendUser = await syncUserToBackend(idToken);
+            const backendUser = await syncAndLoadUserProfile(idToken);
             if (backendUser) {
                 setUser(backendUser);
                 return { success: true, isAdmin: backendUser.role === 'admin' };

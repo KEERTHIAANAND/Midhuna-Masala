@@ -180,7 +180,7 @@ export default function ShopPage() {
         <div className="flex flex-col items-center mb-6 sm:mb-10">
           {/* Category Tabs - scrollable on mobile */}
           <div className="w-full overflow-x-auto scrollbar-hide pb-2">
-            <div className="inline-flex items-center bg-white rounded-full p-1 sm:p-1.5 shadow-lg border border-[#E5D2C5] mx-auto min-w-max">
+            <div className="flex items-center bg-white rounded-full p-1 sm:p-1.5 shadow-lg border border-[#E5D2C5] mx-auto w-max min-w-max">
               <button
                 onClick={() => setSelectedCollection('all')}
                 className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'all'

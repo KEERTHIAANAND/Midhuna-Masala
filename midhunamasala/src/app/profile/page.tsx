@@ -1,15 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     User, Mail, ShoppingCart, LogOut, Loader2, Package,
     MapPin, Phone, Edit2, Settings, ChevronRight, Star,
-    CreditCard, Bell, Shield, Calendar
+    Shield, Calendar
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+type MyOrder = {
+    id: string;
+    orderNumber: string;
+    status: string;
+    paymentMethod: string;
+    paymentStatus: string;
+    total: number;
+    createdAt: string;
+    itemCount?: number;
+};
+
+type OrderDetailItem = {
+    id: string;
+    name: string;
+    weight?: string;
+    price: number;
+    quantity: number;
+};
 
 // Tab Configuration
 const TABS = [
@@ -19,10 +41,94 @@ const TABS = [
 ];
 
 export default function ProfilePage() {
-    const { user, logout } = useAuth();
+    const { user, logout, getIdToken } = useAuth();
+    const { cartCount } = useCart();
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'settings'>('overview');
+
+    const [myOrders, setMyOrders] = useState<MyOrder[]>([]);
+    const [ordersLoading, setOrdersLoading] = useState(false);
+    const [ordersLoaded, setOrdersLoaded] = useState(false);
+    const [ordersError, setOrdersError] = useState<string | null>(null);
+
+    const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+    const [detailLoadingId, setDetailLoadingId] = useState<string | null>(null);
+    const [orderDetails, setOrderDetails] = useState<Record<string, { items: OrderDetailItem[] }>>({});
+
+    useEffect(() => {
+        async function loadMyOrders() {
+            setOrdersLoading(true);
+            setOrdersError(null);
+            try {
+                const token = await getIdToken();
+                if (!token) {
+                    setOrdersError('Please sign in again to view orders.');
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/api/orders?limit=50&offset=0`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+
+                const data = await response.json().catch(() => null);
+                if (!response.ok || !data?.success) {
+                    setOrdersError(data?.error || 'Failed to load orders.');
+                    return;
+                }
+
+                setMyOrders((data.orders || []) as MyOrder[]);
+                setOrdersLoaded(true);
+            } catch (e) {
+                console.error('Load my orders failed:', e);
+                setOrdersError('Failed to load orders.');
+            } finally {
+                setOrdersLoading(false);
+            }
+        }
+
+        if (activeTab === 'orders' && !ordersLoaded) {
+            loadMyOrders();
+        }
+    }, [activeTab, ordersLoaded, getIdToken]);
+
+    const toggleOrderDetails = async (order: MyOrder) => {
+        const nextId = expandedOrderId === order.id ? null : order.id;
+        setExpandedOrderId(nextId);
+        if (!nextId) return;
+
+        if (orderDetails[nextId]) return;
+
+        setDetailLoadingId(nextId);
+        try {
+            const token = await getIdToken();
+            if (!token) return;
+
+            const response = await fetch(`${API_URL}/api/orders/${order.id}`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            const data = await response.json().catch(() => null);
+            if (!response.ok || !data?.success) return;
+
+            const rawItems: unknown = (data as { items?: unknown })?.items;
+            const items = (Array.isArray(rawItems) ? rawItems : []).map((it) => {
+                const row = (it ?? {}) as Record<string, unknown>;
+                return {
+                    id: String(row.id ?? ''),
+                    name: String(row.name ?? ''),
+                    weight: row.weight ? String(row.weight) : undefined,
+                    price: Number(row.price ?? 0),
+                    quantity: Number(row.quantity ?? 0),
+                };
+            });
+
+            setOrderDetails(prev => ({ ...prev, [order.id]: { items } }));
+        } catch (e) {
+            console.error('Load order details failed:', e);
+        } finally {
+            setDetailLoadingId(null);
+        }
+    };
 
     const handleLogout = async () => {
         if (isLoggingOut) return;
@@ -44,8 +150,9 @@ export default function ProfilePage() {
         );
     }
 
-    // Mock "Member Since" date
-    const memberSince = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const memberSince = user.createdAt
+        ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        : 'Recently joined';
 
     return (
         <div className="min-h-screen bg-[#FFFDF5] relative isolate">
@@ -114,7 +221,7 @@ export default function ProfilePage() {
                                             </div>
                                             <span className="text-sm font-medium text-gray-600">Total Orders</span>
                                         </div>
-                                        <span className="font-bold text-gray-900">0</span>
+                                        <span className="font-bold text-gray-900">{myOrders.length}</span>
                                     </div>
 
                                     <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-[#FFFDF5] border border-transparent hover:border-[#E5D2C5] transition-all group">
@@ -124,7 +231,7 @@ export default function ProfilePage() {
                                             </div>
                                             <span className="text-sm font-medium text-gray-600">Cart Items</span>
                                         </div>
-                                        <span className="font-bold text-gray-900">0</span>
+                                        <span className="font-bold text-gray-900">{cartCount}</span>
                                     </div>
                                 </div>
 
@@ -253,18 +360,104 @@ export default function ProfilePage() {
                                 )}
 
                                 {activeTab === 'orders' && (
-                                    <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-500">
-                                        <div className="w-32 h-32 bg-gradient-to-br from-[#FFFDF5] to-gray-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-gray-100">
-                                            <Package className="w-12 h-12 text-gray-300" />
+                                    <div className="animate-in fade-in duration-500">
+                                        <div className="flex items-center justify-between pb-6 border-b border-gray-100">
+                                            <h2 className="text-2xl font-serif font-bold text-gray-800">My Orders</h2>
+                                            <span className="text-sm font-semibold text-gray-500">{myOrders.length} order{myOrders.length === 1 ? '' : 's'}</span>
                                         </div>
-                                        <h3 className="text-xl font-serif font-bold text-gray-800 mb-2">No Past Orders</h3>
-                                        <p className="text-gray-500 max-w-sm mx-auto mb-8">
-                                            We're waiting to spice up your kitchen! Your order history will appear here.
-                                        </p>
-                                        <Link href="/shop" className="inline-flex items-center gap-2 px-8 py-4 bg-[#8B1E1E] text-white rounded-xl font-bold hover:bg-[#6B1616] transition-all hover:shadow-lg hover:shadow-[#8B1E1E]/30 transform hover:-translate-y-1">
-                                            <ShoppingCart className="w-5 h-5" />
-                                            Shop Now
-                                        </Link>
+
+                                        {ordersLoading && (
+                                            <div className="flex items-center justify-center py-16 text-gray-500">
+                                                <Loader2 className="w-5 h-5 animate-spin mr-2 text-[#8B1E1E]" />
+                                                Loading your orders...
+                                            </div>
+                                        )}
+
+                                        {!ordersLoading && ordersError && (
+                                            <div className="py-10 text-center">
+                                                <p className="text-sm text-red-600 font-semibold">{ordersError}</p>
+                                            </div>
+                                        )}
+
+                                        {!ordersLoading && !ordersError && myOrders.length === 0 && (
+                                            <div className="flex flex-col items-center justify-center py-16 text-center">
+                                                <div className="w-32 h-32 bg-gradient-to-br from-[#FFFDF5] to-gray-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-gray-100">
+                                                    <Package className="w-12 h-12 text-gray-300" />
+                                                </div>
+                                                <h3 className="text-xl font-serif font-bold text-gray-800 mb-2">No Past Orders</h3>
+                                                <p className="text-gray-500 max-w-sm mx-auto mb-8">
+                                                    We&apos;re waiting to spice up your kitchen! Your order history will appear here.
+                                                </p>
+                                                <Link href="/shop" className="inline-flex items-center gap-2 px-8 py-4 bg-[#8B1E1E] text-white rounded-xl font-bold hover:bg-[#6B1616] transition-all hover:shadow-lg hover:shadow-[#8B1E1E]/30 transform hover:-translate-y-1">
+                                                    <ShoppingCart className="w-5 h-5" />
+                                                    Shop Now
+                                                </Link>
+                                            </div>
+                                        )}
+
+                                        {!ordersLoading && !ordersError && myOrders.length > 0 && (
+                                            <div className="pt-8 space-y-4">
+                                                {myOrders.map((order) => (
+                                                    <div
+                                                        key={order.id}
+                                                        className="rounded-2xl bg-gray-50 border border-gray-100 hover:bg-[#FFFDF5] hover:border-[#E5D2C5] transition-all overflow-hidden"
+                                                    >
+                                                        <button
+                                                            onClick={() => toggleOrderDetails(order)}
+                                                            className="w-full p-5 flex items-start justify-between gap-4 text-left"
+                                                        >
+                                                            <div>
+                                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Order</p>
+                                                                <p className="text-lg font-serif font-bold text-[#8B1E1E]">{order.orderNumber}</p>
+                                                                <p className="text-xs text-gray-500 mt-1">
+                                                                    {new Date(order.createdAt).toLocaleString('en-IN')}
+                                                                </p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p className="text-lg font-bold text-gray-900">₹{Number(order.total || 0).toLocaleString('en-IN')}</p>
+                                                                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mt-1">{order.status}</p>
+                                                                <p className="text-xs text-gray-400 mt-1">Tap to view details</p>
+                                                            </div>
+                                                        </button>
+
+                                                        {expandedOrderId === order.id && (
+                                                            <div className="px-5 pb-5">
+                                                                <div className="border-t border-gray-200 pt-4">
+                                                                    {detailLoadingId === order.id && (
+                                                                        <div className="flex items-center text-sm text-gray-500">
+                                                                            <Loader2 className="w-4 h-4 animate-spin mr-2 text-[#8B1E1E]" />
+                                                                            Loading order details...
+                                                                        </div>
+                                                                    )}
+
+                                                                    {detailLoadingId !== order.id && orderDetails[order.id]?.items?.length > 0 && (
+                                                                        <div className="space-y-3">
+                                                                            {orderDetails[order.id].items.map((it) => (
+                                                                                <div key={it.id} className="flex items-start justify-between gap-4">
+                                                                                    <div>
+                                                                                        <p className="text-sm font-semibold text-gray-800">{it.name}</p>
+                                                                                        {it.weight && <p className="text-xs text-gray-500">{it.weight}</p>}
+                                                                                        <p className="text-xs text-gray-500">Qty: {it.quantity}</p>
+                                                                                    </div>
+                                                                                    <div className="text-right">
+                                                                                        <p className="text-sm font-semibold text-gray-800">₹{Number(it.price || 0).toLocaleString('en-IN')}</p>
+                                                                                        <p className="text-xs text-gray-500">Line: ₹{Number((it.price || 0) * (it.quantity || 0)).toLocaleString('en-IN')}</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+
+                                                                    {detailLoadingId !== order.id && (!orderDetails[order.id] || orderDetails[order.id]?.items?.length === 0) && (
+                                                                        <p className="text-sm text-gray-500">No items found for this order.</p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 

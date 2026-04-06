@@ -2,6 +2,19 @@ import { Response } from 'express';
 import { AuthenticatedRequest } from '../types';
 import { supabase } from '../config/supabase';
 
+function mapUserRowToResponse(data: any) {
+    return {
+        id: data.id,
+        firebaseUid: data.firebase_uid,
+        email: data.email,
+        name: data.name,
+        phone: data.phone,
+        avatarUrl: data.avatar_url,
+        role: data.role,
+        createdAt: data.created_at,
+    };
+}
+
 /**
  * POST /api/auth/sync-user
  * 
@@ -20,43 +33,68 @@ export async function syncUser(req: AuthenticatedRequest, res: Response): Promis
 
         const role = adminEmails.includes(email.toLowerCase()) ? 'admin' : 'customer';
 
-        // Upsert user: insert if new, update if existing
-        const { data, error } = await supabase
-            .from('users')
-            .upsert(
-                {
-                    firebase_uid: uid,
-                    email: email,
-                    name: name || 'User',
-                    avatar_url: avatar || null,
-                    role: role,
-                    updated_at: new Date().toISOString(),
-                },
-                {
-                    onConflict: 'firebase_uid',
-                }
-            )
-            .select()
-            .single();
+        const now = new Date().toISOString();
 
-        if (error) {
-            console.error('Sync user error:', error);
+        const { data: existingUser, error: fetchError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('firebase_uid', uid)
+            .maybeSingle();
+
+        if (fetchError) {
+            console.error('Sync user lookup error:', fetchError);
             res.status(500).json({ success: false, error: 'Failed to sync user.' });
             return;
         }
 
+        let data = existingUser;
+
+        if (existingUser) {
+            const { data: updatedUser, error: updateError } = await supabase
+                .from('users')
+                .update({
+                    firebase_uid: uid,
+                    email,
+                    role,
+                    updated_at: now,
+                })
+                .eq('firebase_uid', uid)
+                .select()
+                .single();
+
+            if (updateError) {
+                console.error('Sync user update error:', updateError);
+                res.status(500).json({ success: false, error: 'Failed to sync user.' });
+                return;
+            }
+
+            data = updatedUser;
+        } else {
+            const { data: insertedUser, error: insertError } = await supabase
+                .from('users')
+                .insert({
+                    firebase_uid: uid,
+                    email,
+                    name: name || 'User',
+                    avatar_url: avatar || null,
+                    role,
+                    updated_at: now,
+                })
+                .select()
+                .single();
+
+            if (insertError) {
+                console.error('Sync user insert error:', insertError);
+                res.status(500).json({ success: false, error: 'Failed to sync user.' });
+                return;
+            }
+
+            data = insertedUser;
+        }
+
         res.json({
             success: true,
-            user: {
-                id: data.id,
-                firebaseUid: data.firebase_uid,
-                email: data.email,
-                name: data.name,
-                phone: data.phone,
-                avatarUrl: data.avatar_url,
-                role: data.role,
-                createdAt: data.created_at,
-            },
+            user: mapUserRowToResponse(data),
         });
     } catch (error) {
         console.error('Sync user error:', error);
@@ -86,16 +124,7 @@ export async function getMe(req: AuthenticatedRequest, res: Response): Promise<v
 
         res.json({
             success: true,
-            user: {
-                id: data.id,
-                firebaseUid: data.firebase_uid,
-                email: data.email,
-                name: data.name,
-                phone: data.phone,
-                avatarUrl: data.avatar_url,
-                role: data.role,
-                createdAt: data.created_at,
-            },
+            user: mapUserRowToResponse(data),
         });
     } catch (error) {
         console.error('Get me error:', error);
@@ -131,15 +160,7 @@ export async function updateMe(req: AuthenticatedRequest, res: Response): Promis
 
         res.json({
             success: true,
-            user: {
-                id: data.id,
-                firebaseUid: data.firebase_uid,
-                email: data.email,
-                name: data.name,
-                phone: data.phone,
-                avatarUrl: data.avatar_url,
-                role: data.role,
-            },
+            user: mapUserRowToResponse(data),
         });
     } catch (error) {
         console.error('Update me error:', error);

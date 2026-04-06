@@ -81,7 +81,9 @@ CREATE TABLE IF NOT EXISTS orders (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     order_number TEXT UNIQUE NOT NULL,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    customer_name TEXT,
     address_id UUID REFERENCES addresses(id),
+    item_count INTEGER NOT NULL DEFAULT 0,
     status TEXT NOT NULL DEFAULT 'placed' CHECK (status IN ('placed', 'confirmed', 'shipped', 'delivered', 'cancelled')),
     payment_method TEXT NOT NULL CHECK (payment_method IN ('upi', 'card', 'netbanking', 'cod')),
     payment_status TEXT NOT NULL DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded')),
@@ -141,16 +143,26 @@ CREATE INDEX IF NOT EXISTS idx_cart_items_user_id ON cart_items(user_id);
 CREATE OR REPLACE FUNCTION generate_order_number()
 RETURNS TEXT AS $$
 DECLARE
-    date_part TEXT;
-    seq_part TEXT;
-    order_count INTEGER;
+    year_part INTEGER;
+    max_counter INTEGER;
+    next_counter INTEGER;
+    prefix TEXT;
 BEGIN
-    date_part := TO_CHAR(NOW(), 'YYYYMMDD');
-    SELECT COUNT(*) + 1 INTO order_count
+    -- Format required by UI: MM-YYYY#### (example: MM-20260001)
+    year_part := EXTRACT(YEAR FROM NOW())::INTEGER;
+
+    -- Avoid race conditions without needing a separate counters table
+    PERFORM pg_advisory_xact_lock(year_part);
+
+    prefix := 'MM-' || year_part::TEXT;
+
+    SELECT COALESCE(MAX(RIGHT(order_number, 4)::INTEGER), 0)
+    INTO max_counter
     FROM orders
-    WHERE created_at::DATE = CURRENT_DATE;
-    seq_part := LPAD(order_count::TEXT, 3, '0');
-    RETURN 'MM-' || date_part || '-' || seq_part;
+    WHERE order_number ~ ('^MM-' || year_part::TEXT || '[0-9]{4}$');
+
+    next_counter := max_counter + 1;
+    RETURN prefix || LPAD(next_counter::TEXT, 4, '0');
 END;
 $$ LANGUAGE plpgsql;
 

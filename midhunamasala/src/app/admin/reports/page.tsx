@@ -13,17 +13,81 @@ import { auth } from '@/lib/firebase';
 import AdminNavbar from '@/components/admin/AdminNavbar';
 
 
-// Revenue Data (Weekly)
-const REVENUE_DATA: { day: string; value: number }[] = [];
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-// Category Sales Data
-const CATEGORY_DATA: { name: string; value: number; color: string }[] = [];
+type RevenuePoint = { day: string; value: number };
+type CategoryPoint = { name: string; value: number; color: string };
+type AnalyticsStats = {
+    totalRevenue: number;
+    totalOrders: number;
+    avgOrderValue: number;
+    revenueChangePct: number;
+    ordersChangePct: number;
+    avgOrderValueChangePct: number;
+};
+type CategoryBreakdownRow = { name: string; amount: number };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return !!value && typeof value === 'object';
+}
+
+function getArrayProp(value: unknown, key: string): unknown[] {
+    if (!isRecord(value)) return [];
+    const prop = value[key];
+    return Array.isArray(prop) ? prop : [];
+}
+
+function getRecordProp(value: unknown, key: string): Record<string, unknown> | null {
+    if (!isRecord(value)) return null;
+    const prop = value[key];
+    return isRecord(prop) ? prop : null;
+}
+
+function toNumber(value: unknown): number {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+}
+
+function toString(value: unknown, fallback: string): string {
+    return typeof value === 'string' && value.trim() ? value : fallback;
+}
+
+function parseCategoryBreakdown(rows: unknown[]): CategoryBreakdownRow[] {
+    const parsed: CategoryBreakdownRow[] = [];
+    for (const row of rows) {
+        if (!isRecord(row)) continue;
+        const name = toString(row.name, 'OTHER');
+        const amount = toNumber(row.amount);
+        parsed.push({ name, amount });
+    }
+    return parsed;
+}
+
+const CATEGORY_COLORS: Record<string, string> = {
+    POWDER: '#F6C84C',
+    BLEND: '#7A1A1A',
+    'WHOLE SPICES': '#9CA3AF',
+    OTHER: '#9CA3AF',
+};
+
+function daysForRange(label: string): number {
+    if (label === 'Last 7 Days') return 7;
+    if (label === 'Last 30 Days') return 30;
+    if (label === 'Last 90 Days') return 90;
+    if (label === 'This Year') return 365;
+    return 30;
+}
 
 export default function SalesGrowthPage() {
-    const { user, isAdmin, isLoading: authLoading } = useAuth();
+    const { user, isAdmin, isLoading: authLoading, getIdToken } = useAuth();
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [dateRange, setDateRange] = useState('Last 30 Days');
+
+    const [revenueData, setRevenueData] = useState<RevenuePoint[]>([]);
+    const [categoryData, setCategoryData] = useState<CategoryPoint[]>([]);
+    const [stats, setStats] = useState<AnalyticsStats | null>(null);
 
     // Auth Check
     useEffect(() => {
@@ -41,7 +105,72 @@ export default function SalesGrowthPage() {
         }
     };
 
-    const maxRevenue = REVENUE_DATA.length > 0 ? Math.max(...REVENUE_DATA.map(d => d.value)) : 1;
+    useEffect(() => {
+        if (!authLoading && isAdmin) {
+            let cancelled = false;
+
+            const fetchAnalytics = async () => {
+                try {
+                    const token = await getIdToken();
+                    if (!token) return;
+                    const days = daysForRange(dateRange);
+                    const response = await fetch(`${API_URL}/api/orders/admin/analytics?days=${days}`, {
+                        headers: { 'Authorization': `Bearer ${token}` },
+                    });
+                    const data: unknown = await response.json().catch(() => null);
+                    if (!response.ok || !isRecord(data) || data.success !== true || cancelled) return;
+
+                    const trendRaw = getArrayProp(data, 'revenueTrend');
+                    const trend: RevenuePoint[] = trendRaw
+                        .filter(isRecord)
+                        .map((r) => ({ day: toString(r.day, ''), value: toNumber(r.value) }))
+                        .filter((p) => !!p.day);
+                    setRevenueData(trend);
+
+                    const s = getRecordProp(data, 'stats');
+                    if (s) {
+                        setStats({
+                            totalRevenue: toNumber(s.totalRevenue),
+                            totalOrders: toNumber(s.totalOrders),
+                            avgOrderValue: toNumber(s.avgOrderValue),
+                            revenueChangePct: toNumber(s.revenueChangePct),
+                            ordersChangePct: toNumber(s.ordersChangePct),
+                            avgOrderValueChangePct: toNumber(s.avgOrderValueChangePct),
+                        });
+                    }
+
+                    const breakdownRaw = getArrayProp(data, 'categoryBreakdown');
+                    const breakdown = parseCategoryBreakdown(breakdownRaw);
+                    const total = breakdown.reduce((acc, r) => acc + r.amount, 0);
+                    if (total <= 0) {
+                        setCategoryData([]);
+                    } else {
+                        const points: CategoryPoint[] = breakdown.map((r) => {
+                            const name = r.name || 'OTHER';
+                            const value = (r.amount / total) * 100;
+                            return {
+                                name,
+                                value,
+                                color: CATEGORY_COLORS[name] || CATEGORY_COLORS.OTHER,
+                            };
+                        });
+                        setCategoryData(points);
+                    }
+                } catch (e) {
+                    console.error('Admin analytics fetch failed:', e);
+                }
+            };
+
+            fetchAnalytics();
+            const timer = setInterval(fetchAnalytics, 10000);
+            return () => {
+                cancelled = true;
+                clearInterval(timer);
+            };
+        }
+    }, [authLoading, isAdmin, dateRange, getIdToken]);
+
+    const maxRevenue = revenueData.length > 0 ? Math.max(...revenueData.map(d => d.value)) : 1;
 
     if (authLoading || !isAdmin) {
         return (
@@ -92,11 +221,11 @@ export default function SalesGrowthPage() {
                     >
                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#F6C84C 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
                         <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider mb-2">Total Revenue</p>
-                        <h3 className="text-4xl font-serif font-bold tabular-nums lining-nums">₹0</h3>
+                        <h3 className="text-4xl font-serif font-bold tabular-nums lining-nums">₹{Number(stats?.totalRevenue || 0).toLocaleString('en-IN')}</h3>
                         <div className="mt-4 flex items-center gap-2">
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/20 text-white/70 text-xs font-bold rounded">
                                 <TrendingUp className="w-3 h-3" />
-                                0%
+                                {Number(stats?.revenueChangePct || 0).toFixed(1)}%
                             </span>
                             <span className="text-white/70 text-xs">vs last month</span>
                         </div>
@@ -110,11 +239,11 @@ export default function SalesGrowthPage() {
                         className="bg-white p-6 rounded-2xl border border-[#F3EFEA] shadow-sm"
                     >
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Total Orders</p>
-                        <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">0</h3>
+                        <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">{Number(stats?.totalOrders || 0).toLocaleString('en-IN')}</h3>
                         <div className="mt-4 flex items-center gap-2">
                             <span className="inline-flex items-center gap-1 text-gray-400 text-xs font-bold">
                                 <TrendingUp className="w-3 h-3" />
-                                0%
+                                {Number(stats?.ordersChangePct || 0).toFixed(1)}%
                             </span>
                             <span className="text-gray-400 text-xs">vs last month</span>
                         </div>
@@ -128,11 +257,11 @@ export default function SalesGrowthPage() {
                         className="bg-white p-6 rounded-2xl border border-[#F3EFEA] shadow-sm"
                     >
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Avg. Order Value</p>
-                        <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">₹0</h3>
+                        <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">₹{Number(stats?.avgOrderValue || 0).toLocaleString('en-IN')}</h3>
                         <div className="mt-4 flex items-center gap-2">
                             <span className="inline-flex items-center gap-1 text-gray-400 text-xs font-bold">
                                 <TrendingDown className="w-3 h-3" />
-                                0%
+                                {Number(stats?.avgOrderValueChangePct || 0).toFixed(1)}%
                             </span>
                             <span className="text-gray-400 text-xs">vs last month</span>
                         </div>
@@ -152,9 +281,9 @@ export default function SalesGrowthPage() {
                         <h3 className="text-lg font-serif font-bold text-[#7A1A1A] mb-6">Revenue Trend</h3>
 
                         {/* Bar Chart */}
-                        {REVENUE_DATA.length > 0 ? (
+                        {revenueData.length > 0 ? (
                             <div className="h-64 flex items-end justify-between gap-3 px-2">
-                                {REVENUE_DATA.map((item, index) => (
+                                {revenueData.map((item, index) => (
                                     <div key={item.day} className="flex-1 flex flex-col items-center gap-2">
                                         <motion.div
                                             initial={{ height: 0 }}
@@ -189,14 +318,14 @@ export default function SalesGrowthPage() {
                         <h3 className="text-lg font-serif font-bold text-[#7A1A1A] mb-6">Sales by Category</h3>
 
                         <div className="flex items-center justify-center">
-                            {CATEGORY_DATA.length > 0 ? (
+                            {categoryData.length > 0 ? (
                                 <>
                                     {/* Donut Chart */}
                                     <div className="relative w-56 h-56">
                                         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
                                             {(() => {
                                                 let cumulativePercent = 0;
-                                                return CATEGORY_DATA.map((category) => {
+                                                return categoryData.map((category) => {
                                                     const percent = category.value;
                                                     const strokeDasharray = `${percent} ${100 - percent}`;
                                                     const strokeDashoffset = -cumulativePercent;
@@ -226,7 +355,7 @@ export default function SalesGrowthPage() {
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
-                                        {CATEGORY_DATA.map((category) => (
+                                        {categoryData.map((category) => (
                                             <div key={category.name} className="flex items-center gap-2">
                                                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category.color }}></div>
                                                 <span className="text-xs text-gray-600">{category.name}</span>

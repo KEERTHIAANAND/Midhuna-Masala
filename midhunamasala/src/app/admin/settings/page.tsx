@@ -35,9 +35,9 @@ export default function SettingsPage() {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     // Form state
-    const [fullName, setFullName] = useState('Keerthi Aanand K S');
-    const [email, setEmail] = useState('admin@midhunamasala.com');
-    const [phone, setPhone] = useState('+91 98765 43210');
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [isEditingProfile, setIsEditingProfile] = useState(false);
 
     // Notification toggles
@@ -50,6 +50,14 @@ export default function SettingsPage() {
     useEffect(() => {
         if (!authLoading && !isAdmin && !isLoggingOut) router.replace('/login');
     }, [authLoading, isAdmin, router, isLoggingOut]);
+
+    useEffect(() => {
+        if (!user) return;
+
+        setFullName(user.name || '');
+        setEmail(user.email || '');
+        setPhone(user.phone || '');
+    }, [user]);
 
     const handleLogout = async () => {
         try {
@@ -114,14 +122,14 @@ export default function SettingsPage() {
                         <div className="flex flex-col items-center mb-8">
                             <div className="relative">
                                 <div className="w-24 h-24 rounded-full bg-[#7A1A1A] text-[#F6C84C] flex items-center justify-center font-serif font-bold text-4xl shadow-lg border-4 border-[#F6C84C]">
-                                    K
+                                    {(fullName || user?.name || 'A').charAt(0).toUpperCase()}
                                 </div>
                                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
                                     <Check className="w-3 h-3 text-white" />
                                 </div>
                             </div>
-                            <h3 className="mt-4 text-xl font-serif font-bold text-[#7A1A1A]">Keerthi Aanand K S</h3>
-                            <p className="text-[10px] font-bold text-[#D4AF37] tracking-wider uppercase mt-1">Super Admin</p>
+                            <h3 className="mt-4 text-xl font-serif font-bold text-[#7A1A1A]">{fullName || user?.name || 'Admin User'}</h3>
+                            <p className="text-[10px] font-bold text-[#D4AF37] tracking-wider uppercase mt-1">{user?.role === 'admin' ? 'Admin' : 'Customer'}</p>
                         </div>
 
                         {/* Profile Fields */}

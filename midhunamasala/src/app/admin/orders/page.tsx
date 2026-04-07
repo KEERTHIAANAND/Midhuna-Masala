@@ -12,6 +12,8 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import AdminNavbar from '@/components/admin/AdminNavbar';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 
 // Status Filters
 const STATUS_FILTERS = ['All Orders', 'Pending', 'Processing', 'Shipped', 'Delivered'];
@@ -27,6 +29,7 @@ const STATUS_STYLES: Record<string, string> = {
 
 // Orders Data
 type Order = {
+    dbId: string;
     id: string;
     customer: { name: string; initial: string; color: string };
     date: string;
@@ -38,8 +41,74 @@ type Order = {
 };
 const ORDERS: Order[] = [];
 
+type BackendOrderRow = {
+    id: string;
+    orderNumber: string;
+    status: string;
+    paymentMethod: string;
+    paymentStatus: string;
+    total: number;
+    createdAt: string;
+    itemCount?: number;
+    customer?: { name?: string; email?: string; phone?: string };
+};
+
+function pickCustomerColor(seed: string) {
+    const colors = [
+        'bg-amber-100 text-amber-700',
+        'bg-rose-100 text-rose-700',
+        'bg-emerald-100 text-emerald-700',
+        'bg-sky-100 text-sky-700',
+        'bg-violet-100 text-violet-700',
+        'bg-orange-100 text-orange-700',
+    ];
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+    return colors[hash % colors.length];
+}
+
+function apiStatusToUi(status: string): string {
+    const s = String(status || '').toLowerCase();
+    if (s === 'placed') return 'PENDING';
+    if (s === 'confirmed') return 'PROCESSING';
+    if (s === 'shipped') return 'SHIPPED';
+    if (s === 'delivered') return 'DELIVERED';
+    if (s === 'cancelled') return 'CANCELLED';
+    return 'PENDING';
+}
+
+function uiStatusToApi(status: string): string {
+    const s = String(status || '').toUpperCase();
+    if (s === 'PENDING') return 'placed';
+    if (s === 'PROCESSING') return 'confirmed';
+    if (s === 'SHIPPED') return 'shipped';
+    if (s === 'DELIVERED') return 'delivered';
+    if (s === 'CANCELLED') return 'cancelled';
+    return 'placed';
+}
+
+function mapBackendOrderToUi(row: BackendOrderRow): Order {
+    const customerName = row.customer?.name || row.customer?.email || 'Customer';
+    const initial = customerName.trim().charAt(0).toUpperCase() || 'C';
+    return {
+        dbId: row.id,
+        id: row.orderNumber,
+        customer: {
+            name: customerName,
+            initial,
+            color: pickCustomerColor(customerName),
+        },
+        date: new Date(row.createdAt).toLocaleString('en-IN'),
+        items: row.itemCount ?? 0,
+        amount: Number(row.total || 0),
+        payment: String(row.paymentMethod || '').toUpperCase(),
+        status: apiStatusToUi(row.status),
+        products: [],
+    };
+}
+
 export default function OrdersPage() {
-    const { user, isAdmin, isLoading: authLoading } = useAuth();
+    const { user, isAdmin, isLoading: authLoading, getIdToken } = useAuth();
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [activeFilter, setActiveFilter] = useState('All Orders');
@@ -57,10 +126,110 @@ export default function OrdersPage() {
     const [updateStatusOpen, setUpdateStatusOpen] = useState(false);
     const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
 
+    const [ordersLoading, setOrdersLoading] = useState(false);
+    const [ordersError, setOrdersError] = useState<string | null>(null);
+    const [visibleCount, setVisibleCount] = useState(15);
+
+    const loadOrders = async () => {
+        setOrdersLoading(true);
+        setOrdersError(null);
+        try {
+            const token = await getIdToken();
+            if (!token) {
+                setOrdersError('Please sign in again.');
+                return;
+            }
+            const response = await fetch(`${API_URL}/api/orders/admin?limit=100&offset=0`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            const data = await response.json().catch(() => null);
+            if (!response.ok || !data?.success) {
+                setOrdersError(data?.error || 'Failed to load orders.');
+                return;
+            }
+            setOrders((data.orders || []).map(mapBackendOrderToUi));
+        } catch (e) {
+            console.error('Load admin orders failed:', e);
+            setOrdersError('Failed to load orders.');
+        } finally {
+            setOrdersLoading(false);
+        }
+    };
+
+    const loadOrderDetails = async (order: Order) => {
+        try {
+            const token = await getIdToken();
+            if (!token) return;
+            const response = await fetch(`${API_URL}/api/orders/admin/${order.dbId}`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            const data = await response.json().catch(() => null);
+            if (!response.ok || !data?.success) return;
+
+            const items = Array.isArray(data.items) ? data.items : [];
+            const products = items.map((it: any) => ({
+                name: it.name,
+                weight: it.weight || '',
+                qty: it.quantity,
+                price: Number(it.price || 0),
+            }));
+
+            setSelectedOrder(prev => {
+                if (!prev || prev.dbId !== order.dbId) return prev;
+                return {
+                    ...prev,
+                    products,
+                    items: products.reduce((acc: number, p: any) => acc + Number(p.qty || 0), 0),
+                };
+            });
+        } catch (e) {
+            console.error('Load order details failed:', e);
+        }
+    };
+
+    const updateOrderStatus = async (order: Order, newUiStatus: string) => {
+        const next = newUiStatus.toUpperCase();
+        try {
+            const token = await getIdToken();
+            if (!token) {
+                alert('Please sign in again.');
+                return;
+            }
+
+            const response = await fetch(`${API_URL}/api/orders/admin/${order.dbId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ status: uiStatusToApi(next) }),
+            });
+
+            const data = await response.json().catch(() => null);
+            if (!response.ok || !data?.success) {
+                alert(data?.error || 'Failed to update status.');
+                return;
+            }
+
+            setOrders(prev => prev.map(o => (o.dbId === order.dbId ? { ...o, status: next } : o)));
+            setSelectedOrder(prev => (prev && prev.dbId === order.dbId ? { ...prev, status: next } : prev));
+        } catch (e) {
+            console.error('Update status failed:', e);
+            alert('Failed to update status.');
+        }
+    };
+
     // Auth Check
     useEffect(() => {
         if (!authLoading && !isAdmin && !isLoggingOut) router.replace('/login');
     }, [authLoading, isAdmin, router, isLoggingOut]);
+
+    useEffect(() => {
+        if (!authLoading && isAdmin) {
+            loadOrders();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [authLoading, isAdmin]);
 
     const handleLogout = async () => {
         try {
@@ -74,8 +243,13 @@ export default function OrdersPage() {
     };
 
     const filteredOrders = orders.filter(order => {
-        const matchesFilter = activeFilter === 'All Orders' ||
-            order.status.toLowerCase() === activeFilter.toLowerCase();
+        const filterToStatus: Record<string, string> = {
+            'Pending': 'PENDING',
+            'Processing': 'PROCESSING',
+            'Shipped': 'SHIPPED',
+            'Delivered': 'DELIVERED',
+        };
+        const matchesFilter = activeFilter === 'All Orders' || order.status === filterToStatus[activeFilter];
         const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
             order.customer.name.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -101,6 +275,13 @@ export default function OrdersPage() {
         if (sortBy === 'items_low') return a.items - b.items;
         return 0;
     });
+
+    // Reset pagination when the filtering/sorting context changes
+    useEffect(() => {
+        setVisibleCount(15);
+    }, [activeFilter, searchQuery, orderSize, priority, sortBy]);
+
+    const visibleOrders = filteredOrders.slice(0, visibleCount);
 
     // Export CSV function
     const handleExportCSV = () => {
@@ -305,7 +486,13 @@ export default function OrdersPage() {
                     {/* Table Rows */}
                     <div className="divide-y divide-[#F3EFEA]">
                         <AnimatePresence>
-                            {filteredOrders.map((order, index) => (
+                            {ordersLoading && (
+                                <div className="px-6 py-10 text-center text-sm text-gray-500">Loading orders...</div>
+                            )}
+                            {!ordersLoading && ordersError && (
+                                <div className="px-6 py-10 text-center text-sm text-red-600 font-semibold">{ordersError}</div>
+                            )}
+                            {visibleOrders.map((order, index) => (
                                 <motion.div
                                     key={order.id + index}
                                     initial={{ opacity: 0 }}
@@ -323,6 +510,7 @@ export default function OrdersPage() {
                                         onClick={() => {
                                             setSelectedOrder(order);
                                             setViewOrderOpen(true);
+                                            loadOrderDetails(order);
                                         }}
                                     >
                                         <div className={`w-8 h-8 rounded-full ${order.customer.color} flex items-center justify-center font-bold text-sm`}>
@@ -361,12 +549,17 @@ export default function OrdersPage() {
                     </div>
 
                     {/* Load More */}
-                    <div className="px-6 py-4 border-t border-[#F3EFEA] flex justify-center">
-                        <button className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#7A1A1A] transition-colors">
-                            Load More Orders
-                            <ChevronDown className="w-4 h-4" />
-                        </button>
-                    </div>
+                    {filteredOrders.length > 15 && visibleCount < filteredOrders.length && (
+                        <div className="px-6 py-4 border-t border-[#F3EFEA] flex justify-center">
+                            <button
+                                onClick={() => setVisibleCount(v => Math.min(v + 10, filteredOrders.length))}
+                                className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#7A1A1A] transition-colors"
+                            >
+                                Load More Orders
+                                <ChevronDown className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
                 </div>
 
             </main>
@@ -433,10 +626,7 @@ export default function OrdersPage() {
                                             value={selectedOrder.status}
                                             onChange={(e) => {
                                                 const newStatus = e.target.value;
-                                                setOrders(orders.map(o =>
-                                                    o.id === selectedOrder.id ? { ...o, status: newStatus } : o
-                                                ));
-                                                setSelectedOrder({ ...selectedOrder, status: newStatus });
+                                                updateOrderStatus(selectedOrder, newStatus);
                                             }}
                                             className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#7A1A1A]/20 transition-all ${selectedOrder.status === 'DELIVERED' ? 'bg-green-50 border-green-300 text-green-700' :
                                                 selectedOrder.status === 'SHIPPED' ? 'bg-blue-50 border-blue-300 text-blue-700' :
@@ -448,6 +638,7 @@ export default function OrdersPage() {
                                             <option value="PROCESSING">PROCESSING</option>
                                             <option value="SHIPPED">SHIPPED</option>
                                             <option value="DELIVERED">DELIVERED</option>
+                                            <option value="CANCELLED">CANCELLED</option>
                                         </select>
                                         <p className="text-xs text-gray-500 mt-1">{selectedOrder.payment}</p>
                                     </div>
@@ -685,10 +876,7 @@ export default function OrdersPage() {
                                     <button
                                         key={status}
                                         onClick={() => {
-                                            setOrders(orders.map(o =>
-                                                o.id === selectedOrder.id ? { ...o, status } : o
-                                            ));
-                                            setSelectedOrder({ ...selectedOrder, status });
+                                            updateOrderStatus(selectedOrder, status);
                                             setUpdateStatusOpen(false);
                                         }}
                                         className={`w-full px-4 py-3 rounded-xl text-left font-medium transition-all flex items-center justify-between ${selectedOrder.status === status
@@ -770,8 +958,7 @@ export default function OrdersPage() {
                                 </button>
                                 <button
                                     onClick={() => {
-                                        // Cancel the order - remove from list
-                                        setOrders(orders.filter(o => o.id !== selectedOrder.id));
+                                        updateOrderStatus(selectedOrder, 'CANCELLED');
                                         setCancelOrderOpen(false);
                                         setSelectedOrder(null);
                                     }}

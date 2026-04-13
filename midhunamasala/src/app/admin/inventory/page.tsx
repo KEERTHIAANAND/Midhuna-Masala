@@ -31,14 +31,14 @@ export default function InventoryPage() {
 
     // Auth Check
     useEffect(() => {
-        if (!authLoading && !isAdmin && !isLoggingOut) router.replace('/login');
+        if (!authLoading && !isAdmin && !isLoggingOut) router.replace('/admin/login');
     }, [authLoading, isAdmin, router, isLoggingOut]);
 
     const handleLogout = async () => {
         try {
             setIsLoggingOut(true);
             await signOut(auth);
-            router.push('/login');
+            router.push('/admin/login');
         } catch (error) {
             console.error('Logout error:', error);
             setIsLoggingOut(false);

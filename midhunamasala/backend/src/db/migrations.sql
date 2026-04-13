@@ -180,18 +180,22 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Apply auto-update trigger to relevant tables
+DROP TRIGGER IF EXISTS set_updated_at_users ON users;
 CREATE TRIGGER set_updated_at_users
     BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS set_updated_at_products ON products;
 CREATE TRIGGER set_updated_at_products
     BEFORE UPDATE ON products
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS set_updated_at_orders ON orders;
 CREATE TRIGGER set_updated_at_orders
     BEFORE UPDATE ON orders
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+DROP TRIGGER IF EXISTS set_updated_at_cart_items ON cart_items;
 CREATE TRIGGER set_updated_at_cart_items
     BEFORE UPDATE ON cart_items
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();

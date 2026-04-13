@@ -128,4 +128,17 @@ INSERT INTO products (name, slug, category, price, weight, type, image_url, desc
     true,
     false,
     6
-);
+)
+ON CONFLICT (slug) DO UPDATE SET
+    name = EXCLUDED.name,
+    category = EXCLUDED.category,
+    price = EXCLUDED.price,
+    weight = EXCLUDED.weight,
+    type = EXCLUDED.type,
+    image_url = EXCLUDED.image_url,
+    description = EXCLUDED.description,
+    rating = EXCLUDED.rating,
+    in_stock = EXCLUDED.in_stock,
+    is_featured = EXCLUDED.is_featured,
+    sort_order = EXCLUDED.sort_order,
+    updated_at = NOW();

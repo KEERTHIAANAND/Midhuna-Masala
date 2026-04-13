@@ -207,7 +207,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const backendUser = await syncAndLoadUserProfile(idToken);
             if (backendUser) {
                 setUser(backendUser);
-                return { success: true, isAdmin: backendUser.role === 'admin' };
+                const userIsAdmin =
+                    backendUser.role === 'admin' ||
+                    ADMIN_EMAILS.includes(String(backendUser.email || '').toLowerCase());
+                return { success: true, isAdmin: userIsAdmin };
             }
 
             const userIsAdmin = ADMIN_EMAILS.includes(basicUser.email.toLowerCase());
@@ -308,7 +311,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const backendUser = await syncAndLoadUserProfile(idToken);
             if (backendUser) {
                 setUser(backendUser);
-                return { success: true, isAdmin: backendUser.role === 'admin' };
+                const userIsAdmin =
+                    backendUser.role === 'admin' ||
+                    ADMIN_EMAILS.includes(String(backendUser.email || '').toLowerCase());
+                return { success: true, isAdmin: userIsAdmin };
             }
 
             const userIsAdmin = ADMIN_EMAILS.includes(basicUser.email.toLowerCase());

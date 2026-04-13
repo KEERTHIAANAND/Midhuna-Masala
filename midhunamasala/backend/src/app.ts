@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { errorHandler } from './middleware/errorHandler';
 
+import { env } from './config/env';
+
 // Routes
 import authRoutes from './routes/auth.routes';
 import productsRoutes from './routes/products.routes';
@@ -13,7 +15,7 @@ import addressesRoutes from './routes/addresses.routes';
 import ordersRoutes from './routes/orders.routes';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = env.PORT ?? 5000;
 
 /* ════════════════════════════════════
    Middleware
@@ -24,7 +26,7 @@ app.use(helmet());
 
 // CORS — allow frontend origin
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: env.CORS_ORIGIN || 'http://localhost:3000',
     credentials: true,
 }));
 
@@ -86,8 +88,8 @@ app.use((_req, res) => {
 app.listen(PORT, () => {
     console.log(`\n🌶️  Midhuna Masala API Server`);
     console.log(`   Running on: http://localhost:${PORT}`);
-    console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`   CORS origin: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}\n`);
+    console.log(`   Environment: ${env.NODE_ENV}`);
+    console.log(`   CORS origin: ${env.CORS_ORIGIN || 'http://localhost:3000'}\n`);
 });
 
 export default app;

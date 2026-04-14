@@ -26,15 +26,6 @@ export async function syncUser(req: AuthenticatedRequest, res: Response): Promis
     try {
         const { uid, email, name, avatar } = req.user!;
 
-        // Check admin emails from env
-        const adminEmails = (process.env.ADMIN_EMAILS || '')
-            .split(',')
-            .map(e => e.trim().toLowerCase());
-
-        const role = adminEmails.includes(email.toLowerCase()) ? 'admin' : 'customer';
-
-        const now = new Date().toISOString();
-
         const { data: existingUser, error: fetchError } = await supabase
             .from('users')
             .select('*')
@@ -46,6 +37,19 @@ export async function syncUser(req: AuthenticatedRequest, res: Response): Promis
             res.status(500).json({ success: false, error: 'Failed to sync user.' });
             return;
         }
+
+        // Check admin emails from env.
+        // NOTE: We treat ADMIN_EMAILS as an allowlist for promotion to admin,
+        // but we intentionally do NOT demote an existing admin user on sync.
+        const adminEmails = (process.env.ADMIN_EMAILS || '')
+            .split(',')
+            .map(e => e.trim().toLowerCase())
+            .filter(Boolean);
+
+        const requestedRole = adminEmails.includes(String(email || '').toLowerCase()) ? 'admin' : 'customer';
+        const role = existingUser?.role === 'admin' ? 'admin' : requestedRole;
+
+        const now = new Date().toISOString();
 
         let data = existingUser;
 

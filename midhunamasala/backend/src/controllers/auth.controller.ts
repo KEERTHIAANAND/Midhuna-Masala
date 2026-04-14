@@ -31,7 +31,6 @@ export async function syncUser(req: AuthenticatedRequest, res: Response): Promis
             .select('*')
             .eq('firebase_uid', uid)
             .maybeSingle();
-
         if (fetchError) {
             console.error('Sync user lookup error:', fetchError);
             res.status(500).json({ success: false, error: 'Failed to sync user.' });
@@ -39,7 +38,7 @@ export async function syncUser(req: AuthenticatedRequest, res: Response): Promis
         }
 
         // Check admin emails from env.
-        // NOTE: We treat ADMIN_EMAILS as an allowlist for promotion to admin,
+        // NOTE: ADMIN_EMAILS is an allowlist for promotion to admin,
         // but we intentionally do NOT demote an existing admin user on sync.
         const adminEmails = (process.env.ADMIN_EMAILS || '')
             .split(',')
@@ -50,7 +49,6 @@ export async function syncUser(req: AuthenticatedRequest, res: Response): Promis
         const role = existingUser?.role === 'admin' ? 'admin' : requestedRole;
 
         const now = new Date().toISOString();
-
         let data = existingUser;
 
         if (existingUser) {

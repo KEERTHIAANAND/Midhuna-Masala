@@ -72,10 +72,8 @@ app.use('/api/addresses', addressesRoutes);
 
 // Orders routes
 app.use('/api/orders', ordersRoutes);
-
 // Inventory routes (admin)
 app.use('/api/inventory', inventoryRoutes);
-
 /* ════════════════════════════════════
    Error Handling
    ════════════════════════════════════ */

@@ -18,6 +18,10 @@ copy .env.example .env
   - `FIREBASE_SERVICE_ACCOUNT_PATH`
   - OR `FIREBASE_ADMIN_PROJECT_ID` + `FIREBASE_ADMIN_CLIENT_EMAIL` + `FIREBASE_ADMIN_PRIVATE_KEY`
 
+- (Recommended) Admin allowlist:
+  - `ADMIN_EMAILS` = comma-separated list of admin emails (e.g. `keerthiaanand77@gmail.com`)
+  - This is used by `/api/auth/sync-user` to set `users.role = 'admin'`.
+
 3) (Recommended) Apply database migrations
 
 ```bash

@@ -2,10 +2,18 @@
 
 Full-stack e-commerce app.
 
-## Repo structure
+## Tech stack
 
-- `midhunamasala/` — Next.js frontend
-- `midhunamasala/backend/` — Express + TypeScript API
+- Frontend: Next.js (React) + TypeScript
+- Backend API: Express + TypeScript
+- Auth: Firebase Auth (client) + Firebase Admin (server verification)
+- Database: Supabase Postgres
+- Images: Cloudinary (optional helper script)
+
+## Project structure
+
+- `midhunamasala/` — Next.js storefront + admin UI (see `midhunamasala/README.md`)
+- `midhunamasala/backend/` — Express API + SQL migrations (see `midhunamasala/backend/README.md`)
 
 ## Prerequisites
 
@@ -13,45 +21,46 @@ Full-stack e-commerce app.
 - A Supabase project (Postgres)
 - A Firebase project (Auth)
 
-## Phase 1 — MVP baseline (local setup)
+## Quickstart (local development)
 
 ### 1) Database (Supabase)
 
-This repo includes numbered SQL migrations in `midhunamasala/backend/src/db/`.
+SQL migrations live in `midhunamasala/backend/src/db/`.
 
-Recommended (repeatable): run migrations with the migration runner.
+Recommended (repeatable): run migrations via the migration runner.
 
-1. Go to Supabase → **Connect → Direct**
-	- Prefer **Session pooler** (port `5432`) or **Transaction pooler** (port `6543`) if your network blocks the direct DB host.
-	- Enter your **database password** in the password field (Supabase cannot show it back to you) so the copied URI contains the correct password.
-2. In a terminal:
+1) Copy env template:
 
 ```bash
 cd midhunamasala/backend
 copy .env.example .env
 ```
 
-3. Fill these in `backend/.env`:
+2) Fill these in `midhunamasala/backend/.env`:
+
 - `DATABASE_URL`
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-4. Install + migrate:
+3) Install + migrate:
 
 ```bash
 npm install
 npm run db:migrate
 ```
 
-Manual fallback: You can also run `midhunamasala/backend/src/db/migrations.sql` and/or the numbered `00x_*.sql` files directly in Supabase SQL Editor.
+If the runner can’t connect (common on restricted networks), use Supabase SQL Editor:
+
+- Run `midhunamasala/backend/src/db/migrations.sql`
 
 ### 2) Backend API
 
-1. In `midhunamasala/backend/.env` fill Firebase Admin credentials using ONE method:
+1) In `midhunamasala/backend/.env`, configure Firebase Admin using ONE method:
+
 - Local dev: `FIREBASE_SERVICE_ACCOUNT_PATH` (path to Admin SDK JSON)
 - Production: `FIREBASE_ADMIN_PROJECT_ID`, `FIREBASE_ADMIN_CLIENT_EMAIL`, `FIREBASE_ADMIN_PRIVATE_KEY`
 
-2. Run the API:
+2) Start the API:
 
 ```bash
 cd midhunamasala/backend
@@ -59,20 +68,24 @@ npm run dev
 ```
 
 Health check:
+
 - `GET http://localhost:5000/api/health`
 
 ### 3) Frontend (Next.js)
 
-1. Create `midhunamasala/.env.local`:
+1) Create `midhunamasala/.env.local`:
 
 ```bash
 cd midhunamasala
 copy .env.local.example .env.local
 ```
 
-2. Fill Firebase Web config (`NEXT_PUBLIC_FIREBASE_*`) and confirm `NEXT_PUBLIC_API_URL`.
+2) Fill:
 
-3. Run the app:
+- `NEXT_PUBLIC_API_URL`
+- `NEXT_PUBLIC_FIREBASE_*`
+
+3) Start the app:
 
 ```bash
 npm install
@@ -80,9 +93,15 @@ npm run dev
 ```
 
 Open:
+
 - `http://localhost:3000`
 
-## One-time: upload images to Cloudinary (optional)
+## Admin access
+
+- Admin permissions are enforced by the database user role (`users.role = 'admin'`).
+- (Recommended) Set `ADMIN_EMAILS` in `midhunamasala/backend/.env` (comma-separated emails) so `/api/auth/sync-user` can promote admins during login.
+
+## Optional: upload product images to Cloudinary
 
 Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` in `midhunamasala/.env.local`, then:
 
@@ -91,7 +110,7 @@ cd midhunamasala
 node scripts/upload-to-cloudinary.mjs
 ```
 
-## Notes
+## Security notes
 
 - Do **not** commit `.env`, `.env.local`, or service account JSON files.
-- Backend uses Supabase **service role** (server-only). Never expose it to the frontend.
+- Backend uses the Supabase **service role** (server-only). Never expose it to the frontend.

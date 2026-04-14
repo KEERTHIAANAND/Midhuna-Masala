@@ -13,6 +13,7 @@ import productsRoutes from './routes/products.routes';
 import cartRoutes from './routes/cart.routes';
 import addressesRoutes from './routes/addresses.routes';
 import ordersRoutes from './routes/orders.routes';
+import inventoryRoutes from './routes/inventory.routes';
 
 const app = express();
 const PORT = env.PORT ?? 5000;
@@ -71,6 +72,9 @@ app.use('/api/addresses', addressesRoutes);
 
 // Orders routes
 app.use('/api/orders', ordersRoutes);
+
+// Inventory routes (admin)
+app.use('/api/inventory', inventoryRoutes);
 
 /* ════════════════════════════════════
    Error Handling

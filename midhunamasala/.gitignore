@@ -33,8 +33,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# netlify
-.netlify
+# allow committing example env files
+!.env.example
+!backend/.env.example
+
 
 # firebase admin SDK credentials
 *firebase-adminsdk*.json

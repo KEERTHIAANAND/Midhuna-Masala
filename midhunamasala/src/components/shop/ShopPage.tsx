@@ -16,6 +16,7 @@ type Product = {
   name: string;
   category: string;
   image: string;
+  inStock?: boolean;
   price?: number;
   weight?: string;
   type?: string;
@@ -25,12 +26,12 @@ type Product = {
 
 // Fallback products in case API is unreachable
 const fallbackProducts: Product[] = [
-  { id: "guntur-red-chilli", name: "Guntur Red Chilli Powder", category: "POWDER", weight: "200g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0019.jpg", price: 6.49, description: "Sun-dried Guntur chillies, stone-ground to preserve the fiery heat.." },
-  { id: "erode-turmeric", name: "Erode Turmeric Powder (Manjal)", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250727-WA0006.jpg", price: 4.99, description: "Pure Erode turmeric with high curcumin content. Traditionally..." },
-  { id: "chettinad-masala", name: "Chettinad Masala Blend", category: "BLEND", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0021.jpg", price: 9.99, description: "Authentic 18-spice blend roasted in iron woks. The secret to the..." },
-  { id: "cumin", name: "Cumin Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.49, description: "Premium cumin seeds with rich aroma and flavor" },
-  { id: "coriander", name: "Coriander Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0023.jpg", price: 4.49, description: "Fresh coriander seeds for authentic taste" },
-  { id: "fennel", name: "Fennel Seeds", category: "WHOLE SPICES", weight: "100g", type: "Seeds & Pods", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.99, description: "Sweet and aromatic fennel seeds" },
+  { id: "guntur-red-chilli", name: "Guntur Red Chilli Powder", category: "POWDER", weight: "200g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0019.jpg", price: 6.49, description: "Sun-dried Guntur chillies, stone-ground to preserve the fiery heat..", inStock: true },
+  { id: "erode-turmeric", name: "Erode Turmeric Powder (Manjal)", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250727-WA0006.jpg", price: 4.99, description: "Pure Erode turmeric with high curcumin content. Traditionally...", inStock: true },
+  { id: "chettinad-masala", name: "Chettinad Masala Blend", category: "BLEND", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0021.jpg", price: 9.99, description: "Authentic 18-spice blend roasted in iron woks. The secret to the...", inStock: true },
+  { id: "cumin", name: "Cumin Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.49, description: "Premium cumin seeds with rich aroma and flavor", inStock: true },
+  { id: "coriander", name: "Coriander Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0023.jpg", price: 4.49, description: "Fresh coriander seeds for authentic taste", inStock: true },
+  { id: "fennel", name: "Fennel Seeds", category: "WHOLE SPICES", weight: "100g", type: "Seeds & Pods", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.99, description: "Sweet and aromatic fennel seeds", inStock: true },
 ];
 
 const collections = [
@@ -180,7 +181,7 @@ export default function ShopPage() {
         <div className="flex flex-col items-center mb-6 sm:mb-10">
           {/* Category Tabs - scrollable on mobile */}
           <div className="w-full overflow-x-auto scrollbar-hide pb-2">
-            <div className="inline-flex items-center bg-white rounded-full p-1 sm:p-1.5 shadow-lg border border-[#E5D2C5] mx-auto min-w-max">
+            <div className="flex items-center bg-white rounded-full p-1 sm:p-1.5 shadow-lg border border-[#E5D2C5] mx-auto w-max min-w-max">
               <button
                 onClick={() => setSelectedCollection('all')}
                 className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'all'

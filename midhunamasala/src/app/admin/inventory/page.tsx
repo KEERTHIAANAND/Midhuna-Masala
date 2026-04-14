@@ -12,93 +12,176 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import AdminNavbar from '@/components/admin/AdminNavbar';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 
 // Stock Filters
 const STOCK_FILTERS = ['All Stock', 'Expiring Soon', 'Low Stock'];
 
-// Inventory Data
-const INITIAL_INVENTORY: { id: number; name: string; category: string; sku: string; stock: number; maxStock: number; expiryDate: string }[] = [];
+type InventoryItem = {
+    id: string;
+    name: string;
+    category: string;
+    slug: string;
+    imageUrl?: string | null;
+    stockQty: number;
+    lowStockThreshold: number;
+    inStock: boolean;
+};
 
 export default function InventoryPage() {
-    const { user, isAdmin, isLoading: authLoading } = useAuth();
+    const { user, isAdmin, isLoading: authLoading, getIdToken } = useAuth();
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [activeFilter, setActiveFilter] = useState('All Stock');
     const [searchQuery, setSearchQuery] = useState('');
-    const [inventory, setInventory] = useState(INITIAL_INVENTORY);
-    const [restockItem, setRestockItem] = useState<typeof INITIAL_INVENTORY[0] | null>(null);
+    const [inventory, setInventory] = useState<InventoryItem[]>([]);
+    const [inventoryLoading, setInventoryLoading] = useState(false);
+    const [inventoryError, setInventoryError] = useState<string | null>(null);
+
+    const [restockItem, setRestockItem] = useState<InventoryItem | null>(null);
     const [restockQty, setRestockQty] = useState(0);
+    const [isRestocking, setIsRestocking] = useState(false);
+
+    useEffect(() => {
+        if (authLoading || !isAdmin) return;
+
+        let cancelled = false;
+        const load = async () => {
+            setInventoryLoading(true);
+            setInventoryError(null);
+            try {
+                const token = await getIdToken();
+                if (!token) {
+                    setInventoryError('Please sign in again.');
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/api/inventory`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await response.json().catch(() => null);
+                if (!response.ok || !data?.success) {
+                    if (!cancelled) setInventoryError(data?.error || 'Failed to load inventory.');
+                    return;
+                }
+
+                const items = Array.isArray(data.items) ? data.items : [];
+                if (!cancelled) {
+                    setInventory(items.map((it: any) => ({
+                        id: String(it.id),
+                        name: String(it.name || ''),
+                        category: String(it.category || ''),
+                        slug: String(it.slug || ''),
+                        imageUrl: it.imageUrl ?? null,
+                        stockQty: Number(it.stockQty || 0),
+                        lowStockThreshold: Number(it.lowStockThreshold || 5),
+                        inStock: Boolean(it.inStock),
+                    })));
+                }
+            } catch (e) {
+                console.error('Load inventory failed:', e);
+                if (!cancelled) setInventoryError('Failed to load inventory.');
+            } finally {
+                if (!cancelled) setInventoryLoading(false);
+            }
+        };
+
+        load();
+        return () => { cancelled = true; };
+    }, [authLoading, isAdmin, getIdToken]);
 
     // Auth Check
     useEffect(() => {
-        if (!authLoading && !isAdmin && !isLoggingOut) router.replace('/login');
+        if (!authLoading && !isAdmin && !isLoggingOut) router.replace('/admin/login');
     }, [authLoading, isAdmin, router, isLoggingOut]);
 
     const handleLogout = async () => {
         try {
             setIsLoggingOut(true);
             await signOut(auth);
-            router.push('/login');
+            router.push('/admin/login');
         } catch (error) {
             console.error('Logout error:', error);
             setIsLoggingOut(false);
         }
     };
 
-    const getStockStatus = (stock: number, maxStock: number) => {
-        const pct = (stock / maxStock) * 100;
-        if (stock === 0) return 'Out of Stock';
-        if (pct <= 20) return 'Low Stock';
+    const getStockStatus = (stockQty: number, lowStockThreshold: number) => {
+        if (stockQty <= 0) return 'Out of Stock';
+        if (stockQty <= Math.max(1, lowStockThreshold)) return 'Low Stock';
         return 'In Stock';
     };
 
     const filteredInventory = inventory.filter(item => {
-        const status = getStockStatus(item.stock, item.maxStock);
+        const status = getStockStatus(item.stockQty, item.lowStockThreshold);
         let matchesFilter = true;
         if (activeFilter === 'Low Stock') {
             matchesFilter = status === 'Low Stock' || status === 'Out of Stock';
         } else if (activeFilter === 'Expiring Soon') {
-            const expiryDate = new Date(item.expiryDate);
-            const threeMonthsFromNow = new Date();
-            threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
-            matchesFilter = expiryDate <= threeMonthsFromNow;
+            // Expiry tracking not implemented in DB yet.
+            matchesFilter = true;
         }
         const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.sku.toLowerCase().includes(searchQuery.toLowerCase());
+            item.slug.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
     const totalProducts = inventory.length;
     const lowStockCount = inventory.filter(item => {
-        const s = getStockStatus(item.stock, item.maxStock);
+        const s = getStockStatus(item.stockQty, item.lowStockThreshold);
         return s === 'Low Stock' || s === 'Out of Stock';
     }).length;
 
-    const handleOpenRestock = (item: typeof INITIAL_INVENTORY[0]) => {
+    const handleOpenRestock = (item: InventoryItem) => {
         setRestockItem(item);
         setRestockQty(0);
     };
 
-    const handleConfirmRestock = () => {
-        if (!restockItem || restockQty <= 0) return;
-        setInventory(prev => prev.map(item =>
-            item.id === restockItem.id
-                ? { ...item, stock: Math.min(item.stock + restockQty, item.maxStock) }
-                : item
-        ));
-        setRestockItem(null);
-        setRestockQty(0);
+    const handleConfirmRestock = async () => {
+        if (!restockItem || restockQty <= 0 || isRestocking) return;
+        setIsRestocking(true);
+        try {
+            const token = await getIdToken();
+            if (!token) return;
+
+            const response = await fetch(`${API_URL}/api/inventory/${restockItem.id}/adjust`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    deltaQty: restockQty,
+                    reason: 'Admin restock',
+                }),
+            });
+            const data = await response.json().catch(() => null);
+            if (!response.ok || !data?.success) {
+                alert(data?.error || 'Restock failed.');
+                return;
+            }
+
+            const newStockQty = Number(data?.result?.stockQty);
+            setInventory(prev => prev.map(item =>
+                item.id === restockItem.id
+                    ? { ...item, stockQty: Number.isFinite(newStockQty) ? newStockQty : item.stockQty }
+                    : item
+            ));
+
+            setRestockItem(null);
+            setRestockQty(0);
+        } catch (e) {
+            console.error('Restock failed:', e);
+            alert('Restock failed.');
+        } finally {
+            setIsRestocking(false);
+        }
     };
 
-    const getStockPercentage = (stock: number, maxStock: number) => {
-        return Math.round((stock / maxStock) * 100);
-    };
-
-    const getStockBarColor = (stock: number, maxStock: number) => {
-        const percentage = getStockPercentage(stock, maxStock);
-        if (percentage === 0) return 'bg-red-500';
-        if (percentage <= 20) return 'bg-red-400';
-        if (percentage <= 50) return 'bg-orange-400';
+    const getStockBarColor = (stockQty: number, lowStockThreshold: number) => {
+        if (stockQty <= 0) return 'bg-red-500';
+        if (stockQty <= Math.max(1, lowStockThreshold)) return 'bg-red-400';
         return 'bg-green-500';
     };
 
@@ -227,18 +310,18 @@ export default function InventoryPage() {
                                         <div className="flex items-center gap-3">
                                             <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                                                 <div
-                                                    className={`h-full rounded-full transition-all ${getStockBarColor(item.stock, item.maxStock)}`}
-                                                    style={{ width: `${getStockPercentage(item.stock, item.maxStock)}%` }}
+                                                    className={`h-full rounded-full transition-all ${getStockBarColor(item.stockQty, item.lowStockThreshold)}`}
+                                                    style={{ width: `${Math.min(100, item.stockQty > 0 ? 100 : 0)}%` }}
                                                 ></div>
                                             </div>
-                                            <span className="text-sm font-bold text-gray-700 tabular-nums lining-nums w-8">{item.stock}</span>
+                                            <span className="text-sm font-bold text-gray-700 tabular-nums lining-nums w-16 text-right">{item.stockQty}</span>
                                         </div>
                                     </div>
 
                                     {/* Status */}
                                     <div className="col-span-2">
                                         {(() => {
-                                            const status = getStockStatus(item.stock, item.maxStock);
+                                            const status = getStockStatus(item.stockQty, item.lowStockThreshold);
                                             if (status === 'In Stock') return (
                                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-600 text-[10px] font-bold rounded-full border border-green-200">
                                                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
@@ -263,7 +346,7 @@ export default function InventoryPage() {
                                     {/* Expiry Date */}
                                     <div className="col-span-2 flex items-center gap-2 text-sm text-gray-600">
                                         <Calendar className="w-4 h-4 text-gray-400" />
-                                        {item.expiryDate}
+                                        —
                                     </div>
 
                                     {/* Action */}
@@ -282,7 +365,21 @@ export default function InventoryPage() {
                     </div>
 
                     {/* Empty State */}
-                    {filteredInventory.length === 0 && (
+                    {inventoryLoading && (
+                        <div className="px-6 py-12 text-center">
+                            <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                            <p className="text-gray-500">Loading inventory...</p>
+                        </div>
+                    )}
+
+                    {!inventoryLoading && inventoryError && (
+                        <div className="px-6 py-12 text-center">
+                            <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                            <p className="text-red-600 font-semibold">{inventoryError}</p>
+                        </div>
+                    )}
+
+                    {!inventoryLoading && !inventoryError && filteredInventory.length === 0 && (
                         <div className="px-6 py-12 text-center">
                             <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                             <p className="text-gray-500">No inventory items found</p>
@@ -333,7 +430,7 @@ export default function InventoryPage() {
                                     </div>
                                     <div>
                                         <p className="font-serif font-bold text-[#7A1A1A]">{restockItem.name}</p>
-                                        <p className="text-xs text-gray-400">{restockItem.sku} · {restockItem.category}</p>
+                                        <p className="text-xs text-gray-400">{restockItem.slug} · {restockItem.category}</p>
                                     </div>
                                 </div>
 
@@ -341,11 +438,11 @@ export default function InventoryPage() {
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="p-3 bg-gray-50 rounded-xl text-center">
                                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Current Stock</p>
-                                        <p className="text-2xl font-bold text-gray-800 mt-1">{restockItem.stock}</p>
+                                        <p className="text-2xl font-bold text-gray-800 mt-1">{restockItem.stockQty}</p>
                                     </div>
                                     <div className="p-3 bg-gray-50 rounded-xl text-center">
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Max Capacity</p>
-                                        <p className="text-2xl font-bold text-gray-800 mt-1">{restockItem.maxStock}</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Low Stock Threshold</p>
+                                        <p className="text-2xl font-bold text-gray-800 mt-1">{restockItem.lowStockThreshold}</p>
                                     </div>
                                 </div>
 
@@ -363,21 +460,19 @@ export default function InventoryPage() {
                                             type="number"
                                             value={restockQty}
                                             onChange={(e) => {
-                                                const val = Math.max(0, Math.min(restockItem.maxStock - restockItem.stock, parseInt(e.target.value) || 0));
+                                                const val = Math.max(0, Math.min(100000, parseInt(e.target.value) || 0));
                                                 setRestockQty(val);
                                             }}
                                             className="flex-1 text-center text-2xl font-bold text-[#7A1A1A] py-2 border-2 border-[#F3EFEA] rounded-xl focus:outline-none focus:border-[#7A1A1A] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                         <button
-                                            onClick={() => setRestockQty(q => Math.min(restockItem.maxStock - restockItem.stock, q + 10))}
+                                            onClick={() => setRestockQty(q => Math.min(100000, q + 10))}
                                             className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
                                         >
                                             <Plus className="w-4 h-4 text-gray-600" />
                                         </button>
                                     </div>
-                                    <p className="text-xs text-gray-400 mt-2 text-center">
-                                        Available capacity: <span className="font-bold text-gray-600">{restockItem.maxStock - restockItem.stock}</span> units
-                                    </p>
+                                    <p className="text-xs text-gray-400 mt-2 text-center">This restock updates stock in the database.</p>
                                 </div>
 
                                 {/* New Stock Preview */}
@@ -389,12 +484,12 @@ export default function InventoryPage() {
                                     >
                                         <div className="flex items-center justify-between">
                                             <p className="text-xs font-bold text-green-700">New Stock After Restock</p>
-                                            <p className="text-lg font-bold text-green-700">{Math.min(restockItem.stock + restockQty, restockItem.maxStock)} / {restockItem.maxStock}</p>
+                                            <p className="text-lg font-bold text-green-700">{restockItem.stockQty + restockQty}</p>
                                         </div>
                                         <div className="mt-2 h-2 bg-green-200 rounded-full overflow-hidden">
                                             <div
                                                 className="h-full bg-green-500 rounded-full transition-all"
-                                                style={{ width: `${Math.min(((restockItem.stock + restockQty) / restockItem.maxStock) * 100, 100)}%` }}
+                                                style={{ width: `100%` }}
                                             ></div>
                                         </div>
                                     </motion.div>
@@ -411,11 +506,11 @@ export default function InventoryPage() {
                                 </button>
                                 <button
                                     onClick={handleConfirmRestock}
-                                    disabled={restockQty <= 0}
+                                    disabled={restockQty <= 0 || isRestocking}
                                     className="px-5 py-2.5 text-sm font-bold text-white bg-[#7A1A1A] hover:bg-[#5A1010] rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-[#7A1A1A]/20"
                                 >
                                     <RefreshCw className="w-4 h-4" />
-                                    Confirm Restock
+                                    {isRestocking ? 'Restocking...' : 'Confirm Restock'}
                                 </button>
                             </div>
                         </motion.div>

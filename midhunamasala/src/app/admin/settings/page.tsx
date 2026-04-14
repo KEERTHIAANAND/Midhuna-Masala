@@ -48,7 +48,7 @@ export default function SettingsPage() {
 
     // Auth Check
     useEffect(() => {
-        if (!authLoading && !isAdmin && !isLoggingOut) router.replace('/login');
+        if (!authLoading && !isAdmin && !isLoggingOut) router.replace('/admin/login');
     }, [authLoading, isAdmin, router, isLoggingOut]);
 
     useEffect(() => {
@@ -63,7 +63,7 @@ export default function SettingsPage() {
         try {
             setIsLoggingOut(true);
             await signOut(auth);
-            router.push('/login');
+            router.push('/admin/login');
         } catch (error) {
             console.error('Logout error:', error);
             setIsLoggingOut(false);

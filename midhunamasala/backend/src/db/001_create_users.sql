@@ -27,6 +27,7 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
 -- Create a policy: service role can do everything (already true by default)
 -- This is just for documentation purposes
+DROP POLICY IF EXISTS "Service role has full access" ON users;
 CREATE POLICY "Service role has full access" ON users
     FOR ALL
     USING (true)

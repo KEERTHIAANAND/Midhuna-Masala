@@ -10,13 +10,22 @@
  */
 
 import { v2 as cloudinary } from "cloudinary";
+import dotenv from "dotenv";
 import { readdirSync, statSync } from "fs";
 import { join, relative, parse } from "path";
 
-// ⚠️ UPDATE THESE VALUES from your Cloudinary Dashboard → Settings → API Keys
-const CLOUD_NAME = "dstspf8bo";
-const API_KEY = "YOUR_API_KEY_HERE";       // ← Get from Cloudinary Dashboard
-const API_SECRET = "YOUR_API_SECRET_HERE"; // ← Get from Cloudinary Dashboard
+// Load .env.local if present (recommended)
+dotenv.config({ path: join(process.cwd(), ".env.local") });
+
+const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
+const API_KEY = process.env.CLOUDINARY_API_KEY;
+const API_SECRET = process.env.CLOUDINARY_API_SECRET;
+
+if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
+    throw new Error(
+        "Missing Cloudinary credentials. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET (recommended in .env.local)."
+    );
+}
 
 // Configure Cloudinary
 cloudinary.config({

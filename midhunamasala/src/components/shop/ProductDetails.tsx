@@ -13,6 +13,7 @@ type Product = {
     name: string;
     category: string;
     image: string;
+    inStock?: boolean;
     price?: number;
     weight?: string;
     type?: string;
@@ -38,7 +39,13 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
     const { addToCart } = useCart();
     const router = useRouter();
 
+    const isOutOfStock = product.inStock === false;
+
     const handleAddToCart = () => {
+        if (isOutOfStock) {
+            alert('OUT OF STOCK');
+            return;
+        }
         const numericId = product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         addToCart({
             id: numericId,
@@ -48,7 +55,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
             weight: product.weight || "100g",
             price: product.price || 5.99,
             image: product.image,
-            inStock: true,
+            inStock: !isOutOfStock,
         }, quantity);
 
         setAddedToCart(true);
@@ -56,6 +63,10 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
     };
 
     const handleGetNow = () => {
+        if (isOutOfStock) {
+            alert('OUT OF STOCK');
+            return;
+        }
         const numericId = product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         // Store this single product in sessionStorage for "Buy Now" checkout
         const buyNowItem = {
@@ -67,7 +78,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
             price: product.price || 5.99,
             image: product.image,
             quantity: quantity,
-            inStock: true,
+            inStock: !isOutOfStock,
         };
         sessionStorage.setItem('mm-buy-now', JSON.stringify(buyNowItem));
         onClose();
@@ -174,6 +185,17 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                             </p>
                             <span className="w-8 h-[1px] bg-[#D4AF37]"></span>
                         </motion.div>
+
+                        {isOutOfStock && (
+                            <motion.div
+                                className="inline-flex mb-4 px-3 py-1 rounded-full bg-[#F5E6D3] text-[#8B1E1E] text-[10px] font-bold tracking-[0.18em] uppercase"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.32 }}
+                            >
+                                OUT OF STOCK
+                            </motion.div>
+                        )}
 
                         {/* Product Name */}
                         <motion.h2
@@ -286,14 +308,16 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                             {/* Add to Cart */}
                             <motion.button
                                 onClick={handleAddToCart}
-                                disabled={addedToCart}
+                                disabled={addedToCart || isOutOfStock}
                                 className={`flex-1 py-3.5 px-5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg border-2 ${addedToCart
                                     ? 'bg-green-500 text-white border-green-500'
-                                    : 'bg-transparent border-[#D4AF37]/60 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
+                                    : isOutOfStock
+                                        ? 'bg-transparent border-[#D4AF37]/30 text-[#D4AF37]/40 cursor-not-allowed'
+                                        : 'bg-transparent border-[#D4AF37]/60 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
                                     }`}
                                 style={{ fontFamily: "'Crimson Text', serif", letterSpacing: '0.05em' }}
-                                whileHover={!addedToCart ? { scale: 1.02 } : undefined}
-                                whileTap={!addedToCart ? { scale: 0.98 } : undefined}
+                                whileHover={!addedToCart && !isOutOfStock ? { scale: 1.02 } : undefined}
+                                whileTap={!addedToCart && !isOutOfStock ? { scale: 0.98 } : undefined}
                             >
                                 <AnimatePresence mode="wait">
                                     {addedToCart ? (
@@ -317,10 +341,11 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                             {/* Get Now — Direct to Checkout */}
                             <motion.button
                                 onClick={handleGetNow}
-                                className="flex-1 py-3.5 px-5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#8B1E1E] hover:from-[#E5C04A] hover:to-[#C4A030]"
+                                disabled={isOutOfStock}
+                                className={`flex-1 py-3.5 px-5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#8B1E1E] hover:from-[#E5C04A] hover:to-[#C4A030] ${isOutOfStock ? 'opacity-50 cursor-not-allowed hover:from-[#D4AF37] hover:to-[#B8860B]' : ''}`}
                                 style={{ fontFamily: "'Crimson Text', serif", letterSpacing: '0.05em' }}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
+                                whileHover={!isOutOfStock ? { scale: 1.02 } : undefined}
+                                whileTap={!isOutOfStock ? { scale: 0.98 } : undefined}
                             >
                                 <Zap className="w-5 h-5" />
                                 Get Now

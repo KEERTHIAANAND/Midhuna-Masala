@@ -16,6 +16,7 @@ type Product = {
   name: string;
   category: string;
   image: string;
+  inStock?: boolean;
   price?: number;
   weight?: string;
   type?: string;
@@ -25,12 +26,12 @@ type Product = {
 
 // Fallback products in case API is unreachable
 const fallbackProducts: Product[] = [
-  { id: "guntur-red-chilli", name: "Guntur Red Chilli Powder", category: "POWDER", weight: "200g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0019.jpg", price: 6.49, description: "Sun-dried Guntur chillies, stone-ground to preserve the fiery heat.." },
-  { id: "erode-turmeric", name: "Erode Turmeric Powder (Manjal)", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250727-WA0006.jpg", price: 4.99, description: "Pure Erode turmeric with high curcumin content. Traditionally..." },
-  { id: "chettinad-masala", name: "Chettinad Masala Blend", category: "BLEND", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0021.jpg", price: 9.99, description: "Authentic 18-spice blend roasted in iron woks. The secret to the..." },
-  { id: "cumin", name: "Cumin Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.49, description: "Premium cumin seeds with rich aroma and flavor" },
-  { id: "coriander", name: "Coriander Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0023.jpg", price: 4.49, description: "Fresh coriander seeds for authentic taste" },
-  { id: "fennel", name: "Fennel Seeds", category: "WHOLE SPICES", weight: "100g", type: "Seeds & Pods", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.99, description: "Sweet and aromatic fennel seeds" },
+  { id: "guntur-red-chilli", name: "Guntur Red Chilli Powder", category: "POWDER", weight: "200g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0019.jpg", price: 6.49, description: "Sun-dried Guntur chillies, stone-ground to preserve the fiery heat..", inStock: true },
+  { id: "erode-turmeric", name: "Erode Turmeric Powder (Manjal)", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250727-WA0006.jpg", price: 4.99, description: "Pure Erode turmeric with high curcumin content. Traditionally...", inStock: true },
+  { id: "chettinad-masala", name: "Chettinad Masala Blend", category: "BLEND", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0021.jpg", price: 9.99, description: "Authentic 18-spice blend roasted in iron woks. The secret to the...", inStock: true },
+  { id: "cumin", name: "Cumin Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.49, description: "Premium cumin seeds with rich aroma and flavor", inStock: true },
+  { id: "coriander", name: "Coriander Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0023.jpg", price: 4.49, description: "Fresh coriander seeds for authentic taste", inStock: true },
+  { id: "fennel", name: "Fennel Seeds", category: "WHOLE SPICES", weight: "100g", type: "Seeds & Pods", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.99, description: "Sweet and aromatic fennel seeds", inStock: true },
 ];
 
 const collections = [

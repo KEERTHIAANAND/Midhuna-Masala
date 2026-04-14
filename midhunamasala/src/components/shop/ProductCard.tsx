@@ -10,6 +10,7 @@ type Product = {
   name: string;
   category: string;
   image: string;
+  inStock?: boolean;
   price?: number;
   weight?: string;
   type?: string;
@@ -25,6 +26,8 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, isSelected, onSelect, index = 0 }: ProductCardProps) {
+  const isOutOfStock = product.inStock === false;
+
   return (
     <motion.div
       onClick={() => onSelect(product)}
@@ -55,8 +58,14 @@ export default function ProductCard({ product, isSelected, onSelect, index = 0 }
       >
         {/* Product Image */}
         <div className="relative aspect-square bg-gradient-to-br from-[#FAF7F2] to-[#F5EDE1] overflow-hidden">
+          {isOutOfStock && (
+            <div className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-[#8B1E1E] text-white text-[10px] font-bold tracking-[0.18em] uppercase">
+              OUT OF STOCK
+            </div>
+          )}
+
           <motion.div
-            className="relative w-full h-full"
+            className={`relative w-full h-full ${isOutOfStock ? 'opacity-60' : ''}`}
             whileHover={{ scale: 1.08 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >

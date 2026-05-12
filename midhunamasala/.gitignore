@@ -35,6 +35,7 @@ yarn-error.log*
 
 # allow committing example env files
 !.env.example
+!.env.local.example
 !backend/.env.example
 
 

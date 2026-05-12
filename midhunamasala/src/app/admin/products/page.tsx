@@ -12,8 +12,9 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import Image from 'next/image';
 import AdminNavbar from '@/components/admin/AdminNavbar';
+import { clientEnv } from '@/lib/env';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = clientEnv.NEXT_PUBLIC_API_URL;
 
 // Category Filters
 const CATEGORIES = ['All Spices', 'Powder', 'Whole Spices', 'Blends'];

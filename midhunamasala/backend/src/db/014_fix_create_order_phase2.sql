@@ -1,49 +1,12 @@
 -- ═══════════════════════════════════════════════════════════════
--- ORDER CREATION RPC (atomic)
--- Run this in Supabase SQL Editor
+-- FIX: create_order() must match Phase 2 constraints
+-- Why: older DB function still inserts status='placed' and rejects 'razorpay',
+-- which now violates orders_status_check / orders_payment_method_check.
+--
+-- Run via migration runner or Supabase SQL Editor
 -- ═══════════════════════════════════════════════════════════════
--- Requires tables: users, products, addresses, orders, order_items
--- Requires helper: generate_order_number() (defined below for convenience)
 
--- Create an order in a single transaction:
--- - validates user + address ownership
--- - validates products exist + in_stock
--- - calculates subtotal/total from DB prices (no client-trust)
--- - stores snapshot items in order_items
-
--- ─────────────────────────────────────────
--- HELPER: Generate order number
--- If you only run 006/007/008, this helper may not exist yet.
--- ─────────────────────────────────────────
-
-CREATE OR REPLACE FUNCTION generate_order_number()
-RETURNS TEXT AS $$
-DECLARE
-    year_part INTEGER;
-    max_counter INTEGER;
-    next_counter INTEGER;
-    prefix TEXT;
-BEGIN
-    -- Format required by UI: MM-YYYY#### (example: MM-20260001)
-    year_part := EXTRACT(YEAR FROM NOW())::INTEGER;
-
-    -- Avoid race conditions without needing a separate counters table
-    -- Lock is scoped to the current transaction and specific year
-    PERFORM pg_advisory_xact_lock(year_part);
-
-    prefix := 'MM-' || year_part::TEXT;
-
-    SELECT COALESCE(MAX(RIGHT(order_number, 4)::INTEGER), 0)
-    INTO max_counter
-    FROM orders
-    WHERE order_number ~ ('^MM-' || year_part::TEXT || '[0-9]{4}$');
-
-    next_counter := max_counter + 1;
-    RETURN prefix || LPAD(next_counter::TEXT, 4, '0');
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION create_order(
+CREATE OR REPLACE FUNCTION public.create_order(
     p_firebase_uid TEXT,
     p_address_id UUID,
     p_payment_method TEXT,
@@ -63,8 +26,9 @@ DECLARE
     v_shipping NUMERIC(10,2);
     v_cod_charge NUMERIC(10,2);
     v_total NUMERIC(10,2);
-    v_missing_count INT;
     v_attempts INT;
+    v_requested_count INT;
+    v_updated_count INT;
 BEGIN
     IF p_firebase_uid IS NULL OR LENGTH(TRIM(p_firebase_uid)) = 0 THEN
         RAISE EXCEPTION 'Missing firebase uid';
@@ -92,7 +56,7 @@ BEGIN
         RAISE EXCEPTION 'User not found';
     END IF;
 
-    -- Snapshot customer name (so admin UI can show it reliably)
+    -- Snapshot customer name
     SELECT name INTO v_customer_name
     FROM users
     WHERE id = v_user_id
@@ -115,32 +79,57 @@ BEGIN
         RAISE EXCEPTION 'Address not found for user';
     END IF;
 
-    -- Validate all requested products exist and are in stock
-    WITH requested AS (
+    -- Validate all requested products exist
+    WITH requested_raw AS (
         SELECT
             (elem->>'productId')::uuid AS product_id,
             GREATEST(COALESCE((elem->>'quantity')::int, 1), 1) AS quantity
         FROM jsonb_array_elements(p_items) elem
     ),
-    joined AS (
-        SELECT r.product_id, r.quantity, p.in_stock
+    requested AS (
+        SELECT product_id, SUM(quantity)::int AS quantity
+        FROM requested_raw
+        GROUP BY product_id
+    )
+    SELECT COUNT(*) INTO v_requested_count
+    FROM requested;
+
+    IF v_requested_count = 0 THEN
+        RAISE EXCEPTION 'Items must be a non-empty array';
+    END IF;
+
+    IF EXISTS (
+        WITH requested_raw AS (
+            SELECT
+                (elem->>'productId')::uuid AS product_id,
+                GREATEST(COALESCE((elem->>'quantity')::int, 1), 1) AS quantity
+            FROM jsonb_array_elements(p_items) elem
+        ),
+        requested AS (
+            SELECT product_id, SUM(quantity)::int AS quantity
+            FROM requested_raw
+            GROUP BY product_id
+        )
+        SELECT 1
         FROM requested r
         LEFT JOIN products p ON p.id = r.product_id
-    )
-    SELECT COUNT(*) INTO v_missing_count
-    FROM joined
-    WHERE product_id IS NULL OR in_stock IS DISTINCT FROM TRUE;
-
-    IF v_missing_count > 0 THEN
-        RAISE EXCEPTION 'One or more items are invalid or out of stock';
+        WHERE p.id IS NULL
+        LIMIT 1
+    ) THEN
+        RAISE EXCEPTION 'One or more items are invalid';
     END IF;
 
     -- Calculate subtotal using authoritative DB price
-    WITH requested AS (
+    WITH requested_raw AS (
         SELECT
             (elem->>'productId')::uuid AS product_id,
             GREATEST(COALESCE((elem->>'quantity')::int, 1), 1) AS quantity
         FROM jsonb_array_elements(p_items) elem
+    ),
+    requested AS (
+        SELECT product_id, SUM(quantity)::int AS quantity
+        FROM requested_raw
+        GROUP BY product_id
     )
     SELECT COALESCE(SUM((p.price::numeric) * r.quantity), 0)
     INTO v_subtotal
@@ -194,7 +183,7 @@ BEGIN
             )
             RETURNING id INTO v_order_id;
 
-            EXIT; -- success
+            EXIT;
         EXCEPTION WHEN unique_violation THEN
             IF v_attempts >= 5 THEN
                 RAISE EXCEPTION 'Failed to generate a unique order number';
@@ -202,12 +191,44 @@ BEGIN
         END;
     END LOOP;
 
-    -- Insert order items snapshot
-    WITH requested AS (
+    -- Decrement stock atomically (no backorders)
+    WITH requested_raw AS (
         SELECT
             (elem->>'productId')::uuid AS product_id,
             GREATEST(COALESCE((elem->>'quantity')::int, 1), 1) AS quantity
         FROM jsonb_array_elements(p_items) elem
+    ),
+    requested AS (
+        SELECT product_id, SUM(quantity)::int AS quantity
+        FROM requested_raw
+        GROUP BY product_id
+    ),
+    updated AS (
+        UPDATE products p
+        SET stock_qty = p.stock_qty - r.quantity
+        FROM requested r
+        WHERE p.id = r.product_id
+          AND p.stock_qty >= r.quantity
+        RETURNING p.id
+    )
+    SELECT (SELECT COUNT(*) FROM requested), (SELECT COUNT(*) FROM updated)
+    INTO v_requested_count, v_updated_count;
+
+    IF v_updated_count <> v_requested_count THEN
+        RAISE EXCEPTION 'One or more items are out of stock';
+    END IF;
+
+    -- Insert order items snapshot
+    WITH requested_raw AS (
+        SELECT
+            (elem->>'productId')::uuid AS product_id,
+            GREATEST(COALESCE((elem->>'quantity')::int, 1), 1) AS quantity
+        FROM jsonb_array_elements(p_items) elem
+    ),
+    requested AS (
+        SELECT product_id, SUM(quantity)::int AS quantity
+        FROM requested_raw
+        GROUP BY product_id
     )
     INSERT INTO order_items (
         order_id,
@@ -228,6 +249,35 @@ BEGIN
         r.quantity
     FROM requested r
     JOIN products p ON p.id = r.product_id;
+
+    -- Inventory movements (audit)
+    WITH requested_raw AS (
+        SELECT
+            (elem->>'productId')::uuid AS product_id,
+            GREATEST(COALESCE((elem->>'quantity')::int, 1), 1) AS quantity
+        FROM jsonb_array_elements(p_items) elem
+    ),
+    requested AS (
+        SELECT product_id, SUM(quantity)::int AS quantity
+        FROM requested_raw
+        GROUP BY product_id
+    )
+    INSERT INTO inventory_movements (
+        product_id,
+        delta_qty,
+        reason,
+        ref_type,
+        ref_id,
+        created_by
+    )
+    SELECT
+        r.product_id,
+        -r.quantity,
+        'Order created',
+        'order',
+        v_order_id,
+        v_user_id
+    FROM requested r;
 
     RETURN jsonb_build_object(
         'orderId', v_order_id,

@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
+import crypto from 'crypto';
+import Razorpay from 'razorpay';
 import { AuthenticatedRequest } from '../types';
 import { supabase } from '../config/supabase';
+import { env } from '../config/env';
 
-const OrderStatusSchema = z.enum(['placed', 'confirmed', 'shipped', 'delivered', 'cancelled']);
-const PaymentMethodSchema = z.enum(['upi', 'card', 'netbanking', 'cod']);
+const OrderStatusSchema = z.enum(['pending', 'paid', 'packed', 'shipped', 'delivered', 'cancelled', 'refund']);
+const PaymentMethodSchema = z.enum(['razorpay']);
 const PaymentStatusSchema = z.enum(['pending', 'paid', 'failed', 'refunded']);
 
 const CreateOrderItemSchema = z.object({
@@ -12,11 +15,17 @@ const CreateOrderItemSchema = z.object({
     quantity: z.number().int().min(1).max(99).default(1),
 });
 
-const CreateOrderSchema = z.object({
+const CreateRazorpayOrderSchema = z.object({
     addressId: z.string().uuid(),
-    paymentMethod: PaymentMethodSchema,
     notes: z.string().max(500).optional(),
     items: z.array(CreateOrderItemSchema).min(1),
+});
+
+const VerifyRazorpayPaymentSchema = z.object({
+    orderId: z.string().uuid(),
+    razorpay_order_id: z.string().min(1),
+    razorpay_payment_id: z.string().min(1),
+    razorpay_signature: z.string().min(1),
 });
 
 const PaginationSchema = z.object({
@@ -59,7 +68,7 @@ async function fetchOrdersInRange(startIso: string, endIso: string): Promise<any
             .select('id, user_id, total, created_at, status')
             .gte('created_at', startIso)
             .lte('created_at', endIso)
-            .neq('status', 'cancelled')
+            .not('status', 'in', '(cancelled,refund)')
             .order('created_at', { ascending: false })
             .range(offset, offset + pageSize - 1);
 
@@ -154,6 +163,36 @@ function getParamAsString(value: unknown): string | null {
     return null;
 }
 
+function getRazorpayClient(): Razorpay {
+    const keyId = env.RAZORPAY_KEY_ID;
+    const keySecret = env.RAZORPAY_KEY_SECRET;
+    if (!keyId || !keySecret) {
+        throw new Error('Razorpay is not configured on the server.');
+    }
+    return new Razorpay({ key_id: keyId, key_secret: keySecret });
+}
+
+function isMockPayments(): boolean {
+    return env.PAYMENT_PROVIDER === 'mock' || !env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET;
+}
+
+function verifyRazorpaySignature(payload: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+}): boolean {
+    const keySecret = env.RAZORPAY_KEY_SECRET;
+    if (!keySecret) return false;
+
+    const message = `${payload.razorpay_order_id}|${payload.razorpay_payment_id}`;
+    const expected = crypto.createHmac('sha256', keySecret).update(message).digest('hex');
+
+    const expectedBuf = Buffer.from(expected, 'hex');
+    const providedBuf = Buffer.from(payload.razorpay_signature, 'hex');
+    if (expectedBuf.length !== providedBuf.length) return false;
+    return crypto.timingSafeEqual(expectedBuf, providedBuf);
+}
+
 function mapOrderRow(row: any) {
     const embeddedUser = Array.isArray(row.users) ? row.users[0] : row.users;
     const embeddedItems = row.order_items;
@@ -204,41 +243,169 @@ function mapOrderItemRow(row: any) {
 }
 
 /**
- * USER: POST /api/orders
- * Creates an order for the logged-in user.
- * Uses DB-side RPC `create_order()` for atomic creation and server-side price calculation.
+ * USER: POST /api/orders/razorpay/create
+ * Creates an internal order (payment_method=razorpay) and a Razorpay order.
  */
-export async function createOrder(req: AuthenticatedRequest, res: Response): Promise<void> {
+export async function createRazorpayOrder(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-        const parsed = CreateOrderSchema.safeParse(req.body);
+        const parsed = CreateRazorpayOrderSchema.safeParse(req.body);
         if (!parsed.success) {
             res.status(400).json({ success: false, error: 'Invalid payload.', details: parsed.error.flatten() });
             return;
         }
 
-        const { addressId, paymentMethod, notes, items } = parsed.data;
+        const { addressId, notes, items } = parsed.data;
 
-        const { data, error } = await supabase
-            .rpc('create_order', {
-                p_firebase_uid: req.user!.uid,
-                p_address_id: addressId,
-                p_payment_method: paymentMethod,
-                p_notes: notes || null,
-                p_items: items,
-            })
-            .single();
+        // 1) Create internal order via DB RPC (atomic stock decrement)
+        const { data: order, error: createErr } = await supabase.rpc('create_order', {
+            p_firebase_uid: req.user!.uid,
+            p_address_id: addressId,
+            p_payment_method: 'razorpay',
+            p_notes: notes || null,
+            p_items: items,
+        });
 
-        if (error) {
-            const message = error.message || 'Failed to create order.';
-            // Surface validation-ish errors as 400
+        if (createErr || !order) {
+            const message = createErr?.message || 'Failed to create order.';
             const isBadRequest = /missing|invalid|not found|out of stock|subtotal/i.test(message);
             res.status(isBadRequest ? 400 : 500).json({ success: false, error: message });
             return;
         }
 
-        res.status(201).json({ success: true, order: data });
+        const internalOrderId = String((order as any).orderId || '');
+        const orderNumber = String((order as any).orderNumber || internalOrderId);
+        const total = Number((order as any).total || 0);
+        if (!internalOrderId || !Number.isFinite(total) || total <= 0) {
+            res.status(500).json({ success: false, error: 'Order creation returned invalid totals.' });
+            return;
+        }
+
+        // 2) Create Razorpay order (or mock in local/dev)
+        const amountPaise = Math.round(total * 100);
+        const rpOrder = isMockPayments()
+            ? ({
+                id: `mock_order_${crypto.randomBytes(8).toString('hex')}`,
+                amount: amountPaise,
+                currency: 'INR',
+            } as any)
+            : await getRazorpayClient().orders.create({
+                amount: amountPaise,
+                currency: 'INR',
+                receipt: orderNumber,
+                notes: {
+                    internal_order_id: internalOrderId,
+                },
+            });
+
+        // 3) Persist razorpay_order_id on internal order
+        const userId = await getUserId(req.user!.uid);
+        if (userId) {
+            await supabase
+                .from('orders')
+                .update({ razorpay_order_id: (rpOrder as any).id })
+                .eq('id', internalOrderId)
+                .eq('user_id', userId);
+        }
+
+        res.status(201).json({
+            success: true,
+            order,
+            razorpay: {
+                keyId: isMockPayments() ? 'mock' : env.RAZORPAY_KEY_ID,
+                orderId: (rpOrder as any).id,
+                amount: (rpOrder as any).amount,
+                currency: (rpOrder as any).currency,
+            },
+        });
     } catch (err) {
-        console.error('Create order error:', err);
+        const message = err instanceof Error ? err.message : 'Internal server error.';
+        res.status(500).json({ success: false, error: message });
+    }
+}
+
+/**
+ * USER: POST /api/orders/razorpay/verify
+ * Verifies Razorpay signature and marks the internal order as paid.
+ */
+export async function verifyRazorpayPayment(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+        const parsed = VerifyRazorpayPaymentSchema.safeParse(req.body);
+        if (!parsed.success) {
+            res.status(400).json({ success: false, error: 'Invalid payload.', details: parsed.error.flatten() });
+            return;
+        }
+
+        const { orderId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = parsed.data;
+
+        const userId = await getUserId(req.user!.uid);
+        if (!userId) {
+            res.status(404).json({ success: false, error: 'User not found.' });
+            return;
+        }
+
+        const { data: existing, error: findErr } = await supabase
+            .from('orders')
+            .select('id, user_id, payment_method, razorpay_order_id, status, payment_status')
+            .eq('id', orderId)
+            .eq('user_id', userId)
+            .single();
+
+        if (findErr || !existing) {
+            res.status(404).json({ success: false, error: 'Order not found.' });
+            return;
+        }
+
+        if ((existing as any).payment_method !== 'razorpay') {
+            res.status(400).json({ success: false, error: 'Order is not a Razorpay payment.' });
+            return;
+        }
+
+        if (String((existing as any).razorpay_order_id || '') !== razorpay_order_id) {
+            res.status(400).json({ success: false, error: 'Razorpay order id mismatch.' });
+            return;
+        }
+
+        const ok = isMockPayments()
+            ? true
+            : verifyRazorpaySignature({
+                razorpay_order_id,
+                razorpay_payment_id,
+                razorpay_signature,
+            });
+
+        if (!ok) {
+            await supabase
+                .from('orders')
+                .update({ payment_status: 'failed' })
+                .eq('id', orderId)
+                .eq('user_id', userId);
+
+            res.status(400).json({ success: false, error: 'Payment verification failed.' });
+            return;
+        }
+
+        const { data: updated, error: updErr } = await supabase
+            .from('orders')
+            .update({
+                payment_status: 'paid',
+                status: 'paid',
+                razorpay_payment_id,
+                razorpay_signature,
+                paid_at: new Date().toISOString(),
+            })
+            .eq('id', orderId)
+            .eq('user_id', userId)
+            .select('*')
+            .single();
+
+        if (updErr || !updated) {
+            res.status(500).json({ success: false, error: 'Failed to update order after payment.' });
+            return;
+        }
+
+        res.json({ success: true, order: mapOrderRow(updated) });
+    } catch (err) {
+        console.error('Verify Razorpay payment error:', err);
         res.status(500).json({ success: false, error: 'Internal server error.' });
     }
 }
@@ -353,7 +520,7 @@ export async function getMyOrder(req: AuthenticatedRequest, res: Response): Prom
 
 /**
  * USER: POST /api/orders/:id/cancel
- * Allows cancelling only while status is 'placed'.
+ * Cancels an order (when still cancellable) and restocks items via DB RPC.
  */
 export async function cancelMyOrder(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
@@ -369,39 +536,33 @@ export async function cancelMyOrder(req: AuthenticatedRequest, res: Response): P
             return;
         }
 
-        // Ensure it's cancellable
-        const { data: existing, error: findErr } = await supabase
-            .from('orders')
-            .select('id, status')
-            .eq('id', id)
-            .eq('user_id', userId)
-            .single();
+        const { error: cancelErr } = await supabase
+            .rpc('cancel_order', {
+                p_firebase_uid: req.user!.uid,
+                p_order_id: id,
+            });
 
-        if (findErr || !existing) {
-            res.status(404).json({ success: false, error: 'Order not found.' });
+        if (cancelErr) {
+            const message = cancelErr.message || 'Failed to cancel order.';
+            const isBadRequest = /cannot|not found|missing|invalid/i.test(message);
+            res.status(isBadRequest ? 400 : 500).json({ success: false, error: message });
             return;
         }
 
-        if (existing.status !== 'placed') {
-            res.status(400).json({ success: false, error: 'Order cannot be cancelled at this stage.' });
-            return;
-        }
-
-        const { data, error } = await supabase
+        // Return the updated order row
+        const { data: updated, error: updatedErr } = await supabase
             .from('orders')
-            .update({ status: 'cancelled' })
-            .eq('id', id)
-            .eq('user_id', userId)
             .select('*')
+            .eq('id', id)
+            .eq('user_id', userId)
             .single();
 
-        if (error || !data) {
-            console.error('Cancel order error:', error);
-            res.status(500).json({ success: false, error: 'Failed to cancel order.' });
+        if (updatedErr || !updated) {
+            res.json({ success: true });
             return;
         }
 
-        res.json({ success: true, order: mapOrderRow(data) });
+        res.json({ success: true, order: mapOrderRow(updated) });
     } catch (err) {
         console.error('Cancel my order error:', err);
         res.status(500).json({ success: false, error: 'Internal server error.' });
@@ -595,7 +756,7 @@ export async function getAdminAnalytics(req: Request, res: Response): Promise<vo
             supabase
                 .from('orders')
                 .select('id', { count: 'exact', head: true })
-                .neq('status', 'cancelled'),
+                .not('status', 'in', '(cancelled,refund)'),
             supabase.from('products').select('id', { count: 'exact', head: true }),
         ]);
 

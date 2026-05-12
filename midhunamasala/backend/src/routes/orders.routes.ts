@@ -2,7 +2,8 @@ import { Router } from 'express';
 import { authenticateUser } from '../middleware/auth';
 import { adminOnly } from '../middleware/adminOnly';
 import {
-    createOrder,
+    createRazorpayOrder,
+    verifyRazorpayPayment,
     listMyOrders,
     getMyOrder,
     cancelMyOrder,
@@ -28,7 +29,8 @@ router.put('/admin/:id/payment-status', authenticateUser, adminOnly, updatePayme
 // ─────────────────────────────────────────
 // User routes (auth)
 // ─────────────────────────────────────────
-router.post('/', authenticateUser, createOrder as any);
+router.post('/razorpay/create', authenticateUser, createRazorpayOrder as any);
+router.post('/razorpay/verify', authenticateUser, verifyRazorpayPayment as any);
 router.get('/', authenticateUser, listMyOrders as any);
 router.get('/:id', authenticateUser, getMyOrder as any);
 router.post('/:id/cancel', authenticateUser, cancelMyOrder as any);

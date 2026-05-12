@@ -11,12 +11,12 @@ CREATE TABLE IF NOT EXISTS orders (
     address_id UUID REFERENCES addresses(id),
     item_count INTEGER NOT NULL DEFAULT 0,
 
-    status TEXT NOT NULL DEFAULT 'placed' CHECK (
-        status IN ('placed', 'confirmed', 'shipped', 'delivered', 'cancelled')
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (
+        status IN ('pending', 'paid', 'packed', 'shipped', 'delivered', 'cancelled', 'refund')
     ),
 
     payment_method TEXT NOT NULL CHECK (
-        payment_method IN ('upi', 'card', 'netbanking', 'cod')
+        payment_method IN ('cod', 'razorpay', 'upi', 'card', 'netbanking')
     ),
 
     payment_status TEXT NOT NULL DEFAULT 'pending' CHECK (
@@ -27,6 +27,13 @@ CREATE TABLE IF NOT EXISTS orders (
     shipping DECIMAL(10,2) NOT NULL DEFAULT 0,
     cod_charge DECIMAL(10,2) NOT NULL DEFAULT 0,
     total DECIMAL(10,2) NOT NULL,
+
+    -- Razorpay metadata (optional)
+    razorpay_order_id TEXT,
+    razorpay_payment_id TEXT,
+    razorpay_signature TEXT,
+    paid_at TIMESTAMPTZ,
+    refunded_at TIMESTAMPTZ,
 
     notes TEXT,
 
@@ -41,6 +48,10 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS item_count INTEGER NOT NULL DEFAULT 
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders(order_number);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_razorpay_order_id
+ON orders(razorpay_order_id)
+WHERE razorpay_order_id IS NOT NULL;
 
 -- Auto-update updated_at trigger (requires update_updated_at() function)
 DROP TRIGGER IF EXISTS set_updated_at_orders ON orders;

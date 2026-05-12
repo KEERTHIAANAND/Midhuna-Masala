@@ -84,13 +84,18 @@ CREATE TABLE IF NOT EXISTS orders (
     customer_name TEXT,
     address_id UUID REFERENCES addresses(id),
     item_count INTEGER NOT NULL DEFAULT 0,
-    status TEXT NOT NULL DEFAULT 'placed' CHECK (status IN ('placed', 'confirmed', 'shipped', 'delivered', 'cancelled')),
-    payment_method TEXT NOT NULL CHECK (payment_method IN ('upi', 'card', 'netbanking', 'cod')),
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'packed', 'shipped', 'delivered', 'cancelled', 'refund')),
+    payment_method TEXT NOT NULL CHECK (payment_method IN ('cod', 'razorpay', 'upi', 'card', 'netbanking')),
     payment_status TEXT NOT NULL DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded')),
     subtotal DECIMAL(10,2) NOT NULL,
     shipping DECIMAL(10,2) NOT NULL DEFAULT 0,
     cod_charge DECIMAL(10,2) NOT NULL DEFAULT 0,
     total DECIMAL(10,2) NOT NULL,
+    razorpay_order_id TEXT,
+    razorpay_payment_id TEXT,
+    razorpay_signature TEXT,
+    paid_at TIMESTAMPTZ,
+    refunded_at TIMESTAMPTZ,
     notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -99,6 +104,10 @@ CREATE TABLE IF NOT EXISTS orders (
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders(order_number);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_razorpay_order_id
+ON orders(razorpay_order_id)
+WHERE razorpay_order_id IS NOT NULL;
 
 
 -- ─────────────────────────────────────────

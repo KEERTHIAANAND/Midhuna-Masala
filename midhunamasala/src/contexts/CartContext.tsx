@@ -1,8 +1,9 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './AuthContext';
+import { clientEnv } from '@/lib/env';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = clientEnv.NEXT_PUBLIC_API_URL;
 
 // ─── Cart Item Type ───
 // This is what the frontend uses to display cart items.

@@ -10,9 +10,10 @@ import {
     User as FirebaseUser
 } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
+import { clientEnv } from '@/lib/env';
 
 // Backend API URL
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = clientEnv.NEXT_PUBLIC_API_URL;
 
 // Admin emails that are allowed to access admin panel
 export const ADMIN_EMAILS = [

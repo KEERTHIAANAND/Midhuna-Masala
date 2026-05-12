@@ -11,8 +11,9 @@ import {
     Lock, ArrowLeft, Loader2, ChevronLeft,
 } from 'lucide-react';
 import CheckoutHeader from '@/components/checkout/CheckoutHeader';
+import { clientEnv } from '@/lib/env';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = clientEnv.NEXT_PUBLIC_API_URL;
 
 /* ═══════════════════════════════════════════
    Constants & Types

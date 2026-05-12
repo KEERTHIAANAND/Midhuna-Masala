@@ -7,3 +7,7 @@
 # OS files
 .DS_Store
 Thumbs.db
+
+# Local docs
+*.xls
+*.xlsx

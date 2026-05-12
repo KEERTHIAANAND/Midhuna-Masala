@@ -18,6 +18,10 @@ import inventoryRoutes from './routes/inventory.routes';
 const app = express();
 const PORT = env.PORT ?? 5000;
 
+// Running behind Render/Cloudflare/etc. proxies — makes req.ip accurate (rate limiting)
+// and avoids issues if you later add secure cookies.
+app.set('trust proxy', 1);
+
 /* ════════════════════════════════════
    Middleware
    ════════════════════════════════════ */
@@ -26,10 +30,22 @@ const PORT = env.PORT ?? 5000;
 app.use(helmet());
 
 // CORS — allow frontend origin
-app.use(cors({
-    origin: env.CORS_ORIGIN || 'http://localhost:3000',
-    credentials: true,
-}));
+const corsOrigins = (env.CORS_ORIGIN || 'http://localhost:3000')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            // Allow non-browser requests (health checks, curl, etc.)
+            if (!origin) return callback(null, true);
+            if (corsOrigins.includes(origin)) return callback(null, true);
+            return callback(new Error(`CORS blocked for origin: ${origin}`));
+        },
+        credentials: true,
+    })
+);
 
 // Parse JSON body
 app.use(express.json({ limit: '10mb' }));

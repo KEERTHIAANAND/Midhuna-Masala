@@ -20,7 +20,7 @@ function requireEnv(name: keyof RequiredClientEnv, value: string | undefined): s
 }
 
 export const clientEnv = {
-  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  NEXT_PUBLIC_API_URL: requireEnv('NEXT_PUBLIC_API_URL', process.env.NEXT_PUBLIC_API_URL),
 
   NEXT_PUBLIC_FIREBASE_API_KEY: requireEnv(
     'NEXT_PUBLIC_FIREBASE_API_KEY',

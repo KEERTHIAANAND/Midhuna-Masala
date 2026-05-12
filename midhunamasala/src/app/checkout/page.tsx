@@ -8,7 +8,7 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import {
     CreditCard, ChevronRight, Check,
     Plus, Phone, Home, Briefcase, Pin, Truck, Package,
-    Lock, ArrowLeft, Loader2, Smartphone, Landmark, Banknote, ChevronLeft,
+    Lock, ArrowLeft, Loader2, ChevronLeft,
 } from 'lucide-react';
 import CheckoutHeader from '@/components/checkout/CheckoutHeader';
 
@@ -47,6 +47,41 @@ const INDIAN_STATES = [
 ];
 
 const CONFETTI_COLORS = ['#8B1E1E', '#D4AF37', '#B8A88A', '#C49A6C', '#A0522D', '#8B6914', '#CD853F', '#DAA520'];
+
+declare global {
+    interface Window {
+        Razorpay?: any;
+    }
+}
+
+function loadRazorpayScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        if (typeof window === 'undefined') {
+            reject(new Error('Razorpay can only be loaded in the browser.'));
+            return;
+        }
+
+        if (window.Razorpay) {
+            resolve();
+            return;
+        }
+
+        const existing = document.querySelector('script[data-razorpay-checkout="true"]') as HTMLScriptElement | null;
+        if (existing) {
+            existing.addEventListener('load', () => resolve());
+            existing.addEventListener('error', () => reject(new Error('Failed to load Razorpay.')));
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        script.dataset.razorpayCheckout = 'true';
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load Razorpay.'));
+        document.body.appendChild(script);
+    });
+}
 
 /* ═══════════════════════════════════════════
    Animation Variants
@@ -207,7 +242,6 @@ function CheckoutPageInner() {
     const [saved, setSaved] = useState<Address[]>([]);
     const [selIdx, setSelIdx] = useState<number | null>(null);
     const [showForm, setShowForm] = useState(false);
-    const [payment, setPayment] = useState('upi');
     const [processing, setProcessing] = useState(false);
     const [done, setDone] = useState(false);
     const [orderId, setOrderId] = useState('');
@@ -282,8 +316,7 @@ function CheckoutPageInner() {
 
     const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
     const shipping = subtotal >= 500 ? 0 : 49;
-    const cod = payment === 'cod' && step === 2 ? 20 : 0;
-    const total = subtotal + shipping + cod;
+    const total = subtotal + shipping;
 
     const activeAddr = useCallback((): Address => {
         if (showForm || saved.length === 0) return address;
@@ -373,7 +406,6 @@ function CheckoutPageInner() {
     };
 
     const placeOrder = async () => {
-        setProcessing(true);
         try {
             const token = await getIdToken();
             if (!token) {
@@ -381,10 +413,41 @@ function CheckoutPageInner() {
                 return;
             }
 
-            const addr = activeAddr();
+            let addr = activeAddr();
             if (!addr.id) {
-                alert('Please select a saved address to place your order.');
-                return;
+                // If user is on the form (or no saved address), create the address first.
+                if (!validate()) return;
+                const response = await fetch(`${API_URL}/api/addresses`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        fullName: addr.fullName,
+                        phone: addr.phone,
+                        street: addr.street,
+                        landmark: addr.landmark,
+                        city: addr.city,
+                        state: addr.state,
+                        pincode: addr.pincode,
+                        label: addr.label,
+                        isDefault: saved.length === 0,
+                    }),
+                });
+
+                const data = await response.json().catch(() => null);
+                if (!response.ok || !data?.success || !data?.address?.id) {
+                    alert(data?.error || 'Please save an address to place your order.');
+                    return;
+                }
+
+                const newAddress = data.address as Address;
+                const arr = [...saved, newAddress];
+                setSaved(arr);
+                setSelIdx(arr.length - 1);
+                setShowForm(false);
+                addr = newAddress;
             }
 
             const orderItems = items.map((i: any) => ({
@@ -398,7 +461,8 @@ function CheckoutPageInner() {
                 return;
             }
 
-            const response = await fetch(`${API_URL}/api/orders`, {
+            setProcessing(true);
+            const response = await fetch(`${API_URL}/api/orders/razorpay/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -406,30 +470,124 @@ function CheckoutPageInner() {
                 },
                 body: JSON.stringify({
                     addressId: addr.id,
-                    paymentMethod: payment,
                     items: orderItems,
                 }),
             });
 
             const data = await response.json().catch(() => null);
-            if (!response.ok || !data?.success || !data?.order?.orderNumber) {
-                const message = data?.error || 'Failed to place order.';
+            if (!response.ok || !data?.success || !data?.order?.orderId || !data?.razorpay?.orderId) {
+                const message = data?.error || 'Failed to start Razorpay payment.';
                 alert(message);
                 return;
             }
 
-            setOrderId(String(data.order.orderNumber));
-            setDone(true);
-            setConfetti(true);
+            const internalOrderId = String(data.order.orderId);
+            const orderNumber = String(data.order.orderNumber || internalOrderId);
 
-            // In buyNow mode, only clear the sessionStorage (not the full cart)
-            if (isBuyNow) {
-                sessionStorage.removeItem('mm-buy-now');
-            } else {
-                clearCart();
+            const finishSuccess = () => {
+                setOrderId(orderNumber);
+                setDone(true);
+                setConfetti(true);
+
+                if (isBuyNow) {
+                    sessionStorage.removeItem('mm-buy-now');
+                } else {
+                    clearCart();
+                }
+                setTimeout(() => setConfetti(false), 6000);
+            };
+
+            // MOCK flow (no Razorpay account required)
+            if (String(data?.razorpay?.keyId || '') === 'mock') {
+                const mockPayload = {
+                    orderId: internalOrderId,
+                    razorpay_order_id: String(data.razorpay.orderId),
+                    razorpay_payment_id: `mock_pay_${Date.now()}`,
+                    razorpay_signature: `mock_sig_${Date.now()}`,
+                };
+
+                const verifyRes = await fetch(`${API_URL}/api/orders/razorpay/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(mockPayload),
+                });
+
+                const verifyData = await verifyRes.json().catch(() => null);
+                if (!verifyRes.ok || !verifyData?.success) {
+                    alert(verifyData?.error || 'Mock payment verification failed.');
+                    return;
+                }
+
+                finishSuccess();
+                return;
             }
 
-            setTimeout(() => setConfetti(false), 6000);
+            await loadRazorpayScript();
+            if (!window.Razorpay) {
+                alert('Razorpay failed to load. Please try again.');
+                return;
+            }
+
+            const options = {
+                key: data.razorpay.keyId,
+                amount: data.razorpay.amount,
+                currency: data.razorpay.currency,
+                name: 'Midhuna Masala',
+                description: orderNumber ? `Order ${orderNumber}` : 'Order payment',
+                order_id: data.razorpay.orderId,
+                prefill: {
+                    name: addr.fullName,
+                    email: user?.email || '',
+                    contact: addr.phone,
+                },
+                theme: {
+                    color: '#8B1E1E',
+                },
+                modal: {
+                    ondismiss: () => {
+                        setProcessing(false);
+                    },
+                },
+                handler: async (rpResp: any) => {
+                    setProcessing(true);
+                    try {
+                        const verifyRes = await fetch(`${API_URL}/api/orders/razorpay/verify`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`,
+                            },
+                            body: JSON.stringify({
+                                orderId: internalOrderId,
+                                ...rpResp,
+                            }),
+                        });
+
+                        const verifyData = await verifyRes.json().catch(() => null);
+                        if (!verifyRes.ok || !verifyData?.success) {
+                            const message = verifyData?.error || 'Payment verification failed.';
+                            alert(message);
+                            return;
+                        }
+
+                        finishSuccess();
+                    } catch (e) {
+                        console.error('Razorpay verify failed:', e);
+                        alert('Payment verification failed. Please contact support if amount was deducted.');
+                    } finally {
+                        setProcessing(false);
+                    }
+                },
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.on('payment.failed', () => {
+                alert('Payment failed. Please try again.');
+            });
+            rzp.open();
         } catch (e) {
             console.error('Place order failed:', e);
             alert('Something went wrong while placing your order. Please try again.');
@@ -780,36 +938,20 @@ function CheckoutPageInner() {
                                     <div className="space-y-4">
                                         <SectionCard title="Payment Method">
                                             <motion.div variants={staggerParent} initial="initial" animate="animate" className="space-y-2.5">
-                                                {[
-                                                    { id: 'upi', label: 'UPI', desc: 'Google Pay, PhonePe, Paytm', icon: Smartphone, tag: 'Instant' },
-                                                    { id: 'card', label: 'Credit / Debit Card', desc: 'Visa, Mastercard, RuPay', icon: CreditCard, tag: null },
-                                                    { id: 'netbanking', label: 'Net Banking', desc: 'All major banks', icon: Landmark, tag: null },
-                                                    { id: 'cod', label: 'Cash on Delivery', desc: 'Extra ₹20 COD charge', icon: Banknote, tag: '+₹20' },
-                                                ].map(m => {
-                                                    const IC = m.icon;
-                                                    const on = payment === m.id;
-                                                    return (
-                                                        <motion.div key={m.id} variants={staggerChild}
-                                                            onClick={() => setPayment(m.id)}
-                                                            className={`p-4 rounded-md cursor-pointer transition-all duration-300 flex items-center gap-3.5 ${on ? 'border border-[#8B1E1E] bg-[#8B1E1E]/[.02]' : 'border border-gray-100 hover:border-gray-200'
-                                                                }`}>
-                                                            <IC className={`w-[18px] h-[18px] flex-shrink-0 transition-colors duration-300 ${on ? 'text-[#8B1E1E]' : 'text-gray-300'
-                                                                }`} strokeWidth={1.5} />
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className="flex items-center gap-2">
-                                                                    <p className={`text-[13px] font-medium transition-colors ${on ? 'text-gray-800' : 'text-gray-600'}`}>{m.label}</p>
-                                                                    {m.tag && (
-                                                                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#F5F0EB] text-[#8B6914]">
-                                                                            {m.tag}
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                                <p className="text-xs text-gray-400 mt-0.5 font-light">{m.desc}</p>
-                                                            </div>
-                                                            <SelectionIndicator selected={on} />
-                                                        </motion.div>
-                                                    );
-                                                })}
+                                                <motion.div variants={staggerChild}
+                                                    className="p-4 rounded-md transition-all duration-300 flex items-center gap-3.5 border border-[#8B1E1E] bg-[#8B1E1E]/[.02]">
+                                                    <CreditCard className="w-[18px] h-[18px] flex-shrink-0 text-[#8B1E1E]" strokeWidth={1.5} />
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-[13px] font-medium text-gray-800">Razorpay</p>
+                                                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#F5F0EB] text-[#8B6914]">
+                                                                Online
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-xs text-gray-400 mt-0.5 font-light">UPI / Cards / Netbanking</p>
+                                                    </div>
+                                                    <SelectionIndicator selected={true} />
+                                                </motion.div>
                                             </motion.div>
                                         </SectionCard>
 

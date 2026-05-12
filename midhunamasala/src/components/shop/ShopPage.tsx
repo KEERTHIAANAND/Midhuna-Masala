@@ -7,8 +7,9 @@ import ProductDetails from "@/components/shop/ProductDetails";
 import Footer from "@/components/layout/Footer";
 import { ChevronRight, Filter, Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { clientEnv } from "@/lib/env";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = clientEnv.NEXT_PUBLIC_API_URL;
 
 type Product = {
   id: string;

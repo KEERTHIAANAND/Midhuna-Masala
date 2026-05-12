@@ -31,12 +31,12 @@ CREATE TABLE orders__new (
     address_id UUID REFERENCES addresses(id),
     item_count INTEGER NOT NULL DEFAULT 0,
 
-    status TEXT NOT NULL DEFAULT 'placed' CHECK (
-        status IN ('placed', 'confirmed', 'shipped', 'delivered', 'cancelled')
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (
+        status IN ('pending', 'paid', 'packed', 'shipped', 'delivered', 'cancelled', 'refund')
     ),
 
     payment_method TEXT NOT NULL CHECK (
-        payment_method IN ('upi', 'card', 'netbanking', 'cod')
+        payment_method IN ('cod', 'razorpay', 'upi', 'card', 'netbanking')
     ),
 
     payment_status TEXT NOT NULL DEFAULT 'pending' CHECK (
@@ -47,6 +47,12 @@ CREATE TABLE orders__new (
     shipping DECIMAL(10,2) NOT NULL DEFAULT 0,
     cod_charge DECIMAL(10,2) NOT NULL DEFAULT 0,
     total DECIMAL(10,2) NOT NULL,
+
+    razorpay_order_id TEXT,
+    razorpay_payment_id TEXT,
+    razorpay_signature TEXT,
+    paid_at TIMESTAMPTZ,
+    refunded_at TIMESTAMPTZ,
 
     notes TEXT,
 
@@ -69,6 +75,13 @@ INSERT INTO orders__new (
     shipping,
     cod_charge,
     total,
+
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    paid_at,
+    refunded_at,
+
     notes,
     created_at,
     updated_at
@@ -87,6 +100,13 @@ SELECT
     shipping,
     cod_charge,
     total,
+
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    paid_at,
+    refunded_at,
+
     notes,
     created_at,
     updated_at

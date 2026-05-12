@@ -35,7 +35,7 @@ BEGIN
         RAISE EXCEPTION 'Missing address id';
     END IF;
 
-    IF p_payment_method NOT IN ('upi', 'card', 'netbanking', 'cod') THEN
+    IF p_payment_method NOT IN ('cod', 'razorpay', 'upi', 'card', 'netbanking') THEN
         RAISE EXCEPTION 'Invalid payment method';
     END IF;
 
@@ -144,8 +144,9 @@ BEGIN
     END IF;
 
     -- Charges (server-defined)
-    v_shipping := CASE WHEN v_subtotal >= 500 THEN 0 ELSE 49 END;
-    v_cod_charge := CASE WHEN p_payment_method = 'cod' THEN 20 ELSE 0 END;
+    -- Phase 2: Free shipping (India only) and no extra COD fee.
+    v_shipping := 0;
+    v_cod_charge := 0;
     v_total := v_subtotal + v_shipping + v_cod_charge;
 
     -- Create order (retry if order_number collides)
@@ -174,7 +175,7 @@ BEGIN
                 v_customer_name,
                 v_item_count,
                 p_address_id,
-                'placed',
+                'pending',
                 p_payment_method,
                 'pending',
                 v_subtotal,
@@ -276,7 +277,7 @@ BEGIN
     SELECT
         r.product_id,
         -r.quantity,
-        'Order placed',
+        'Order created',
         'order',
         v_order_id,
         v_user_id
@@ -289,7 +290,7 @@ BEGIN
         'shipping', v_shipping,
         'codCharge', v_cod_charge,
         'total', v_total,
-        'status', 'placed',
+        'status', 'pending',
         'paymentStatus', 'pending'
     );
 END;

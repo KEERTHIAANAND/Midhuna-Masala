@@ -11,6 +11,9 @@ const envSchema = z
     PORT: z.coerce.number().int().positive().optional(),
     CORS_ORIGIN: z.string().trim().optional(),
 
+    // Payments: use 'mock' for local dev without Razorpay account
+    PAYMENT_PROVIDER: z.enum(['razorpay', 'mock']).optional().default('razorpay'),
+
     SUPABASE_URL: z.string().url(),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
 
@@ -22,6 +25,11 @@ const envSchema = z
     FIREBASE_ADMIN_PROJECT_ID: z.string().trim().optional(),
     FIREBASE_ADMIN_CLIENT_EMAIL: z.string().trim().optional(),
     FIREBASE_ADMIN_PRIVATE_KEY: z.string().trim().optional(),
+
+    // Razorpay (Phase 2 payments)
+    RAZORPAY_KEY_ID: z.string().trim().optional(),
+    RAZORPAY_KEY_SECRET: z.string().trim().optional(),
+    RAZORPAY_WEBHOOK_SECRET: z.string().trim().optional(),
   })
   .superRefine((env, ctx) => {
     const hasServiceAccountPath = Boolean(env.FIREBASE_SERVICE_ACCOUNT_PATH);

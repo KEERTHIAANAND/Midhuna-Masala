@@ -16,15 +16,17 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 
 // Status Filters
-const STATUS_FILTERS = ['All Orders', 'Pending', 'Processing', 'Shipped', 'Delivered'];
+const STATUS_FILTERS = ['All Orders', 'Pending', 'Paid', 'Packed', 'Shipped', 'Delivered', 'Cancelled', 'Refund'];
 
 // Status Badge Colors
 const STATUS_STYLES: Record<string, string> = {
     'PENDING': 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    'PROCESSING': 'bg-gray-100 text-gray-600 border-gray-200',
+    'PAID': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    'PACKED': 'bg-gray-100 text-gray-600 border-gray-200',
     'SHIPPED': 'bg-orange-100 text-orange-600 border-orange-200',
     'DELIVERED': 'bg-green-100 text-green-600 border-green-200',
     'CANCELLED': 'bg-red-100 text-red-600 border-red-200',
+    'REFUND': 'bg-red-50 text-red-600 border-red-200',
 };
 
 // Orders Data
@@ -69,22 +71,26 @@ function pickCustomerColor(seed: string) {
 
 function apiStatusToUi(status: string): string {
     const s = String(status || '').toLowerCase();
-    if (s === 'placed') return 'PENDING';
-    if (s === 'confirmed') return 'PROCESSING';
+    if (s === 'pending') return 'PENDING';
+    if (s === 'paid') return 'PAID';
+    if (s === 'packed') return 'PACKED';
     if (s === 'shipped') return 'SHIPPED';
     if (s === 'delivered') return 'DELIVERED';
     if (s === 'cancelled') return 'CANCELLED';
+    if (s === 'refund') return 'REFUND';
     return 'PENDING';
 }
 
 function uiStatusToApi(status: string): string {
     const s = String(status || '').toUpperCase();
-    if (s === 'PENDING') return 'placed';
-    if (s === 'PROCESSING') return 'confirmed';
+    if (s === 'PENDING') return 'pending';
+    if (s === 'PAID') return 'paid';
+    if (s === 'PACKED') return 'packed';
     if (s === 'SHIPPED') return 'shipped';
     if (s === 'DELIVERED') return 'delivered';
     if (s === 'CANCELLED') return 'cancelled';
-    return 'placed';
+    if (s === 'REFUND') return 'refund';
+    return 'pending';
 }
 
 function mapBackendOrderToUi(row: BackendOrderRow): Order {
@@ -245,9 +251,12 @@ export default function OrdersPage() {
     const filteredOrders = orders.filter(order => {
         const filterToStatus: Record<string, string> = {
             'Pending': 'PENDING',
-            'Processing': 'PROCESSING',
+            'Paid': 'PAID',
+            'Packed': 'PACKED',
             'Shipped': 'SHIPPED',
             'Delivered': 'DELIVERED',
+            'Cancelled': 'CANCELLED',
+            'Refund': 'REFUND',
         };
         const matchesFilter = activeFilter === 'All Orders' || order.status === filterToStatus[activeFilter];
         const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -630,15 +639,19 @@ export default function OrdersPage() {
                                             }}
                                             className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#7A1A1A]/20 transition-all ${selectedOrder.status === 'DELIVERED' ? 'bg-green-50 border-green-300 text-green-700' :
                                                 selectedOrder.status === 'SHIPPED' ? 'bg-blue-50 border-blue-300 text-blue-700' :
-                                                    selectedOrder.status === 'PROCESSING' ? 'bg-orange-50 border-orange-300 text-orange-700' :
+                                                    selectedOrder.status === 'PACKED' ? 'bg-orange-50 border-orange-300 text-orange-700' :
+                                                        selectedOrder.status === 'PAID' ? 'bg-emerald-50 border-emerald-300 text-emerald-700' :
+                                                            selectedOrder.status === 'CANCELLED' || selectedOrder.status === 'REFUND' ? 'bg-red-50 border-red-300 text-red-700' :
                                                         'bg-gray-50 border-gray-300 text-gray-700'
                                                 }`}
                                         >
                                             <option value="PENDING">PENDING</option>
-                                            <option value="PROCESSING">PROCESSING</option>
+                                            <option value="PAID">PAID</option>
+                                            <option value="PACKED">PACKED</option>
                                             <option value="SHIPPED">SHIPPED</option>
                                             <option value="DELIVERED">DELIVERED</option>
                                             <option value="CANCELLED">CANCELLED</option>
+                                            <option value="REFUND">REFUND</option>
                                         </select>
                                         <p className="text-xs text-gray-500 mt-1">{selectedOrder.payment}</p>
                                     </div>
@@ -872,7 +885,7 @@ export default function OrdersPage() {
                             <div className="px-6 py-5 space-y-2">
                                 <p className="text-sm text-gray-500 mb-3">Select new status for this order:</p>
 
-                                {['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'].map((status) => (
+                                {['PENDING', 'PAID', 'PACKED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUND'].map((status) => (
                                     <button
                                         key={status}
                                         onClick={() => {

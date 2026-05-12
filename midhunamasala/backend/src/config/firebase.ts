@@ -1,4 +1,5 @@
 import * as admin from 'firebase-admin';
+import type { Auth } from 'firebase-admin/auth';
 import path from 'path';
 
 import { env } from './env';
@@ -36,5 +37,5 @@ if (!admin.apps.length) {
 }
 
 export const firebaseAdmin = admin;
-export const firebaseAuth = admin.auth();
+export const firebaseAuth: Auth = admin.auth();
 

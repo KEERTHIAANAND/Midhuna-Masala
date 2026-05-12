@@ -1,4 +1,5 @@
 import express from 'express';
+import type { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -37,7 +38,10 @@ const corsOrigins = (env.CORS_ORIGIN || 'http://localhost:3000')
 
 app.use(
     cors({
-        origin: (origin, callback) => {
+        origin: (
+            origin: string | undefined,
+            callback: (err: Error | null, allow?: boolean) => void
+        ) => {
             // Allow non-browser requests (health checks, curl, etc.)
             if (!origin) return callback(null, true);
             if (corsOrigins.includes(origin)) return callback(null, true);
@@ -66,7 +70,7 @@ app.use('/api/', limiter);
    ════════════════════════════════════ */
 
 // Health check
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', (_req: Request, res: Response) => {
     res.json({
         success: true,
         message: 'Midhuna Masala API is running!',
@@ -96,7 +100,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use(errorHandler);
 
 // 404 handler
-app.use((_req, res) => {
+app.use((_req: Request, res: Response) => {
     res.status(404).json({ success: false, error: 'Route not found.' });
 });
 

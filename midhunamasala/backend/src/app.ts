@@ -69,6 +69,11 @@ app.use('/api/', limiter);
    Routes
    ════════════════════════════════════ */
 
+// Root (useful for Render health probes)
+app.get('/', (_req: Request, res: Response) => {
+    res.status(200).send('OK');
+});
+
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {
     res.json({

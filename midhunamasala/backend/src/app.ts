@@ -36,6 +36,71 @@ const corsOrigins = (env.CORS_ORIGIN || 'http://localhost:3000')
     .map((o) => o.trim())
     .filter(Boolean);
 
+function isOriginAllowed(origin: string): boolean {
+    if (corsOrigins.includes(origin)) return true;
+
+    // Support wildcard subdomains in env, e.g.
+    // - https://*.midhunamasala.pages.dev
+    // - *.midhunamasala.pages.dev
+    // - .midhunamasala.pages.dev  (treated as suffix match)
+    let originUrl: URL;
+    try {
+        originUrl = new URL(origin);
+    } catch {
+        return false;
+    }
+
+    return corsOrigins.some((pattern) => {
+        const trimmed = pattern.trim();
+        if (!trimmed) return false;
+
+        // Exact match already handled above
+        if (trimmed === origin) return true;
+
+        // If pattern includes protocol, enforce protocol match
+        let patternProtocol: string | undefined;
+        let patternHost = trimmed;
+        if (trimmed.includes('://')) {
+            try {
+                const parsed = new URL(trimmed.replace('*.', 'wildcard.'));
+                patternProtocol = parsed.protocol;
+                patternHost = parsed.host;
+            } catch {
+                return false;
+            }
+        }
+
+        if (patternProtocol && originUrl.protocol !== patternProtocol) return false;
+
+        // Normalize wildcard host parsing
+        // - "*.example.com" allows any subdomain (a.example.com)
+        // - ".example.com" allows any suffix match (a.example.com, b.a.example.com)
+        // - "example.com" exact host match only
+        const originHost = originUrl.host;
+        if (patternHost.startsWith('wildcard.')) {
+            const base = patternHost.replace(/^wildcard\./, '');
+            return originHost === base || originHost.endsWith(`.${base}`);
+        }
+
+        if (patternHost.startsWith('*.')) {
+            const base = patternHost.slice(2);
+            return originHost === base || originHost.endsWith(`.${base}`);
+        }
+
+        if (patternHost.startsWith('.')) {
+            const base = patternHost.slice(1);
+            return originHost === base || originHost.endsWith(`.${base}`);
+        }
+
+        // If pattern has no protocol and no wildcard, treat it as host-only exact match
+        if (!trimmed.includes('://') && !trimmed.includes('*')) {
+            return originHost === trimmed;
+        }
+
+        return false;
+    });
+}
+
 app.use(
     cors({
         origin: (
@@ -44,7 +109,7 @@ app.use(
         ) => {
             // Allow non-browser requests (health checks, curl, etc.)
             if (!origin) return callback(null, true);
-            if (corsOrigins.includes(origin)) return callback(null, true);
+            if (isOriginAllowed(origin)) return callback(null, true);
             return callback(new Error(`CORS blocked for origin: ${origin}`));
         },
         credentials: true,

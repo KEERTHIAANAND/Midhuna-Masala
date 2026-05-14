@@ -30,6 +30,13 @@ const envSchema = z
     RAZORPAY_KEY_ID: z.string().trim().optional(),
     RAZORPAY_KEY_SECRET: z.string().trim().optional(),
     RAZORPAY_WEBHOOK_SECRET: z.string().trim().optional(),
+
+    // SMTP for Contact Form Emails
+    SMTP_HOST: z.string().trim().optional(),
+    SMTP_PORT: z.coerce.number().int().optional().default(587),
+    SMTP_USER: z.string().trim().optional(),
+    SMTP_PASS: z.string().trim().optional(),
+    CONTACT_EMAIL_TO: z.string().email().optional().default('midhunamasala1977@gmail.com'),
   })
   .superRefine((env, ctx) => {
     const hasServiceAccountPath = Boolean(env.FIREBASE_SERVICE_ACCOUNT_PATH);

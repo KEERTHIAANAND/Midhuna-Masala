@@ -16,6 +16,7 @@ import addressesRoutes from './routes/addresses.routes';
 import ordersRoutes from './routes/orders.routes';
 import inventoryRoutes from './routes/inventory.routes';
 import webhooksRoutes from './routes/webhooks.routes';
+import contactRoutes from './routes/contact.routes';
 
 const app = express();
 const PORT = env.PORT ?? 5000;
@@ -177,6 +178,9 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/webhooks', webhooksRoutes);
 // Inventory routes (admin)
 app.use('/api/inventory', inventoryRoutes);
+
+// Contact routes
+app.use('/api/contact', contactRoutes);
 /* ════════════════════════════════════
    Error Handling
    ════════════════════════════════════ */

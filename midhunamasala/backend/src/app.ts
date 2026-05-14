@@ -15,6 +15,7 @@ import cartRoutes from './routes/cart.routes';
 import addressesRoutes from './routes/addresses.routes';
 import ordersRoutes from './routes/orders.routes';
 import inventoryRoutes from './routes/inventory.routes';
+import webhooksRoutes from './routes/webhooks.routes';
 
 const app = express();
 const PORT = env.PORT ?? 5000;
@@ -116,8 +117,16 @@ app.use(
     })
 );
 
-// Parse JSON body
-app.use(express.json({ limit: '10mb' }));
+// Webhooks (Razorpay) require raw request body for signature verification.
+// IMPORTANT: This must run BEFORE JSON parsing middleware.
+app.use('/api/webhooks/razorpay', express.raw({ type: 'application/json' }));
+
+// Parse JSON body for all other routes
+const jsonParser = express.json({ limit: '10mb' });
+app.use((req, res, next) => {
+    if (req.originalUrl.startsWith('/api/webhooks/razorpay')) return next();
+    return jsonParser(req, res, next);
+});
 
 // Request logging
 app.use(morgan('dev'));
@@ -127,6 +136,7 @@ const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
     message: { success: false, error: 'Too many requests, please try again later.' },
+    skip: (req) => req.originalUrl.startsWith('/api/webhooks/'),
 });
 app.use('/api/', limiter);
 
@@ -162,6 +172,9 @@ app.use('/api/addresses', addressesRoutes);
 
 // Orders routes
 app.use('/api/orders', ordersRoutes);
+
+// Webhooks
+app.use('/api/webhooks', webhooksRoutes);
 // Inventory routes (admin)
 app.use('/api/inventory', inventoryRoutes);
 /* ════════════════════════════════════

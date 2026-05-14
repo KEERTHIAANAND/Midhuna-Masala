@@ -33,7 +33,7 @@ const envSchema = z
 
     // SMTP for Contact Form Emails
     SMTP_HOST: z.string().trim().optional(),
-    SMTP_PORT: z.coerce.number().int().optional().default(587),
+    SMTP_PORT: z.coerce.number().int().optional().default(465),
     SMTP_USER: z.string().trim().optional(),
     SMTP_PASS: z.string().trim().optional(),
     CONTACT_EMAIL_TO: z.string().email().optional().default('midhunamasala1977@gmail.com'),

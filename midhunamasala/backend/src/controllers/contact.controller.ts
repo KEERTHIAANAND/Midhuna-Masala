@@ -14,12 +14,14 @@ export async function submitContactForm(req: Request, res: Response): Promise<vo
     // Set up nodemailer transporter
     const transporter = nodemailer.createTransport({
       host: env.SMTP_HOST || 'smtp.gmail.com', // Default to gmail for simplicity
-      port: env.SMTP_PORT || 587,
-      secure: env.SMTP_PORT === 465, // true for 465, false for other ports
+      port: env.SMTP_PORT || 465, // Use 465 for SSL instead of 587
+      secure: env.SMTP_PORT ? env.SMTP_PORT === 465 : true, // true for 465, false for other ports
       auth: {
         user: env.SMTP_USER,
         pass: env.SMTP_PASS,
       },
+      connectionTimeout: 10000, // 10 seconds timeout
+      greetingTimeout: 10000,
     });
 
     // If SMTP_USER is not configured, we'll just log it for now to avoid breaking the frontend when testing locally

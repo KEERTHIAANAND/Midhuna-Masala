@@ -198,11 +198,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // ─── Add to Cart ───
   const addToCart = useCallback((product: Omit<CartItem, 'quantity'>, quantity = 1) => {
     setItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
+      // Match by slug first (most reliable), then by numeric id, then by name
+      const existingItem = prevItems.find(item =>
+        (product.slug && item.slug && item.slug === product.slug) ||
+        item.id === product.id ||
+        item.name === product.name
+      );
 
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === product.id
+          (item.id === existingItem.id)
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
@@ -260,7 +265,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // ─── Computed Values ───
   const cartCount = items.reduce((total, item) => total + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal > 25 ? 0 : 3.99;
+  const shipping = subtotal >= 999 ? 0 : subtotal > 0 ? 49 : 0;
   const total = subtotal + shipping;
 
   return (

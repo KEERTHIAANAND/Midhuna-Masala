@@ -25,15 +25,7 @@ type Product = {
   rating?: number;
 };
 
-// Fallback products in case API is unreachable
-const fallbackProducts: Product[] = [
-  { id: "guntur-red-chilli", name: "Guntur Red Chilli Powder", category: "POWDER", weight: "200g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0019.jpg", price: 6.49, description: "Sun-dried Guntur chillies, stone-ground to preserve the fiery heat..", inStock: true },
-  { id: "erode-turmeric", name: "Erode Turmeric Powder (Manjal)", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250727-WA0006.jpg", price: 4.99, description: "Pure Erode turmeric with high curcumin content. Traditionally...", inStock: true },
-  { id: "chettinad-masala", name: "Chettinad Masala Blend", category: "BLEND", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0021.jpg", price: 9.99, description: "Authentic 18-spice blend roasted in iron woks. The secret to the...", inStock: true },
-  { id: "cumin", name: "Cumin Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.49, description: "Premium cumin seeds with rich aroma and flavor", inStock: true },
-  { id: "coriander", name: "Coriander Seeds", category: "POWDER", weight: "100g", type: "Stone Ground", image: "/images/products/IMG-20250726-WA0023.jpg", price: 4.49, description: "Fresh coriander seeds for authentic taste", inStock: true },
-  { id: "fennel", name: "Fennel Seeds", category: "WHOLE SPICES", weight: "100g", type: "Seeds & Pods", image: "/images/products/IMG-20250726-WA0022.jpg", price: 5.99, description: "Sweet and aromatic fennel seeds", inStock: true },
-];
+// Removed hardcoded fallback products to ensure we only show real database data.
 
 const collections = [
   {
@@ -65,7 +57,7 @@ const collections = [
 export default function ShopPage() {
   const [selectedCollection, setSelectedCollection] = useState("all");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [products, setProducts] = useState<Product[]>(fallbackProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const detailsRef = React.useRef<HTMLDivElement>(null);
 
@@ -225,15 +217,42 @@ export default function ShopPage() {
 
         {/* Products Grid - Responsive columns */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-          {filteredProducts.map((product, index) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              isSelected={selectedProduct?.id === product.id}
-              onSelect={handleProductSelect}
-              index={index}
-            />
-          ))}
+          {isLoadingProducts ? (
+            // Skeleton Loading State
+            Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="flex flex-col rounded-xl overflow-hidden bg-white shadow-sm border border-[#E5D2C5] animate-pulse">
+                {/* Image Placeholder */}
+                <div className="w-full aspect-[4/5] bg-[#EBE3D5]/50"></div>
+                {/* Content Placeholder */}
+                <div className="p-3 sm:p-4 space-y-3">
+                  <div className="h-3 sm:h-4 bg-[#EBE3D5] rounded w-3/4"></div>
+                  <div className="h-2 sm:h-3 bg-[#EBE3D5] rounded w-1/2"></div>
+                  <div className="flex justify-between items-center pt-2">
+                    <div className="h-4 sm:h-5 bg-[#EBE3D5] rounded w-1/3"></div>
+                    <div className="h-8 w-8 bg-[#EBE3D5] rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : filteredProducts.filter(p => p.inStock !== false).length > 0 ? (
+            // Actual Products
+            filteredProducts
+              .filter(p => p.inStock !== false) // Only display products that are in stock
+              .map((product, index) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isSelected={selectedProduct?.id === product.id}
+                  onSelect={handleProductSelect}
+                  index={index}
+                />
+              ))
+          ) : (
+            // Empty State
+            <div className="col-span-full py-12 text-center text-[#8B1E1E]">
+              <p className="text-lg">No products available in this category.</p>
+            </div>
+          )}
         </div>
 
         {/* Product Details Modal Overlay */}

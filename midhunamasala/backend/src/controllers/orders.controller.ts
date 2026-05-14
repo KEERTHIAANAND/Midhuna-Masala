@@ -5,6 +5,7 @@ import Razorpay from 'razorpay';
 import { AuthenticatedRequest } from '../types';
 import { supabase } from '../config/supabase';
 import { env } from '../config/env';
+import { sendOrderConfirmation, sendOrderStatusUpdate } from '../utils/mailer';
 
 const OrderStatusSchema = z.enum(['pending', 'paid', 'packed', 'shipped', 'delivered', 'cancelled', 'refund']);
 const PaymentMethodSchema = z.enum(['razorpay']);
@@ -481,6 +482,24 @@ export async function verifyRazorpayPayment(req: AuthenticatedRequest, res: Resp
             return;
         }
 
+        // Fetch full order details to send email
+        const { data: fullOrder } = await supabase
+            .from('orders')
+            .select(`*, users(email, name), order_items(product_name, quantity, price)`)
+            .eq('id', orderId)
+            .single();
+
+        if (fullOrder) {
+            const embeddedUser = Array.isArray(fullOrder.users) ? fullOrder.users[0] : fullOrder.users;
+            const userEmail = embeddedUser?.email;
+            const userName = fullOrder.customer_name || embeddedUser?.name;
+            
+            // Send email async without awaiting its completion to not block the response
+            sendOrderConfirmation(userEmail, userName, fullOrder, fullOrder.order_items || []).catch(e => 
+                console.error('Failed to send order confirmation email:', e)
+            );
+        }
+
         res.json({ success: true, order: mapOrderRow(updated) });
     } catch (err) {
         console.error('Verify Razorpay payment error:', err);
@@ -900,6 +919,21 @@ export async function updateOrderStatus(req: Request, res: Response): Promise<vo
             console.error('Update order status error:', error);
             res.status(404).json({ success: false, error: 'Order not found.' });
             return;
+        }
+
+        // Fetch user info for email
+        const { data: userRow } = await supabase
+            .from('users')
+            .select('email, name')
+            .eq('id', data.user_id)
+            .maybeSingle();
+
+        if (userRow && userRow.email) {
+            const userName = data.customer_name || userRow.name;
+            // Send status update email async
+            sendOrderStatusUpdate(userRow.email, userName, data, status).catch(e => 
+                console.error('Failed to send status update email:', e)
+            );
         }
 
         res.json({ success: true, order: mapOrderRow(data) });

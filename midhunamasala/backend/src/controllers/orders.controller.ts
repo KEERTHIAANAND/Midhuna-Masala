@@ -34,6 +34,17 @@ const PaginationSchema = z.object({
     status: z.string().optional(),
 });
 
+const TrackOrderQuerySchema = z
+    .object({
+        orderNumber: z.string().min(3).max(50),
+        email: z.string().email().optional(),
+        phone: z.string().min(5).max(30).optional(),
+    })
+    .refine((q) => Boolean(q.email || q.phone), {
+        message: 'Provide email or phone to track the order.',
+        path: ['email'],
+    });
+
 const AdminAnalyticsQuerySchema = z.object({
     // Range selector for stats and category breakdown (trend stays last 7 days)
     days: z.coerce.number().int().min(1).max(365).optional(),
@@ -240,6 +251,73 @@ function mapOrderItemRow(row: any) {
         weight: row.weight,
         quantity: row.quantity,
     };
+}
+
+/**
+ * PUBLIC: GET /api/orders/track?orderNumber=...&email=... (or phone=...)
+ *
+ * Allows guests to track an order using order number + email/phone.
+ * Returns minimal order + item info if the identifiers match.
+ */
+export async function trackOrder(req: Request, res: Response): Promise<void> {
+    try {
+        const parsed = TrackOrderQuerySchema.safeParse(req.query);
+        if (!parsed.success) {
+            res.status(400).json({ success: false, error: 'Invalid query parameters.', details: parsed.error.flatten() });
+            return;
+        }
+
+        const orderNumber = String(parsed.data.orderNumber).trim();
+        const email = parsed.data.email ? String(parsed.data.email).trim().toLowerCase() : null;
+        const phone = parsed.data.phone ? String(parsed.data.phone).trim() : null;
+
+        const { data, error } = await supabase
+            .from('orders')
+            .select(
+                `
+                *,
+                users ( email, phone ),
+                order_items (
+                    id,
+                    product_id,
+                    product_name,
+                    product_image,
+                    price,
+                    weight,
+                    quantity
+                )
+            `
+            )
+            .eq('order_number', orderNumber)
+            .maybeSingle();
+
+        if (error || !data) {
+            res.status(404).json({ success: false, error: 'Order not found.' });
+            return;
+        }
+
+        const embeddedUser = Array.isArray((data as any).users) ? (data as any).users[0] : (data as any).users;
+        const storedEmail = embeddedUser?.email ? String(embeddedUser.email).toLowerCase() : null;
+        const storedPhone = embeddedUser?.phone ? String(embeddedUser.phone) : null;
+
+        const emailMatches = email ? storedEmail === email : false;
+        const phoneMatches = phone ? storedPhone === phone : false;
+
+        if (!emailMatches && !phoneMatches) {
+            // Avoid leaking that the order exists.
+            res.status(404).json({ success: false, error: 'Order not found.' });
+            return;
+        }
+
+        res.json({
+            success: true,
+            order: mapOrderRow(data),
+            items: ((data as any).order_items || []).map(mapOrderItemRow),
+        });
+    } catch (err) {
+        console.error('Track order error:', err);
+        res.status(500).json({ success: false, error: 'Internal server error.' });
+    }
 }
 
 /**

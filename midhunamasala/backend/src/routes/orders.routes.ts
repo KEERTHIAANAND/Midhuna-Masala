@@ -4,6 +4,7 @@ import { adminOnly } from '../middleware/adminOnly';
 import {
     createRazorpayOrder,
     verifyRazorpayPayment,
+    trackOrder,
     listMyOrders,
     getMyOrder,
     cancelMyOrder,
@@ -29,6 +30,9 @@ router.put('/admin/:id/payment-status', authenticateUser, adminOnly, updatePayme
 // ─────────────────────────────────────────
 // User routes (auth)
 // ─────────────────────────────────────────
+// Public tracking endpoint (order number + email/phone)
+router.get('/track', trackOrder as any);
+
 router.post('/razorpay/create', authenticateUser, createRazorpayOrder as any);
 router.post('/razorpay/verify', authenticateUser, verifyRazorpayPayment as any);
 router.get('/', authenticateUser, listMyOrders as any);

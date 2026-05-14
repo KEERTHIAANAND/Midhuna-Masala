@@ -161,7 +161,7 @@ export default function ShippingAndDeliveryPage() {
           <li>Estimated delivery date</li>
         </ul>
         <p className="mt-2">
-          You can also track your order anytime by visiting the <a href="/track-order" className="text-[#8B1E1E] underline underline-offset-2 hover:text-[#D4AF37] transition-colors font-medium">Track Order</a> page on our website and entering your order number.
+          You can also track your order anytime by visiting the <a href="/track-order" className="text-[#8B1E1E] underline underline-offset-2 hover:text-[#D4AF37] transition-colors font-medium">Track Order</a> page on our website and entering your order number and email/phone.
         </p>
       </PolicySection>
 

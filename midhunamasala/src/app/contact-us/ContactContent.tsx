@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, MapPin, Clock, Send, MessageCircle, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import { clientEnv } from '@/lib/env';
 
 const CONTACT_INFO = [
   {
@@ -71,11 +72,30 @@ export default function ContactContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate form submission
-    await new Promise((r) => setTimeout(r, 1500));
-    setIsSubmitting(false);
-    setSubmitted(true);
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    
+    try {
+      const response = await fetch(`${clientEnv.NEXT_PUBLIC_API_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSubmitted(true);
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      } else {
+        alert(data.error || 'Failed to send message. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

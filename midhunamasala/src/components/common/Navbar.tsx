@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/shop', label: 'Our Spices' },
   { href: '/track-order', label: 'Track Order' },
+  { href: '/contact-us', label: 'Contact Us' },
 ];
 
 export default function Navbar() {

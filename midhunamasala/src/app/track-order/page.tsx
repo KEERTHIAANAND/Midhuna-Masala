@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
+import Footer from '@/components/layout/Footer';
 
 import { clientEnv } from '@/lib/env';
 import { useAuth } from '@/contexts/AuthContext';
@@ -230,7 +231,8 @@ export default function TrackOrderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F0EAE0] px-4 py-6">
+    <div className="min-h-screen bg-[#FFFDF5] flex flex-col">
+      <div className="flex-1 px-4 py-6">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -495,6 +497,8 @@ export default function TrackOrderPage() {
           </div>
         );
       })()}
+      </div>
+      <Footer />
     </div>
   );
 }

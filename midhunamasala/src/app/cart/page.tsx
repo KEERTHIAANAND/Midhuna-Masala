@@ -17,10 +17,7 @@ export default function CartPage() {
     }, 300);
   };
 
-  // Free shipping threshold in INR
-  const FREE_SHIPPING_THRESHOLD = 999;
-  const calculatedShipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : subtotal > 0 ? 49 : 0;
-  const calculatedTotal = subtotal + calculatedShipping;
+
 
   return (
     <div className="min-h-screen bg-[#FFFDF5] flex flex-col">
@@ -256,25 +253,11 @@ export default function CartPage() {
                         <span className="text-[#4A3728]/60">Subtotal</span>
                         <span className="font-semibold text-[#8B1E1E]">₹{subtotal.toFixed(2)}</span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-[#4A3728]/60">Shipping</span>
-                        <span className={`font-semibold ${calculatedShipping === 0 ? 'text-emerald-600' : 'text-[#8B1E1E]'}`}>
-                          {calculatedShipping === 0 ? 'FREE' : `₹${calculatedShipping.toFixed(2)}`}
-                        </span>
-                      </div>
-                      {calculatedShipping > 0 && (
-                        <div className="flex items-center gap-2 text-xs text-[#D4AF37] bg-[#D4AF37]/8 px-3 py-2 rounded-lg">
-                          <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <span>Add ₹{(FREE_SHIPPING_THRESHOLD - subtotal).toFixed(0)} more for free shipping!</span>
-                        </div>
-                      )}
                       <div className="border-t border-[#F5E9DB] pt-3">
                         <div className="flex justify-between items-baseline">
                           <span className="font-bold text-[#8B1E1E] font-serif">Total</span>
                           <span className="font-bold text-[#8B1E1E] text-2xl font-serif">
-                            ₹{calculatedTotal.toFixed(2)}
+                            ₹{subtotal.toFixed(2)}
                           </span>
                         </div>
                         <p className="text-[10px] text-[#4A3728]/40 text-right mt-0.5">
@@ -316,7 +299,7 @@ export default function CartPage() {
                             <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
                             <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
                           </svg>
-                          <span>Free delivery above ₹999</span>
+                          <span>Free delivery on all orders</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <svg className="w-4 h-4 text-[#D4AF37]" fill="currentColor" viewBox="0 0 20 20">

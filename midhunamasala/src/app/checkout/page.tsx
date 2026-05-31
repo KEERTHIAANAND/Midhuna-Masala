@@ -316,8 +316,8 @@ function CheckoutPageInner() {
     useEffect(() => { if (user && !address.fullName) setAddress(p => ({ ...p, fullName: user.name || '' })); }, [user, address.fullName]);
 
     const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-    const shipping = subtotal >= 500 ? 0 : 49;
-    const total = subtotal + shipping;
+    const shipping = 0;
+    const total = subtotal;
 
     const activeAddr = useCallback((): Address => {
         if (showForm || saved.length === 0) return address;
@@ -584,6 +584,7 @@ function CheckoutPageInner() {
                 },
             };
 
+            console.log('Using Razorpay Key:', data.razorpay.keyId);
             const rzp = new window.Razorpay(options);
             rzp.on('payment.failed', () => {
                 alert('Payment failed. Please try again.');
@@ -899,7 +900,7 @@ function CheckoutPageInner() {
                                                 </div>
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-gray-400 font-light">Shipping</span>
-                                                    <span className={`font-medium ${shipping === 0 ? 'text-[#8B1E1E]' : 'text-gray-600'}`}>{shipping === 0 ? 'Free' : `₹${shipping}`}</span>
+                                                    <span className="font-medium text-[#8B1E1E]">Free</span>
                                                 </div>
 
                                                 <div className="h-[1px] bg-[#8B1E1E]/10 my-1" />

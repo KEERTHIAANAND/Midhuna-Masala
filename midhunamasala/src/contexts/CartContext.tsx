@@ -265,8 +265,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // ─── Computed Values ───
   const cartCount = items.reduce((total, item) => total + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal >= 999 ? 0 : subtotal > 0 ? 49 : 0;
-  const total = subtotal + shipping;
+  const shipping = 0;
+  const total = subtotal;
 
   return (
     <CartContext.Provider

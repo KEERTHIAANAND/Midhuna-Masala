@@ -313,8 +313,7 @@ function CheckoutPageInner() {
             router.push('/cart');
         }
     }, [authLoading, items, done, router, isBuyNow, buyNowItems]);
-    useEffect(() => { if (user && !address.fullName) setAddress(p => ({ ...p, fullName: user.name || '' })); }, [user, address.fullName]);
-
+    // Removed problematic auto-fill that prevented users from clearing the name field
     const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
     const shipping = 0;
     const total = subtotal;

@@ -31,6 +31,12 @@ const envSchema = z
     RAZORPAY_KEY_SECRET: z.string().trim().optional(),
     RAZORPAY_WEBHOOK_SECRET: z.string().trim().optional(),
 
+    // Shiprocket
+    SHIPROCKET_EMAIL: z.string().trim().optional(),
+    SHIPROCKET_PASSWORD: z.string().trim().optional(),
+    SHIPROCKET_TOKEN: z.string().trim().optional(),
+    SHIPROCKET_WEBHOOK_SECRET: z.string().trim().optional(),
+
     // SMTP for Contact Form Emails
     SMTP_HOST: z.string().trim().optional(),
     SMTP_PORT: z.coerce.number().int().optional().default(465),

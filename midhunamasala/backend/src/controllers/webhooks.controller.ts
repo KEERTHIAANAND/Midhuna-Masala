@@ -3,6 +3,7 @@ import crypto from 'crypto';
 
 import { env } from '../config/env';
 import { supabase } from '../config/supabase';
+import { sendOrderStatusUpdate } from '../utils/mailer';
 
 function timingSafeEqualHex(a: string, b: string): boolean {
     try {
@@ -113,3 +114,84 @@ export async function razorpayWebhook(req: Request, res: Response): Promise<void
 
     res.status(200).json({ success: true });
 }
+
+/**
+ * POST /api/webhooks/shiprocket
+ *
+ * Shiprocket sends webhook events when a shipment status changes.
+ */
+export async function shiprocketWebhook(req: Request, res: Response): Promise<void> {
+    try {
+        const webhookSecret = env.SHIPROCKET_WEBHOOK_SECRET;
+        
+        // Security Check: If a secret is configured in Render, ensure Shiprocket sent it.
+        if (webhookSecret) {
+            const authHeader = getHeaderAsString(req.headers['x-api-key']);
+            if (authHeader !== webhookSecret) {
+                console.error('Shiprocket webhook failed: Invalid x-api-key');
+                res.status(401).json({ success: false, error: 'Unauthorized webhook' });
+                return;
+            }
+        }
+
+        let payload: any;
+        
+        // Shiprocket might send JSON or URL-encoded data.
+        if (Buffer.isBuffer(req.body)) {
+            payload = JSON.parse(req.body.toString('utf8'));
+        } else {
+            payload = req.body;
+        }
+
+        const internalOrderId = payload.channel_order_id;
+        const trackingStatus = payload.current_status;
+
+        if (!internalOrderId) {
+            res.status(200).send("OK");
+            return;
+        }
+
+        // Determine internal status based on Shiprocket status
+        // Shiprocket statuses: PICKED UP, SHIPPED, IN TRANSIT, OUT FOR DELIVERY, DELIVERED, RETURNED, CANCELED
+        let newStatus: string | null = null;
+        if (trackingStatus === 'DELIVERED') {
+            newStatus = 'delivered';
+        } else if (['SHIPPED', 'IN TRANSIT', 'OUT FOR DELIVERY', 'PICKED UP'].includes(trackingStatus)) {
+            newStatus = 'shipped';
+        } else if (trackingStatus === 'CANCELED') {
+            newStatus = 'cancelled';
+        }
+
+        if (newStatus) {
+            // Update Supabase Database
+            const { data: updatedOrder, error } = await supabase
+                .from('orders')
+                .update({ status: newStatus })
+                .eq('order_number', internalOrderId)
+                .select(`*, users(email, name)`)
+                .single();
+
+            if (error) {
+                console.error('Failed to update order status from Shiprocket webhook:', error);
+            } else if (updatedOrder) {
+                // Send email to customer
+                const embeddedUser = Array.isArray(updatedOrder.users) ? updatedOrder.users[0] : updatedOrder.users;
+                const userEmail = embeddedUser?.email;
+                const userName = updatedOrder.customer_name || embeddedUser?.name;
+
+                if (userEmail) {
+                    sendOrderStatusUpdate(userEmail, userName, updatedOrder, newStatus).catch(e => 
+                        console.error('Failed to send status update email:', e)
+                    );
+                }
+            }
+        }
+
+        res.status(200).send("OK");
+    } catch (err) {
+        console.error('Shiprocket webhook error:', err);
+        // Acknowledge anyway
+        res.status(200).send("OK");
+    }
+}
+

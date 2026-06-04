@@ -6,6 +6,7 @@ import { AuthenticatedRequest } from '../types';
 import { supabase } from '../config/supabase';
 import { env } from '../config/env';
 import { sendOrderConfirmation, sendOrderStatusUpdate } from '../utils/mailer';
+import { pushOrderToShiprocket } from '../utils/shiprocket';
 
 const OrderStatusSchema = z.enum(['pending', 'paid', 'packed', 'shipped', 'delivered', 'cancelled', 'refund']);
 const PaymentMethodSchema = z.enum(['razorpay']);
@@ -485,7 +486,7 @@ export async function verifyRazorpayPayment(req: AuthenticatedRequest, res: Resp
         // Fetch full order details to send email
         const { data: fullOrder } = await supabase
             .from('orders')
-            .select(`*, users(email, name), order_items(product_name, quantity, price)`)
+            .select(`*, users(email, name, phone), order_items(product_id, product_name, quantity, price), addresses(*)`)
             .eq('id', orderId)
             .single();
 
@@ -493,11 +494,29 @@ export async function verifyRazorpayPayment(req: AuthenticatedRequest, res: Resp
             const embeddedUser = Array.isArray(fullOrder.users) ? fullOrder.users[0] : fullOrder.users;
             const userEmail = embeddedUser?.email;
             const userName = fullOrder.customer_name || embeddedUser?.name;
+            const userPhone = embeddedUser?.phone;
+            const address = Array.isArray(fullOrder.addresses) ? fullOrder.addresses[0] : fullOrder.addresses;
             
             // Send email async without awaiting its completion to not block the response
             sendOrderConfirmation(userEmail, userName, fullOrder, fullOrder.order_items || []).catch(e => 
                 console.error('Failed to send order confirmation email:', e)
             );
+
+            // Push order to Shiprocket
+            if (address) {
+                pushOrderToShiprocket(
+                    fullOrder.id,
+                    fullOrder.order_number,
+                    userName,
+                    userEmail,
+                    userPhone,
+                    address,
+                    fullOrder.order_items || [],
+                    fullOrder.total
+                ).catch(e => 
+                    console.error('Failed to push order to Shiprocket:', e)
+                );
+            }
         }
 
         res.json({ success: true, order: mapOrderRow(updated) });

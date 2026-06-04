@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Crimson_Text } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/common/Navbar";
+import DevToolsBlocker from "@/components/common/DevToolsBlocker";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import LenisProvider from "@/components/providers/LenisProvider";
@@ -35,6 +36,7 @@ export default function RootLayout({
         className={`${inter.variable} ${crimsonText.variable} antialiased`}
         suppressHydrationWarning
       >
+        <DevToolsBlocker />
         <AuthProvider>
           <CartProvider>
             <LenisProvider>

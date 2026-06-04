@@ -34,7 +34,7 @@ export async function getShiprocketToken(): Promise<string> {
         }),
     });
 
-    const data = await response.json();
+    const data = (await response.json()) as any;
     if (!response.ok) {
         console.error('Shiprocket login failed:', data);
         throw new Error(data.message || 'Failed to login to Shiprocket');
@@ -107,7 +107,7 @@ export async function pushOrderToShiprocket(
             body: JSON.stringify(shiprocketPayload)
         });
 
-        const data = await response.json();
+        const data = (await response.json()) as any;
         
         if (!response.ok) {
             console.error('Failed to create Shiprocket order:', data);

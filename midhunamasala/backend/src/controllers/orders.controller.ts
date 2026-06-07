@@ -495,14 +495,26 @@ export async function verifyRazorpayPayment(req: AuthenticatedRequest, res: Resp
             const userEmail = embeddedUser?.email;
             const userName = fullOrder.customer_name || embeddedUser?.name;
             const userPhone = embeddedUser?.phone;
-            const address = Array.isArray(fullOrder.addresses) ? fullOrder.addresses[0] : fullOrder.addresses;
+            let address = Array.isArray(fullOrder.addresses) ? fullOrder.addresses[0] : fullOrder.addresses;
             
             // Send email async without awaiting its completion to not block the response
             sendOrderConfirmation(userEmail, userName, fullOrder, fullOrder.order_items || []).catch(e => 
                 console.error('Failed to send order confirmation email:', e)
             );
 
+            // Fallback: if the join didn't return the address, fetch it directly
+            if (!address && fullOrder.address_id) {
+                console.log(`[Shiprocket] Address join returned null, fetching directly for address_id: ${fullOrder.address_id}`);
+                const { data: directAddr } = await supabase
+                    .from('addresses')
+                    .select('*')
+                    .eq('id', fullOrder.address_id)
+                    .single();
+                address = directAddr;
+            }
+
             // Push order to Shiprocket
+            console.log(`[Shiprocket] Order ${fullOrder.order_number}: address=${address ? 'found' : 'MISSING'}, email=${env.SHIPROCKET_EMAIL ? 'set' : 'NOT SET'}, token=${env.SHIPROCKET_TOKEN ? 'set' : 'NOT SET'}`);
             if (address) {
                 pushOrderToShiprocket(
                     fullOrder.id,
@@ -513,9 +525,13 @@ export async function verifyRazorpayPayment(req: AuthenticatedRequest, res: Resp
                     address,
                     fullOrder.order_items || [],
                     fullOrder.total
-                ).catch(e => 
-                    console.error('Failed to push order to Shiprocket:', e)
+                ).then(result => {
+                    console.log(`[Shiprocket] Push result for ${fullOrder.order_number}:`, result ? 'SUCCESS' : 'FAILED (null returned)');
+                }).catch(e => 
+                    console.error(`[Shiprocket] Push EXCEPTION for ${fullOrder.order_number}:`, e)
                 );
+            } else {
+                console.error(`[Shiprocket] SKIPPED - No address found for order ${fullOrder.order_number}, address_id: ${fullOrder.address_id}`);
             }
         }
 

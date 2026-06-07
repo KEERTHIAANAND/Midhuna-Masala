@@ -37,8 +37,8 @@ const envSchema = z
     SHIPROCKET_TOKEN: z.string().trim().optional(),
     SHIPROCKET_WEBHOOK_SECRET: z.string().trim().optional(),
 
-    // Resend (HTTP API)
-    RESEND_API_KEY: z.string().trim().optional(),
+    // Brevo (HTTP API)
+    BREVO_API_KEY: z.string().trim().optional(),
 
     // SMTP for Contact Form Emails (Deprecated by Resend)
     SMTP_HOST: z.string().trim().optional(),

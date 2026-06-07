@@ -1,38 +1,40 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { env } from '../config/env';
 
-// Reusable transporter
-const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST || 'smtp.gmail.com',
-  port: env.SMTP_PORT || 465,
-  secure: env.SMTP_PORT ? env.SMTP_PORT === 465 : true,
-  auth: {
-    user: env.SMTP_USER,
-    pass: env.SMTP_PASS,
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-});
+// Initialize Resend
+const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
 /**
- * Send an email using the configured transporter.
+ * Send an email using the Resend API.
  * If credentials are not set, it logs to console instead.
  */
-export async function sendEmail(options: nodemailer.SendMailOptions): Promise<void> {
-  if (!env.SMTP_USER || !env.SMTP_PASS) {
-    console.warn('⚠️ SMTP not configured. Would have sent email:', options.subject, 'to', options.to);
+export async function sendEmail(options: any): Promise<void> {
+  if (!resend) {
+    console.warn('⚠️ RESEND_API_KEY not configured. Would have sent email:', options.subject, 'to', options.to);
     return;
   }
 
+  // Resend requires a verified domain to send FROM.
+  // If you haven't verified a domain yet, use "onboarding@resend.dev" for testing.
+  // Once you verify midhunamasala.com on Resend, change this to "orders@midhunamasala.com"
+  const fromEmail = "Midhuna Masala <onboarding@resend.dev>"; 
+
   try {
-    const info = await transporter.sendMail({
-      from: `"Midhuna Masala" <${env.SMTP_USER}>`,
-      ...options,
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
     });
-    console.log('Email sent: %s', info.messageId);
+    
+    if (error) {
+      console.error('Resend API error:', error);
+      return;
+    }
+    
+    console.log('Email sent via Resend: %s', data?.id);
   } catch (error) {
-    console.error('Error sending email:', error);
-    // Don't throw to avoid breaking the main flow (e.g. order placement shouldn't fail if email fails)
+    console.error('Error sending email via Resend:', error);
   }
 }
 

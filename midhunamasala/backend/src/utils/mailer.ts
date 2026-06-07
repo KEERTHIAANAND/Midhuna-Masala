@@ -36,14 +36,14 @@ export async function sendEmail(options: any): Promise<void> {
       })
     });
 
-    const data = await response.json();
+    const data = (await response.json()) as any;
     
     if (!response.ok) {
       console.error('Brevo API error:', data);
       return;
     }
     
-    console.log('Email sent via Brevo: %s', data.messageId);
+    console.log('Email sent via Brevo: %s', data?.messageId || 'Success');
   } catch (error) {
     console.error('Error sending email via Brevo:', error);
   }

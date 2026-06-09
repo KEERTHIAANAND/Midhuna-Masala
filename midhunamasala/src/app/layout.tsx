@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Crimson_Text } from "next/font/google";
+import { Inter, Crimson_Text, Kavivanar, Arima } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/common/Navbar";
 import DevToolsBlocker from "@/components/common/DevToolsBlocker";
@@ -20,6 +20,20 @@ const crimsonText = Crimson_Text({
   display: "swap",
 });
 
+const kavivanar = Kavivanar({
+  variable: "--font-kavivanar",
+  subsets: ["tamil"],
+  weight: "400",
+  display: "swap",
+});
+
+const arima = Arima({
+  variable: "--font-arima",
+  subsets: ["tamil"],
+  weight: ["400", "600", "700"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Midhuna Masala - Traditional Stone Ground Spices",
   description: "Hand-pounded, sun-dried, stone ground masalas from the heart of Chettinad. Pure, authentic spices crafted with love — from our village to your kitchen.",
@@ -33,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${crimsonText.variable} antialiased`}
+        className={`${inter.variable} ${crimsonText.variable} ${kavivanar.variable} ${arima.variable} antialiased`}
         suppressHydrationWarning
       >
         <DevToolsBlocker />

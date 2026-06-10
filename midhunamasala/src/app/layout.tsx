@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Crimson_Text, Kavivanar, Arima } from "next/font/google";
+import { Inter, Crimson_Text, Kavivanar, Arima, Baloo_Thambi_2, Noto_Serif_Tamil, Catamaran } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/common/Navbar";
 import DevToolsBlocker from "@/components/common/DevToolsBlocker";
@@ -34,6 +34,27 @@ const arima = Arima({
   display: "swap",
 });
 
+const balooThambi = Baloo_Thambi_2({
+  variable: "--font-baloo",
+  subsets: ["tamil"],
+  weight: ["400", "600", "700", "800"],
+  display: "swap",
+});
+
+const notoSerifTamil = Noto_Serif_Tamil({
+  variable: "--font-noto-tamil",
+  subsets: ["tamil"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+});
+
+const catamaran = Catamaran({
+  variable: "--font-catamaran",
+  subsets: ["tamil"],
+  weight: ["400", "600", "700", "800", "900"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Midhuna Masala - Traditional Stone Ground Spices",
   description: "Hand-pounded, sun-dried, stone ground masalas from the heart of Chettinad. Pure, authentic spices crafted with love — from our village to your kitchen.",
@@ -47,7 +68,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${crimsonText.variable} ${kavivanar.variable} ${arima.variable} antialiased`}
+        className={`${inter.variable} ${crimsonText.variable} ${kavivanar.variable} ${arima.variable} ${balooThambi.variable} ${notoSerifTamil.variable} ${catamaran.variable} antialiased`}
         suppressHydrationWarning
       >
         <DevToolsBlocker />

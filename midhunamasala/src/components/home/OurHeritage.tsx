@@ -1,26 +1,28 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function OurHeritage() {
   const heritageItems = [
     {
       id: 1,
       title: "Pure Powders",
       subtitle: "Manjal & Milagai",
-      image: "/images/products/pure-powders.jpg",
+      image: "/images/masalas/turmeric-powder.jpg",
       description: "Traditional stone-ground turmeric and chili powders"
     },
     {
       id: 2,
       title: "Chettinad Blends",
       subtitle: "Secret Recipes",
-      image: "/images/products/chettinad-blends.jpg",
+      image: "/images/masalas/masala-powder.jpg",
       description: "Authentic spice blends from our grandmother's kitchen"
     },
     {
       id: 3,
       title: "Whole Spices",
       subtitle: "Direct from Farm",
-      image: "/images/products/whole-spices.jpg",
+      image: "/images/masalas/wheat-flour.jpg",
       description: "Sun-dried whole spices from our village farms"
     }
   ];
@@ -98,6 +100,40 @@ export default function OurHeritage() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* ─── "Our Craft" Circular Seal CTA ─── */}
+        <div className="flex justify-center mt-16 sm:mt-24">
+          <Link href="/our-craft" className="group relative flex items-center justify-center">
+            {/* Rotating Text Ring (SVG) */}
+            <div className="relative w-32 h-32 sm:w-40 sm:h-40 animate-[spin_12s_linear_infinite] group-hover:animate-[spin_6s_linear_infinite] transition-all duration-500">
+              <svg viewBox="0 0 100 100" className="w-full h-full text-[#8B1E1E]">
+                <path
+                  id="circlePath"
+                  d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
+                  fill="transparent"
+                />
+                <text className="font-serif text-[11px] uppercase tracking-[0.16em]" fill="currentColor">
+                  <textPath href="#circlePath" startOffset="0%">
+                    DISCOVER OUR CRAFT ✦ STONE GROUND ✦ 
+                  </textPath>
+                </text>
+              </svg>
+            </div>
+
+            {/* Inner Circular Button */}
+            <div className="absolute inset-0 m-auto w-16 h-16 sm:w-20 sm:h-20 bg-[#8B1E1E] rounded-full flex items-center justify-center shadow-[0_8px_25px_rgba(139,30,30,0.3)] transition-all duration-500 group-hover:bg-[#6A1515] group-hover:scale-110">
+              <svg
+                className="w-6 h-6 sm:w-8 sm:h-8 text-[#D4AF37] transition-transform duration-500 group-hover:translate-x-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </div>
+          </Link>
         </div>
       </div>
 

@@ -168,28 +168,7 @@ export default function MasalaCarousel() {
               </motion.p>
             </AnimatePresence>
 
-            {/* Rating Badge */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTool.id + '-rating'}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                className="flex items-center gap-3"
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg"
-                  style={{ backgroundColor: activeTool.accentColor }}
-                >
-                  {activeTool.rating}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-[#1A0A0A]">Customer Rating</p>
-                  <p className="text-xs text-[#1A0A0A]/50">Stone-ground quality verified</p>
-                </div>
-              </motion.div>
-            </AnimatePresence>
+
           </div>
 
           {/* Right Column — Large Bowl Image with Rotation */}

@@ -8,35 +8,35 @@ const SLIDES = [
   {
     word: "AUTHENTIC",
     label: "",
-    image: "/images/slides/slide 1.png",
+    image: "https://res.cloudinary.com/dstspf8bo/image/upload/v1781170134/slide_1_xpqear.png",
     // Golden amber — matches the warm temple silhouette tones
     overlayGradient: "linear-gradient(to bottom, rgba(140, 90, 10, 0.75) 0%, rgba(180, 120, 20, 0.55) 50%, rgba(100, 60, 5, 0.80) 100%)",
   },
   {
     word: "TRADITIONAL",
     label: "AGRICULTURE",
-    image: "/images/slides/slide 2.png",
+    image: "https://res.cloudinary.com/dstspf8bo/image/upload/v1781170133/slide_2_v9cano.png",
     // Deep earthy green — matches agriculture/farming lush greens
     overlayGradient: "linear-gradient(to bottom, rgba(20, 55, 20, 0.75) 0%, rgba(35, 80, 35, 0.55) 50%, rgba(15, 45, 15, 0.80) 100%)",
   },
   {
     word: "HANDCRAFTED",
     label: "ART FORMS",
-    image: "/images/slides/slide 3.jpeg",
+    image: "https://res.cloudinary.com/dstspf8bo/image/upload/v1781170138/slide_3_bn3svr.jpg",
     // Rich maroon/crimson — matches Bharatanatyam/cultural arts costumes
     overlayGradient: "linear-gradient(to bottom, rgba(100, 15, 25, 0.75) 0%, rgba(130, 25, 35, 0.55) 50%, rgba(80, 10, 20, 0.80) 100%)",
   },
   {
     word: "SUN-DRIED",
     label: "TEXTILES",
-    image: "/images/slides/slide 4.jpeg",
+    image: "https://res.cloudinary.com/dstspf8bo/image/upload/v1781170132/slide_4_eafpx2.jpg",
     // Deep indigo/purple — complements the vibrant textile reds & greens
     overlayGradient: "linear-gradient(to bottom, rgba(30, 15, 60, 0.75) 0%, rgba(45, 25, 85, 0.55) 50%, rgba(25, 12, 55, 0.80) 100%)",
   },
   {
     word: "PURE",
     label: "ARCHITECTURE",
-    image: "/images/slides/slide 5.jpeg",
+    image: "https://res.cloudinary.com/dstspf8bo/image/upload/v1781170132/slide_5_nucevc.jpg",
     // Warm terracotta/sandstone — matches the temple stone architecture
     overlayGradient: "linear-gradient(to bottom, rgba(110, 55, 20, 0.75) 0%, rgba(150, 80, 35, 0.55) 50%, rgba(90, 45, 15, 0.80) 100%)",
   }

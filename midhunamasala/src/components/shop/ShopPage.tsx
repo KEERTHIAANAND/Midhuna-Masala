@@ -65,15 +65,19 @@ export default function ShopPage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch(`${API_URL}/api/products`);
-        if (response.ok) {
+        const response = await fetch(`${API_URL}/api/products`).catch(err => {
+          console.warn('Backend is offline. Using fallback behavior.', err);
+          return null;
+        });
+        
+        if (response && response.ok) {
           const data = await response.json();
-          if (data.success && data.products.length > 0) {
+          if (data.success && data.products && data.products.length > 0) {
             setProducts(data.products);
           }
         }
       } catch (error) {
-        console.error('Failed to fetch products, using fallback:', error);
+        console.error('Failed to parse products:', error);
       } finally {
         setIsLoadingProducts(false);
       }

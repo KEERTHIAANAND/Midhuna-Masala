@@ -69,7 +69,7 @@ export default function OurHeritage() {
         </div>
 
         {/* Heritage Items Grid */}
-        <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-12">
+        <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-12 mb-16 sm:mb-24 md:mb-28">
           {heritageItems.map((item) => (
             <div key={item.id} className="flex flex-col items-center text-center group">
               {/* Circular Image Container */}
@@ -102,49 +102,40 @@ export default function OurHeritage() {
           ))}
         </div>
 
-        {/* ─── "Our Craft" Circular Seal CTA ─── */}
-        <div className="flex justify-center mt-16 sm:mt-24">
-          <Link href="/our-craft" className="group relative flex items-center justify-center">
-            {/* Rotating Text Ring (SVG) */}
-            <div className="relative w-32 h-32 sm:w-40 sm:h-40 animate-[spin_12s_linear_infinite] group-hover:animate-[spin_6s_linear_infinite] transition-all duration-500">
-              <svg viewBox="0 0 100 100" className="w-full h-full text-[#8B1E1E]">
-                <path
-                  id="circlePath"
-                  d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
-                  fill="transparent"
-                />
-                <text className="font-serif text-[11px] uppercase tracking-[0.16em]" fill="currentColor">
-                  <textPath href="#circlePath" startOffset="0%">
-                    DISCOVER OUR CRAFT ✦ STONE GROUND ✦ 
-                  </textPath>
-                </text>
-              </svg>
-            </div>
 
-            {/* Inner Circular Button */}
-            <div className="absolute inset-0 m-auto w-16 h-16 sm:w-20 sm:h-20 bg-[#8B1E1E] rounded-full flex items-center justify-center shadow-[0_8px_25px_rgba(139,30,30,0.3)] transition-all duration-500 group-hover:bg-[#6A1515] group-hover:scale-110">
-              <svg
-                className="w-6 h-6 sm:w-8 sm:h-8 text-[#D4AF37] transition-transform duration-500 group-hover:translate-x-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </div>
-          </Link>
-        </div>
       </div>
 
       {/* Decorative pattern border at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-6 flex items-center justify-center overflow-hidden">
+      <div className="absolute bottom-0 left-0 right-0 h-6 flex items-center justify-center overflow-hidden pointer-events-none">
         <div className="flex gap-4 text-[#D4AF37] opacity-60">
           {[...Array(50)].map((_, i) => (
             <span key={i} className="text-lg">✦</span>
           ))}
         </div>
       </div>
+
+      {/* ─── "Our Craft" Momentum Arrow CTA (Corner Positioned) ─── */}
+      <Link
+        href="/our-craft"
+        className="absolute bottom-8 right-6 sm:bottom-12 sm:right-12 z-30 group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#8B1E1E]/5 hover:bg-[#8B1E1E]/10 border border-[#8B1E1E]/20 backdrop-blur-sm transition-all duration-500 overflow-hidden"
+        aria-label="Discover Our Craft"
+      >
+        {/* Idle Icon (Minimalist Diamond) */}
+        <div className="absolute w-3 h-3 border-[1.5px] border-[#8B1E1E] rotate-45 transition-all duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:translate-x-16 group-hover:opacity-0 group-hover:rotate-90" />
+
+        {/* Hover Arrow (Elegant arrow sliding in from left) */}
+        <div className="absolute flex items-center justify-center -translate-x-16 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:translate-x-0 group-hover:opacity-100">
+          <svg 
+            className="w-8 h-8 sm:w-10 sm:h-10 text-[#8B1E1E] group-hover:text-[#D4AF37] transition-colors duration-500" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor" 
+            strokeWidth={1.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+          </svg>
+        </div>
+      </Link>
     </section>
   );
 }

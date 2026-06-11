@@ -1,33 +1,44 @@
 'use client';
 
 import React, { useRef } from 'react';
+import Image from 'next/image';
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 
 const SLIDES = [
   {
     word: "AUTHENTIC",
-    bg: "bg-[#8B1E1E]", // Deep Red
-    text: "text-[#FFFDF5]", // Off-white
+    label: "",
+    image: "/images/slides/slide 1.png",
+    // Golden amber — matches the warm temple silhouette tones
+    overlayGradient: "linear-gradient(to bottom, rgba(140, 90, 10, 0.75) 0%, rgba(180, 120, 20, 0.55) 50%, rgba(100, 60, 5, 0.80) 100%)",
   },
   {
     word: "TRADITIONAL",
-    bg: "bg-[#FFFDF5]", // Off-white
-    text: "text-[#8B1E1E]", // Deep Red
+    label: "AGRICULTURE",
+    image: "/images/slides/slide 2.png",
+    // Deep earthy green — matches agriculture/farming lush greens
+    overlayGradient: "linear-gradient(to bottom, rgba(20, 55, 20, 0.75) 0%, rgba(35, 80, 35, 0.55) 50%, rgba(15, 45, 15, 0.80) 100%)",
   },
   {
     word: "HANDCRAFTED",
-    bg: "bg-[#D4AF37]", // Gold
-    text: "text-[#FFFDF5]", // Off-white
+    label: "ART FORMS",
+    image: "/images/slides/slide 3.jpeg",
+    // Rich maroon/crimson — matches Bharatanatyam/cultural arts costumes
+    overlayGradient: "linear-gradient(to bottom, rgba(100, 15, 25, 0.75) 0%, rgba(130, 25, 35, 0.55) 50%, rgba(80, 10, 20, 0.80) 100%)",
   },
   {
     word: "SUN-DRIED",
-    bg: "bg-[#2C3E2D]", // Earthy Dark Green
-    text: "text-[#F6C84C]", // Bright Gold
+    label: "TEXTILES",
+    image: "/images/slides/slide 4.jpeg",
+    // Deep indigo/purple — complements the vibrant textile reds & greens
+    overlayGradient: "linear-gradient(to bottom, rgba(30, 15, 60, 0.75) 0%, rgba(45, 25, 85, 0.55) 50%, rgba(25, 12, 55, 0.80) 100%)",
   },
   {
     word: "PURE",
-    bg: "bg-[#0A0A0A]", // Dark/Black for premium feel
-    text: "text-[#D4AF37]", // Gold
+    label: "ARCHITECTURE",
+    image: "/images/slides/slide 5.jpeg",
+    // Warm terracotta/sandstone — matches the temple stone architecture
+    overlayGradient: "linear-gradient(to bottom, rgba(110, 55, 20, 0.75) 0%, rgba(150, 80, 35, 0.55) 50%, rgba(90, 45, 15, 0.80) 100%)",
   }
 ];
 
@@ -65,41 +76,53 @@ function SlideLayer({
         zIndex: index,
         clipPath: index === 0 ? "inset(0% 0 0 0)" : clipPath
       }}
-      className={`absolute inset-0 flex items-center justify-center ${slide.bg} shadow-[0_-10px_30px_rgba(0,0,0,0.2)]`}
+      className="absolute inset-0 flex items-center justify-center shadow-[0_-10px_30px_rgba(0,0,0,0.2)]"
     >
-      {/* Top Left Branding */}
-      <div className="absolute top-8 left-8 sm:top-12 sm:left-12 mix-blend-difference">
-        <span className="text-white/80 font-serif font-bold text-lg sm:text-xl tracking-widest">
-          Midhuna Masala
-        </span>
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <Image
+          src={slide.image}
+          alt={slide.word}
+          fill
+          className="object-cover"
+          priority={index <= 1}
+          quality={85}
+        />
+        {/* Color Overlay (like the hero section red effect) */}
+        <div 
+          className="absolute inset-0"
+          style={{ background: slide.overlayGradient }}
+        />
       </div>
 
-      {/* Scroll Down Indicators (Sides) */}
-      {index < totalSlides - 1 && (
+      {/* Scroll Down Indicators (Sides) - Only on the first slide */}
+      {index === 0 && (
         <>
-          <div className="absolute left-4 sm:left-12 top-1/2 -translate-y-1/2 -rotate-90 origin-center mix-blend-difference">
+          <div className="absolute left-4 sm:left-12 top-1/2 -translate-y-1/2 -rotate-90 origin-center">
             <span className="text-white/50 text-xs sm:text-sm tracking-[0.3em] uppercase">Scroll Down</span>
           </div>
-          <div className="absolute right-4 sm:right-12 top-1/2 translate-y-1/2 rotate-90 origin-center mix-blend-difference">
+          <div className="absolute right-4 sm:right-12 top-1/2 translate-y-1/2 rotate-90 origin-center">
             <span className="text-white/50 text-xs sm:text-sm tracking-[0.3em] uppercase">Scroll Down</span>
           </div>
         </>
       )}
 
-      {/* Main Huge Word - it stays perfectly centered! */}
-      <h1
-        className={`text-[12vw] sm:text-[10vw] font-bold font-serif tracking-tighter uppercase ${slide.text} leading-none`}
-        style={{
-          textShadow: index === 1 ? 'none' : '0 10px 30px rgba(0,0,0,0.15)'
-        }}
-      >
-        {slide.word}
-      </h1>
+      {/* Light opacity label text (slides 2-5 only) */}
+      {slide.label && (
+        <h2
+          className="absolute z-10 text-[14vw] sm:text-[12vw] font-bold font-serif tracking-tighter uppercase text-white/[0.15] leading-none select-none pointer-events-none"
+        >
+          {slide.label}
+        </h2>
+      )}
 
-      {/* Dotted pattern overlay for texture */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '30px 30px' }}>
-      </div>
+      {/* Subtle vignette overlay for depth */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{ 
+          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.3) 100%)' 
+        }}
+      />
     </motion.div>
   );
 }

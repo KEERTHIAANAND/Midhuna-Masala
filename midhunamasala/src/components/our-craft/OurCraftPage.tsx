@@ -2,6 +2,7 @@
 
 import ScrollWipeHero from './ScrollWipeHero';
 import MasalaCarousel from './MasalaCarousel';
+import CraftScrollAnimation from './CraftScrollAnimation';
 
 import Footer from '@/components/layout/Footer';
 import { useEffect } from 'react';
@@ -19,6 +20,8 @@ export default function OurCraftPage() {
       {/* Scroll-driven Masala Circular Carousel — below the PURE slide */}
       <MasalaCarousel />
 
+      {/* The Cinematic Storytelling Scroll Canvas */}
+      <CraftScrollAnimation />
 
       <Footer />
     </div>

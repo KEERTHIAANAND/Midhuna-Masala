@@ -17,7 +17,7 @@ const API_URL = clientEnv.NEXT_PUBLIC_API_URL;
 
 
 // Status Filters
-const STATUS_FILTERS = ['All Orders', 'Pending', 'Paid', 'Packed', 'Shipped', 'Delivered', 'Cancelled', 'Refund'];
+const STATUS_FILTERS = ['All Orders', 'Paid', 'Packed', 'Shipped', 'Delivered', 'Cancelled', 'Refund'];
 
 // Status Badge Colors
 const STATUS_STYLES: Record<string, string> = {

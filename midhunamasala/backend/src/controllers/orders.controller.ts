@@ -81,7 +81,7 @@ async function fetchOrdersInRange(startIso: string, endIso: string): Promise<any
             .select('id, user_id, total, created_at, status')
             .gte('created_at', startIso)
             .lte('created_at', endIso)
-            .not('status', 'in', '(cancelled,refund)')
+            .not('status', 'in', '(pending,cancelled,refund)')
             .order('created_at', { ascending: false })
             .range(offset, offset + pageSize - 1);
 
@@ -715,10 +715,11 @@ export async function listAllOrders(req: Request, res: Response): Promise<void> 
 
         const { limit, offset, status } = queryParsed.data;
 
-        // Fetch orders (no embedding) to avoid brittle relationship shapes
+        // Fetch orders (no embedding) to avoid brittle relationship shapes, and ignore pending (abandoned checkouts)
         let ordersQuery = supabase
             .from('orders')
             .select('*')
+            .neq('status', 'pending')
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1);
 
@@ -888,7 +889,7 @@ export async function getAdminAnalytics(req: Request, res: Response): Promise<vo
             supabase
                 .from('orders')
                 .select('id', { count: 'exact', head: true })
-                .not('status', 'in', '(cancelled,refund)'),
+                .not('status', 'in', '(pending,cancelled,refund)'),
             supabase.from('products').select('id', { count: 'exact', head: true }),
         ]);
 

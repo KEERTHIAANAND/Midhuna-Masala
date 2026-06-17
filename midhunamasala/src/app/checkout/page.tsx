@@ -583,7 +583,6 @@ function CheckoutPageInner() {
                 },
             };
 
-            console.log('Using Razorpay Key:', data.razorpay.keyId);
             const rzp = new window.Razorpay(options);
             rzp.on('payment.failed', () => {
                 alert('Payment failed. Please try again.');

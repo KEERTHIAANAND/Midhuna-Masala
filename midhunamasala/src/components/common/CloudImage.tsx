@@ -53,11 +53,6 @@ export default function CloudImage({
     // Convert local path to Cloudinary public ID
     const publicId = convertToPublicId(src);
 
-    // Debug: Log the public ID being used (remove in production)
-    if (typeof window !== "undefined") {
-        console.log(`[CloudImage] src: ${src} -> publicId: ${publicId}`);
-    }
-
     // Build common props
     const commonProps = {
         src: publicId,

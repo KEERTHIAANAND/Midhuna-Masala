@@ -34,6 +34,196 @@ type OrderDetailItem = {
     quantity: number;
 };
 
+type Address = {
+    id?: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    street: string;
+    apartment?: string;
+    city: string;
+    state: string;
+    pincode: string;
+    isDefault?: boolean;
+};
+
+const EMPTY_ADDRESS: Address = {
+    firstName: '',
+    lastName: '',
+    phone: '',
+    street: '',
+    apartment: '',
+    city: '',
+    state: 'Tamil Nadu',
+    pincode: '',
+};
+
+function AddressManager({ getIdToken, user }: { getIdToken: () => Promise<string | null>, user: any }) {
+    const [addresses, setAddresses] = useState<Address[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const [currentAddress, setCurrentAddress] = useState<Address>(EMPTY_ADDRESS);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        loadAddresses();
+    }, []);
+
+    const loadAddresses = async () => {
+        setLoading(true);
+        try {
+            const token = await getIdToken();
+            if (!token) return;
+            const res = await fetch(`${API_URL}/api/addresses`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAddresses(data.addresses || []);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSave = async () => {
+        setError('');
+        if (!currentAddress.street || !currentAddress.city || !currentAddress.pincode) {
+            setError('Please fill in all required fields (Street, City, Pincode)');
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const token = await getIdToken();
+            if (!token) return;
+
+            const url = currentAddress.id 
+                ? `${API_URL}/api/addresses/${currentAddress.id}` 
+                : `${API_URL}/api/addresses`;
+            const method = currentAddress.id ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    firstName: currentAddress.firstName || '',
+                    lastName: currentAddress.lastName || '',
+                    phone: currentAddress.phone || '',
+                    street: currentAddress.street,
+                    apartment: currentAddress.apartment || '',
+                    city: currentAddress.city,
+                    state: currentAddress.state,
+                    pincode: currentAddress.pincode,
+                    isDefault: currentAddress.isDefault || false
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.error || 'Failed to save address');
+
+            await loadAddresses();
+            setIsEditing(false);
+        } catch (e: any) {
+            setError(e.message || 'Failed to save');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this address?')) return;
+        try {
+            const token = await getIdToken();
+            if (!token) return;
+            await fetch(`${API_URL}/api/addresses/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            await loadAddresses();
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    if (loading) return <div className="text-sm text-gray-500 flex items-center py-4"><Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading addresses...</div>;
+
+    if (isEditing) {
+        return (
+            <div className="bg-gray-50 p-5 rounded-2xl border border-gray-200 space-y-4">
+                <h4 className="font-bold text-gray-800 mb-4">{currentAddress.id ? 'Edit Address' : 'Add New Address'}</h4>
+                
+                <div className="grid grid-cols-2 gap-4">
+                    <input type="text" placeholder="First Name" className="p-3 rounded-xl border border-gray-200 outline-none focus:border-[#8B1E1E] text-sm" value={currentAddress.firstName} onChange={e => setCurrentAddress({...currentAddress, firstName: e.target.value})} />
+                    <input type="text" placeholder="Last Name" className="p-3 rounded-xl border border-gray-200 outline-none focus:border-[#8B1E1E] text-sm" value={currentAddress.lastName} onChange={e => setCurrentAddress({...currentAddress, lastName: e.target.value})} />
+                </div>
+                
+                <input type="tel" placeholder="Phone Number" className="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-[#8B1E1E] text-sm" value={currentAddress.phone} onChange={e => setCurrentAddress({...currentAddress, phone: e.target.value})} />
+                <input type="text" placeholder="Street Address *" className="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-[#8B1E1E] text-sm" value={currentAddress.street} onChange={e => setCurrentAddress({...currentAddress, street: e.target.value})} />
+                <input type="text" placeholder="Apartment, suite, etc. (optional)" className="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-[#8B1E1E] text-sm" value={currentAddress.apartment} onChange={e => setCurrentAddress({...currentAddress, apartment: e.target.value})} />
+                
+                <div className="grid grid-cols-3 gap-4">
+                    <input type="text" placeholder="City *" className="p-3 rounded-xl border border-gray-200 outline-none focus:border-[#8B1E1E] text-sm" value={currentAddress.city} onChange={e => setCurrentAddress({...currentAddress, city: e.target.value})} />
+                    <input type="text" placeholder="State" className="p-3 rounded-xl border border-gray-200 outline-none focus:border-[#8B1E1E] text-sm" value={currentAddress.state} onChange={e => setCurrentAddress({...currentAddress, state: e.target.value})} />
+                    <input type="text" placeholder="Pincode *" className="p-3 rounded-xl border border-gray-200 outline-none focus:border-[#8B1E1E] text-sm" value={currentAddress.pincode} onChange={e => setCurrentAddress({...currentAddress, pincode: e.target.value})} />
+                </div>
+
+                {error && <p className="text-red-500 text-xs font-bold">{error}</p>}
+                
+                <div className="flex gap-3 pt-2">
+                    <button onClick={handleSave} disabled={saving} className="px-6 py-2.5 bg-[#8B1E1E] text-white font-bold rounded-xl text-sm flex items-center">
+                        {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Save Address
+                    </button>
+                    <button onClick={() => setIsEditing(false)} disabled={saving} className="px-6 py-2.5 bg-gray-200 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-300">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-4">
+            {addresses.length === 0 ? (
+                <div className="text-center py-6 text-gray-500 text-sm">No saved addresses found.</div>
+            ) : (
+                addresses.map(addr => (
+                    <div key={addr.id} className="p-5 rounded-2xl border border-gray-200 hover:border-[#8B1E1E] transition-all bg-white relative group">
+                        <div className="pr-16">
+                            <p className="font-bold text-gray-800">{addr.firstName} {addr.lastName}</p>
+                            <p className="text-sm text-gray-600 mt-1">{addr.street}{addr.apartment ? `, ${addr.apartment}` : ''}</p>
+                            <p className="text-sm text-gray-600">{addr.city}, {addr.state} {addr.pincode}</p>
+                            <p className="text-sm text-gray-500 mt-2 flex items-center gap-1"><Phone className="w-3 h-3" /> {addr.phone}</p>
+                        </div>
+                        <div className="absolute top-5 right-5 flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => { setCurrentAddress(addr); setIsEditing(true); }} className="p-2 text-gray-400 hover:text-[#8B1E1E] bg-gray-50 hover:bg-[#8B1E1E]/10 rounded-lg transition-colors">
+                                <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleDelete(addr.id!)} className="p-2 text-gray-400 hover:text-red-600 bg-gray-50 hover:bg-red-50 rounded-lg transition-colors">
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                ))
+            )}
+            
+            <button 
+                onClick={() => { setCurrentAddress({...EMPTY_ADDRESS, firstName: user?.name?.split(' ')[0] || '', lastName: user?.name?.split(' ').slice(1).join(' ') || '', phone: user?.phone || ''}); setIsEditing(true); }}
+                className="w-full p-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 hover:border-[#8B1E1E] hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 transition-all font-bold text-sm flex items-center justify-center gap-2 mt-4"
+            >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                Add New Address
+            </button>
+        </div>
+    );
+}
+
 // Tab Configuration
 const TABS = [
     { id: 'overview', label: 'Overview', icon: User },
@@ -42,11 +232,16 @@ const TABS = [
 ];
 
 export default function ProfilePage() {
-    const { user, logout, getIdToken } = useAuth();
+    const { user, logout, getIdToken, updateUser } = useAuth();
     const { cartCount } = useCart();
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'settings'>('overview');
+
+    const [isEditingPhone, setIsEditingPhone] = useState(false);
+    const [phoneInput, setPhoneInput] = useState('');
+    const [isSavingPhone, setIsSavingPhone] = useState(false);
+    const [phoneError, setPhoneError] = useState('');
 
     const [myOrders, setMyOrders] = useState<MyOrder[]>([]);
     const [ordersLoading, setOrdersLoading] = useState(false);
@@ -143,6 +338,37 @@ export default function ProfilePage() {
         }
     };
 
+    const handleSavePhone = async () => {
+        setIsSavingPhone(true);
+        setPhoneError('');
+        try {
+            const token = await getIdToken();
+            if (!token) throw new Error('Session expired. Please log in again.');
+
+            const response = await fetch(`${API_URL}/api/auth/me`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name: user?.name, phone: phoneInput })
+            });
+
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Failed to update phone number.');
+            }
+
+            updateUser({ phone: phoneInput });
+            setIsEditingPhone(false);
+        } catch (error: any) {
+            console.error('Error updating phone:', error);
+            setPhoneError(error.message || 'Failed to save changes.');
+        } finally {
+            setIsSavingPhone(false);
+        }
+    };
+
     if (!user) {
         return (
             <div className="min-h-screen bg-[#FFFDF5] flex items-center justify-center">
@@ -161,12 +387,12 @@ export default function ProfilePage() {
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none -z-10"
                 style={{ backgroundImage: 'radial-gradient(#8B1E1E 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
 
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 animate-in fade-in duration-700">
+            <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20 animate-in fade-in duration-700">
 
                 {/* Page Title */}
-                <div className="mb-10 text-center sm:text-left">
-                    <h1 className="text-4xl font-serif font-bold text-[#8B1E1E] tracking-tight">My Profile</h1>
-                    <p className="text-gray-500 mt-2 text-lg">Manage your personal information and orders.</p>
+                <div className="mb-6 sm:mb-10 text-center sm:text-left">
+                    <h1 className="text-2xl sm:text-4xl font-serif font-bold text-[#8B1E1E] tracking-tight">My Profile</h1>
+                    <p className="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-lg">Manage your personal information and orders.</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -188,9 +414,9 @@ export default function ProfilePage() {
 
                             <div className="px-6 pb-8 text-center relative">
                                 {/* Avatar - Overlapping Banner */}
-                                <div className="-mt-16 mb-4 relative inline-block">
-                                    <div className="w-32 h-32 rounded-full bg-white p-1.5 shadow-lg mx-auto">
-                                        <div className="w-full h-full rounded-full bg-gradient-to-br from-[#F6C84C] to-[#D4AF37] flex items-center justify-center text-[#8B1E1E] text-4xl font-bold font-serif shadow-inner">
+                                <div className="-mt-12 sm:-mt-16 mb-4 relative inline-block">
+                                    <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white p-1.5 shadow-lg mx-auto">
+                                        <div className="w-full h-full rounded-full bg-gradient-to-br from-[#F6C84C] to-[#D4AF37] flex items-center justify-center text-[#8B1E1E] text-3xl sm:text-4xl font-bold font-serif shadow-inner">
                                             {user.name?.charAt(0).toUpperCase() || 'U'}
                                         </div>
                                     </div>
@@ -280,7 +506,7 @@ export default function ProfilePage() {
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
                                 transition={{ duration: 0.3 }}
-                                className="bg-white rounded-3xl p-8 shadow-xl shadow-[#8B1E1E]/5 border border-[#E5D2C5] min-h-[400px]"
+                                className="bg-white rounded-3xl p-4 sm:p-8 shadow-xl shadow-[#8B1E1E]/5 border border-[#E5D2C5] min-h-[300px] sm:min-h-[400px]"
                             >
                                 {activeTab === 'overview' && (
                                     <div className="space-y-10">
@@ -487,41 +713,59 @@ export default function ProfilePage() {
                                                 </div>
                                                 <div className="space-y-2">
                                                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Phone Number</label>
-                                                    <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:border-[#8B1E1E] transition-colors cursor-pointer group">
-                                                        <Phone className="w-5 h-5 text-gray-400 group-hover:text-[#8B1E1E] transition-colors" />
-                                                        <span className="font-semibold text-gray-700">{user.phone || 'Add phone number'}</span>
-                                                        <Edit2 className="w-4 h-4 text-gray-300 ml-auto group-hover:text-[#8B1E1E]" />
-                                                    </div>
+                                                    {isEditingPhone ? (
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <input
+                                                                    type="tel"
+                                                                    value={phoneInput}
+                                                                    onChange={(e) => setPhoneInput(e.target.value)}
+                                                                    placeholder="Enter phone number"
+                                                                    className="flex-1 px-4 py-3 bg-white border border-[#8B1E1E]/30 focus:border-[#8B1E1E] focus:ring-1 focus:ring-[#8B1E1E] rounded-xl outline-none transition-colors text-sm"
+                                                                    autoFocus
+                                                                />
+                                                                <button
+                                                                    onClick={handleSavePhone}
+                                                                    disabled={isSavingPhone}
+                                                                    className="px-4 py-3 bg-[#8B1E1E] text-white rounded-xl text-sm font-bold disabled:opacity-50"
+                                                                >
+                                                                    {isSavingPhone ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setIsEditingPhone(false)}
+                                                                    disabled={isSavingPhone}
+                                                                    className="px-4 py-3 bg-gray-100 text-gray-600 rounded-xl text-sm font-bold disabled:opacity-50"
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                            </div>
+                                                            {phoneError && <p className="text-xs text-red-500">{phoneError}</p>}
+                                                        </div>
+                                                    ) : (
+                                                        <div 
+                                                            onClick={() => {
+                                                                setPhoneInput(user.phone || '');
+                                                                setIsEditingPhone(true);
+                                                                setPhoneError('');
+                                                            }}
+                                                            className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:border-[#8B1E1E] transition-colors cursor-pointer group"
+                                                        >
+                                                            <Phone className="w-5 h-5 text-gray-400 group-hover:text-[#8B1E1E] transition-colors" />
+                                                            <span className="font-semibold text-gray-700">{user.phone || 'Add phone number'}</span>
+                                                            <Edit2 className="w-4 h-4 text-gray-300 ml-auto group-hover:text-[#8B1E1E]" />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </section>
 
-                                        {/* Preferences */}
+                                        {/* Addresses */}
                                         <section className="border-t border-gray-100 pt-8">
                                             <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-                                                <Settings className="w-5 h-5 text-[#8B1E1E]" />
-                                                Account Preferences
+                                                <MapPin className="w-5 h-5 text-[#8B1E1E]" />
+                                                Saved Addresses
                                             </h3>
-                                            <div className="space-y-4">
-                                                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all cursor-pointer">
-                                                    <div>
-                                                        <p className="font-semibold text-gray-800">Order Notifications</p>
-                                                        <p className="text-sm text-gray-500">Get text/email updates about delivery.</p>
-                                                    </div>
-                                                    <div className="w-12 h-6 bg-[#8B1E1E] rounded-full relative shadow-inner transition-colors">
-                                                        <div className="absolute top-1 right-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all cursor-pointer">
-                                                    <div>
-                                                        <p className="font-semibold text-gray-800">Marketing Emails</p>
-                                                        <p className="text-sm text-gray-500">Receive exclusive offers and recipes.</p>
-                                                    </div>
-                                                    <div className="w-12 h-6 bg-gray-200 rounded-full relative shadow-inner transition-colors">
-                                                        <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <AddressManager getIdToken={getIdToken} user={user} />
                                         </section>
                                     </div>
                                 )}

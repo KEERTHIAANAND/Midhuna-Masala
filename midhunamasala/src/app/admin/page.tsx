@@ -117,22 +117,22 @@ export default function AdminDashboard() {
     const maxRevenue = revenueTrend.length > 0 ? Math.max(...revenueTrend.map(d => d.value)) : 1;
 
     return (
-        <div className="h-screen bg-[#FDFBF7] font-sans text-gray-800 flex flex-col overflow-hidden">
+        <div className="min-h-screen bg-[#FDFBF7] font-sans text-gray-800 flex flex-col">
 
             <AdminNavbar user={user} onLogout={handleLogout} />
 
             {/* 3. MAIN DASHBOARD CONTENT */}
-            <main className="flex-1 p-4 max-w-[1600px] mx-auto w-full flex flex-col gap-4 overflow-hidden">
+            <main className="flex-1 p-3 sm:p-4 max-w-[1600px] mx-auto w-full flex flex-col gap-3 sm:gap-4">
 
                 {/* Header Actions */}
                 <div>
-                    <h2 className="text-4xl font-serif font-bold text-[#7A1A1A]">Dashboard</h2>
-                    <p className="text-gray-500 mt-2">Welcome back, here&apos;s your daily spice briefing.</p>
+                    <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A]">Dashboard</h2>
+                    <p className="text-sm sm:text-base text-gray-500 mt-1 sm:mt-2">Welcome back, here&apos;s your daily spice briefing.</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                     {/* Card 1 */}
-                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white p-5 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between h-32 relative overflow-hidden group">
+                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between min-h-[7rem] sm:h-32 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4">
                             <div className="flex items-center gap-1 text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
                                 <ArrowUpRight className="w-3 h-3" /> {Number(stats?.ordersChangePct || 0).toFixed(1)}%
@@ -142,13 +142,13 @@ export default function AdminDashboard() {
                             <ShoppingBag className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">{Number(stats?.totalOrders || 0).toLocaleString('en-IN')}</h3>
+                            <h3 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">{Number(stats?.totalOrders || 0).toLocaleString('en-IN')}</h3>
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Total Orders</p>
                         </div>
                     </motion.div>
 
                     {/* Card 2 */}
-                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="bg-white p-5 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between h-32 relative overflow-hidden group">
+                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between min-h-[7rem] sm:h-32 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4">
                             <div className="flex items-center gap-1 text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
                                 <ArrowDownRight className="w-3 h-3" /> 0%
@@ -158,13 +158,13 @@ export default function AdminDashboard() {
                             <Package className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">{Number(kpis?.productsCount || 0).toLocaleString('en-IN')}</h3>
+                            <h3 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">{Number(kpis?.productsCount || 0).toLocaleString('en-IN')}</h3>
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Stock Varieties</p>
                         </div>
                     </motion.div>
 
                     {/* Card 3 */}
-                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="bg-white p-5 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between h-32 relative overflow-hidden group">
+                    <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-[#F3EFEA] flex flex-col justify-between min-h-[7rem] sm:h-32 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4">
                             <div className="flex items-center gap-1 text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
                                 <ArrowUpRight className="w-3 h-3" /> 0%
@@ -174,13 +174,13 @@ export default function AdminDashboard() {
                             <Bell className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">0</h3>
+                            <h3 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">0</h3>
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Expiring Soon</p>
                         </div>
                     </motion.div>
                 </div>
 
-                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="bg-white rounded-2xl p-6 border border-[#F3EFEA] shadow-sm relative flex-1 min-h-0">
+                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="bg-white rounded-2xl p-4 sm:p-6 border border-[#F3EFEA] shadow-sm relative flex-1 min-h-[250px] sm:min-h-[300px]">
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h3 className="text-lg font-serif font-bold text-[#7A1A1A]">Sales Overview</h3>

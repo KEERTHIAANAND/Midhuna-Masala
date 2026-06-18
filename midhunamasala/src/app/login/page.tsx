@@ -104,17 +104,17 @@ export default function LoginPage() {
                     </Link>
 
                     {/* Header */}
-                    <div className="relative bg-gradient-to-br from-[#8B1E1E] to-[#6B1616] px-8 pt-10 pb-16">
+                    <div className="relative bg-gradient-to-br from-[#8B1E1E] to-[#6B1616] px-6 sm:px-8 pt-8 sm:pt-10 pb-14 sm:pb-16">
                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#F6C84C 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="relative text-center">
-                            <Link href="/"><h1 className="text-3xl font-bold text-white font-serif tracking-wide">Midhuna Masala</h1><p className="text-[10px] font-bold text-[#F6C84C] tracking-[0.25em] uppercase mt-1">Traditional Stone Ground Spices</p></Link>
+                            <Link href="/"><h1 className="text-2xl sm:text-3xl font-bold text-white font-serif tracking-wide">Midhuna Masala</h1><p className="text-[10px] font-bold text-[#F6C84C] tracking-[0.25em] uppercase mt-1">Traditional Stone Ground Spices</p></Link>
                         </motion.div>
                         <div className="text-center mt-6"><h2 className="text-xl font-serif text-white/90">Welcome Back</h2><p className="text-sm text-[#F6C84C]/80 mt-1">Sign in to your account</p></div>
                         <div className="absolute -bottom-px left-0 right-0"><svg viewBox="0 0 400 30" preserveAspectRatio="none" className="w-full h-8 text-white"><path d="M0 30 Q200 0 400 30 L400 30 L0 30 Z" fill="currentColor" /></svg></div>
                     </div>
 
                     {/* Form */}
-                    <div className="px-8 pb-8 pt-4">
+                    <div className="px-5 sm:px-8 pb-6 sm:pb-8 pt-3 sm:pt-4">
                         <AnimatePresence mode="wait">
                             {success ? (
                                 <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="py-12 text-center">

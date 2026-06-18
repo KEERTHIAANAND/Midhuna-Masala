@@ -200,13 +200,13 @@ export default function InventoryPage() {
             <AdminNavbar user={user} onLogout={handleLogout} />
 
             {/* 3. MAIN CONTENT */}
-            <main className="p-6 max-w-[1600px] mx-auto space-y-6">
+            <main className="p-3 sm:p-6 max-w-[1600px] mx-auto space-y-4 sm:space-y-6">
 
                 {/* Header with Stats */}
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div>
-                        <h2 className="text-4xl font-serif font-bold text-[#7A1A1A]">Inventory & Stock</h2>
-                        <p className="text-gray-500 mt-1">Monitor stock levels and product availability</p>
+                        <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A]">Inventory & Stock</h2>
+                        <p className="text-sm sm:text-base text-gray-500 mt-1">Monitor stock levels and product availability</p>
                     </div>
 
                     <div className="flex items-center gap-6">
@@ -228,7 +228,7 @@ export default function InventoryPage() {
                 </div>
 
                 {/* Search & Filters */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                     {/* Search */}
                     <div className="relative flex-1 max-w-lg group">
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200">
@@ -256,7 +256,7 @@ export default function InventoryPage() {
                     </div>
 
                     {/* Stock Filter Tabs */}
-                    <div className="flex items-center gap-1 bg-white rounded-xl p-1.5 border border-[#F3EFEA] shadow-sm">
+                    <div className="flex items-center gap-1 bg-white rounded-xl p-1.5 border border-[#F3EFEA] shadow-sm overflow-x-auto scrollbar-hide">
                         {STOCK_FILTERS.map((filter) => (
                             <button
                                 key={filter}
@@ -274,8 +274,8 @@ export default function InventoryPage() {
 
                 {/* Inventory Table */}
                 <div className="bg-white rounded-2xl border border-[#F3EFEA] overflow-hidden shadow-sm">
-                    {/* Table Header */}
-                    <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50/50 border-b border-[#F3EFEA] text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    {/* Table Header - Desktop Only */}
+                    <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50/50 border-b border-[#F3EFEA] text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                         <div className="col-span-4">Product Details</div>
                         <div className="col-span-3">Stock Level</div>
                         <div className="col-span-2">Status</div>
@@ -293,72 +293,118 @@ export default function InventoryPage() {
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
                                     transition={{ delay: index * 0.02 }}
-                                    className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50/50 transition-colors"
+                                    className="hover:bg-gray-50/50 transition-colors"
                                 >
-                                    {/* Product Details */}
-                                    <div className="col-span-4 flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#F5E9DB] to-[#E8DED0] flex items-center justify-center text-[#8B1E1E]/30 overflow-hidden">
-                                            <Leaf className="w-6 h-6" />
+                                    {/* Desktop Row */}
+                                    <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 items-center">
+                                        <div className="col-span-4 flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#F5E9DB] to-[#E8DED0] flex items-center justify-center text-[#8B1E1E]/30 overflow-hidden">
+                                                <Leaf className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <p className="font-serif font-bold text-[#7A1A1A]">{item.name}</p>
+                                                <p className="text-xs text-gray-400">{item.category}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-serif font-bold text-[#7A1A1A]">{item.name}</p>
-                                            <p className="text-xs text-gray-400">{item.category}</p>
+                                        <div className="col-span-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className={`h-full rounded-full transition-all ${getStockBarColor(item.stockQty, item.lowStockThreshold)}`}
+                                                        style={{ width: `${Math.min(100, item.stockQty > 0 ? 100 : 0)}%` }}
+                                                    ></div>
+                                                </div>
+                                                <span className="text-sm font-bold text-gray-700 tabular-nums lining-nums w-16 text-right">{item.stockQty}</span>
+                                            </div>
+                                        </div>
+                                        <div className="col-span-2">
+                                            {(() => {
+                                                const status = getStockStatus(item.stockQty, item.lowStockThreshold);
+                                                if (status === 'In Stock') return (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-600 text-[10px] font-bold rounded-full border border-green-200">
+                                                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                                                        In Stock
+                                                    </span>
+                                                );
+                                                if (status === 'Out of Stock') return (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-full border border-gray-300">
+                                                        <Package className="w-3 h-3" />
+                                                        Out of Stock
+                                                    </span>
+                                                );
+                                                return (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-full border border-red-200">
+                                                        <AlertTriangle className="w-3 h-3" />
+                                                        Low Stock
+                                                    </span>
+                                                );
+                                            })()}
+                                        </div>
+                                        <div className="col-span-2 flex items-center gap-2 text-sm text-gray-600">
+                                            <Calendar className="w-4 h-4 text-gray-400" />
+                                            —
+                                        </div>
+                                        <div className="col-span-1 text-right">
+                                            <button
+                                                onClick={() => handleOpenRestock(item)}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[#7A1A1A] hover:bg-[#7A1A1A] hover:text-white text-xs font-medium rounded-lg border border-[#E5D2C5] hover:border-[#7A1A1A] transition-colors"
+                                            >
+                                                <RefreshCw className="w-3 h-3" />
+                                                Restock
+                                            </button>
                                         </div>
                                     </div>
 
-                                    {/* Stock Level */}
-                                    <div className="col-span-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    {/* Mobile Card */}
+                                    <div className="md:hidden p-4">
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F5E9DB] to-[#E8DED0] flex items-center justify-center text-[#8B1E1E]/30 overflow-hidden flex-shrink-0">
+                                                <Leaf className="w-5 h-5" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-serif font-bold text-[#7A1A1A] text-sm truncate">{item.name}</p>
+                                                <p className="text-xs text-gray-400">{item.category}</p>
+                                            </div>
+                                            <span className="text-lg font-bold text-gray-700 tabular-nums flex-shrink-0">{item.stockQty}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                                                 <div
                                                     className={`h-full rounded-full transition-all ${getStockBarColor(item.stockQty, item.lowStockThreshold)}`}
                                                     style={{ width: `${Math.min(100, item.stockQty > 0 ? 100 : 0)}%` }}
                                                 ></div>
                                             </div>
-                                            <span className="text-sm font-bold text-gray-700 tabular-nums lining-nums w-16 text-right">{item.stockQty}</span>
                                         </div>
-                                    </div>
-
-                                    {/* Status */}
-                                    <div className="col-span-2">
-                                        {(() => {
-                                            const status = getStockStatus(item.stockQty, item.lowStockThreshold);
-                                            if (status === 'In Stock') return (
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-600 text-[10px] font-bold rounded-full border border-green-200">
-                                                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                                                    In Stock
-                                                </span>
-                                            );
-                                            if (status === 'Out of Stock') return (
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-full border border-gray-300">
-                                                    <Package className="w-3 h-3" />
-                                                    Out of Stock
-                                                </span>
-                                            );
-                                            return (
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-full border border-red-200">
-                                                    <AlertTriangle className="w-3 h-3" />
-                                                    Low Stock
-                                                </span>
-                                            );
-                                        })()}
-                                    </div>
-
-                                    {/* Expiry Date */}
-                                    <div className="col-span-2 flex items-center gap-2 text-sm text-gray-600">
-                                        <Calendar className="w-4 h-4 text-gray-400" />
-                                        —
-                                    </div>
-
-                                    {/* Action */}
-                                    <div className="col-span-1 text-right">
-                                        <button
-                                            onClick={() => handleOpenRestock(item)}
-                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[#7A1A1A] hover:bg-[#7A1A1A] hover:text-white text-xs font-medium rounded-lg border border-[#E5D2C5] hover:border-[#7A1A1A] transition-colors"
-                                        >
-                                            <RefreshCw className="w-3 h-3" />
-                                            Restock
-                                        </button>
+                                        <div className="flex items-center justify-between">
+                                            {(() => {
+                                                const status = getStockStatus(item.stockQty, item.lowStockThreshold);
+                                                if (status === 'In Stock') return (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-600 text-[10px] font-bold rounded-full border border-green-200">
+                                                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                                                        In Stock
+                                                    </span>
+                                                );
+                                                if (status === 'Out of Stock') return (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-full border border-gray-300">
+                                                        <Package className="w-3 h-3" />
+                                                        Out of Stock
+                                                    </span>
+                                                );
+                                                return (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-full border border-red-200">
+                                                        <AlertTriangle className="w-3 h-3" />
+                                                        Low Stock
+                                                    </span>
+                                                );
+                                            })()}
+                                            <button
+                                                onClick={() => handleOpenRestock(item)}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[#7A1A1A] hover:bg-[#7A1A1A] hover:text-white text-xs font-medium rounded-lg border border-[#E5D2C5] hover:border-[#7A1A1A] transition-colors"
+                                            >
+                                                <RefreshCw className="w-3 h-3" />
+                                                Restock
+                                            </button>
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}

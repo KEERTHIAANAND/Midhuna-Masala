@@ -84,13 +84,13 @@ export default function SettingsPage() {
             <AdminNavbar user={user} onLogout={handleLogout} />
 
             {/* 3. MAIN CONTENT */}
-            <main className="p-6 max-w-[1600px] mx-auto space-y-6">
+            <main className="p-3 sm:p-6 max-w-[1600px] mx-auto space-y-4 sm:space-y-6">
 
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div>
-                        <h2 className="text-4xl font-serif font-bold text-[#7A1A1A]">Configuration</h2>
-                        <p className="text-gray-500 mt-1">Manage system parameters and preferences</p>
+                        <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A]">Configuration</h2>
+                        <p className="text-sm sm:text-base text-gray-500 mt-1">Manage system parameters and preferences</p>
                     </div>
 
                     <button className="flex items-center gap-2 px-6 py-3 bg-[#7A1A1A] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#7A1A1A]/20 hover:bg-[#601010] transition-all">

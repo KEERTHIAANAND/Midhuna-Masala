@@ -149,6 +149,9 @@ export default function ProductCard({ product, isSelected, onSelect, index = 0 }
               >
                 .{((product.price || 5.99) % 1).toFixed(2).substring(2)}
               </span>
+              <span className="text-xs text-gray-500 font-medium ml-1 tracking-wide">
+                / {product.weight || "100g"}
+              </span>
             </div>
 
             {/* Gold Accent Line with animation */}

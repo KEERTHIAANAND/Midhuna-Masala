@@ -64,7 +64,7 @@ const FAQ_ITEMS = [
 ];
 
 export default function ContactContent() {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', phone: '', subject: '', message: '' });
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -86,7 +86,7 @@ export default function ContactContent() {
 
       if (response.ok && data.success) {
         setSubmitted(true);
-        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+        setFormData({ name: '', phone: '', subject: '', message: '' });
       } else {
         alert(data.error || 'Failed to send message. Please try again later.');
       }
@@ -247,56 +247,41 @@ export default function ContactContent() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="contact-email" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5">
-                        Email Address *
-                      </label>
-                      <input
-                        id="contact-email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-4 py-2.5 rounded-lg border border-[#F5E9DB] bg-[#FFFDF5] text-sm text-[#4A3728] focus:outline-none focus:ring-2 focus:ring-[#8B1E1E]/20 focus:border-[#8B1E1E]/30 transition-all placeholder:text-[#4A3728]/30"
-                        placeholder="your@email.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
                       <label htmlFor="contact-phone" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5">
-                        Phone Number
+                        Phone Number *
                       </label>
                       <input
                         id="contact-phone"
                         type="tel"
+                        required
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full px-4 py-2.5 rounded-lg border border-[#F5E9DB] bg-[#FFFDF5] text-sm text-[#4A3728] focus:outline-none focus:ring-2 focus:ring-[#8B1E1E]/20 focus:border-[#8B1E1E]/30 transition-all placeholder:text-[#4A3728]/30"
                         placeholder="+91 XXXXX XXXXX"
                       />
                     </div>
-                    <div>
-                      <label htmlFor="contact-subject" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5">
-                        Subject *
-                      </label>
-                      <select
-                        id="contact-subject"
-                        required
-                        value={formData.subject}
-                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                        className="w-full px-4 py-2.5 rounded-lg border border-[#F5E9DB] bg-[#FFFDF5] text-sm text-[#4A3728] focus:outline-none focus:ring-2 focus:ring-[#8B1E1E]/20 focus:border-[#8B1E1E]/30 transition-all"
-                      >
-                        <option value="">Select a subject</option>
-                        <option value="order">Order Related Query</option>
-                        <option value="product">Product Inquiry</option>
-                        <option value="shipping">Shipping & Delivery</option>
-                        <option value="refund">Refund & Returns</option>
-                        <option value="bulk">Bulk / Wholesale Orders</option>
-                        <option value="feedback">Feedback & Suggestions</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="contact-subject" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5">
+                      Subject *
+                    </label>
+                    <select
+                      id="contact-subject"
+                      required
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-lg border border-[#F5E9DB] bg-[#FFFDF5] text-sm text-[#4A3728] focus:outline-none focus:ring-2 focus:ring-[#8B1E1E]/20 focus:border-[#8B1E1E]/30 transition-all"
+                    >
+                      <option value="">Select a subject</option>
+                      <option value="order">Order Related Query</option>
+                      <option value="product">Product Inquiry</option>
+                      <option value="shipping">Shipping & Delivery</option>
+                      <option value="refund">Refund & Returns</option>
+                      <option value="bulk">Bulk / Wholesale Orders</option>
+                      <option value="feedback">Feedback & Suggestions</option>
+                      <option value="other">Other</option>
+                    </select>
                   </div>
 
                   <div>

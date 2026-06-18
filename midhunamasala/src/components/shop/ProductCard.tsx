@@ -75,6 +75,7 @@ export default function ProductCard({ product, isSelected, onSelect, index = 0 }
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1200px) 33vw, 25vw"
               className="object-contain p-3 sm:p-6"
+              priority={index < 4}
             />
           </motion.div>
 

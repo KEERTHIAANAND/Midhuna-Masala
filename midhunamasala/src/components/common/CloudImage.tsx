@@ -11,7 +11,7 @@ interface CloudImageProps {
     sizes?: string;
     className?: string;
     priority?: boolean;
-    quality?: number;
+    quality?: number | "auto";
 }
 
 /**
@@ -48,7 +48,7 @@ export default function CloudImage({
     sizes,
     className,
     priority = false,
-    quality = 80,
+    quality = "auto",
 }: CloudImageProps) {
     // Convert local path to Cloudinary public ID
     const publicId = convertToPublicId(src);
@@ -60,7 +60,7 @@ export default function CloudImage({
         sizes: sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
         className,
         priority,
-        quality,
+        ...(quality !== "auto" && { quality }),
         format: "auto" as const,
         loading: (priority ? "eager" : "lazy") as "eager" | "lazy",
     };

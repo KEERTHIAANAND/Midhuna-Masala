@@ -187,13 +187,13 @@ export default function SalesGrowthPage() {
             <AdminNavbar user={user} onLogout={handleLogout} />
 
             {/* 3. MAIN CONTENT */}
-            <main className="p-6 max-w-[1600px] mx-auto space-y-6">
+            <main className="p-3 sm:p-6 max-w-[1600px] mx-auto space-y-4 sm:space-y-6">
 
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div>
-                        <h2 className="text-4xl font-serif font-bold text-[#7A1A1A]">Performance Analytics</h2>
-                        <p className="text-gray-500 mt-1">Deep dive into sales and growth metrics</p>
+                        <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A]">Performance Analytics</h2>
+                        <p className="text-sm sm:text-base text-gray-500 mt-1">Deep dive into sales and growth metrics</p>
                     </div>
 
                     {/* Date Range Dropdown */}
@@ -213,16 +213,16 @@ export default function SalesGrowthPage() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                     {/* Total Revenue Card */}
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        className="bg-[#7A1A1A] p-6 rounded-2xl text-white relative overflow-hidden"
+                        className="bg-[#7A1A1A] p-4 sm:p-6 rounded-2xl text-white relative overflow-hidden sm:col-span-2 md:col-span-1"
                     >
                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#F6C84C 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
                         <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider mb-2">Total Revenue</p>
-                        <h3 className="text-4xl font-serif font-bold tabular-nums lining-nums">₹{Number(stats?.totalRevenue || 0).toLocaleString('en-IN')}</h3>
+                        <h3 className="text-2xl sm:text-4xl font-serif font-bold tabular-nums lining-nums">₹{Number(stats?.totalRevenue || 0).toLocaleString('en-IN')}</h3>
                         <div className="mt-4 flex items-center gap-2">
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/20 text-white/70 text-xs font-bold rounded">
                                 <TrendingUp className="w-3 h-3" />
@@ -237,10 +237,10 @@ export default function SalesGrowthPage() {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.1 }}
-                        className="bg-white p-6 rounded-2xl border border-[#F3EFEA] shadow-sm"
+                        className="bg-white p-4 sm:p-6 rounded-2xl border border-[#F3EFEA] shadow-sm"
                     >
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Total Orders</p>
-                        <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">{Number(stats?.totalOrders || 0).toLocaleString('en-IN')}</h3>
+                        <h3 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">{Number(stats?.totalOrders || 0).toLocaleString('en-IN')}</h3>
                         <div className="mt-4 flex items-center gap-2">
                             <span className="inline-flex items-center gap-1 text-gray-400 text-xs font-bold">
                                 <TrendingUp className="w-3 h-3" />
@@ -255,10 +255,10 @@ export default function SalesGrowthPage() {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-white p-6 rounded-2xl border border-[#F3EFEA] shadow-sm"
+                        className="bg-white p-4 sm:p-6 rounded-2xl border border-[#F3EFEA] shadow-sm"
                     >
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Avg. Order Value</p>
-                        <h3 className="text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">₹{Number(stats?.avgOrderValue || 0).toLocaleString('en-IN')}</h3>
+                        <h3 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">₹{Number(stats?.avgOrderValue || 0).toLocaleString('en-IN')}</h3>
                         <div className="mt-4 flex items-center gap-2">
                             <span className="inline-flex items-center gap-1 text-gray-400 text-xs font-bold">
                                 <TrendingDown className="w-3 h-3" />
@@ -277,7 +277,7 @@ export default function SalesGrowthPage() {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-white p-6 rounded-2xl border border-[#F3EFEA] shadow-sm"
+                        className="bg-white p-4 sm:p-6 rounded-2xl border border-[#F3EFEA] shadow-sm"
                     >
                         <h3 className="text-lg font-serif font-bold text-[#7A1A1A] mb-6">Revenue Trend</h3>
 

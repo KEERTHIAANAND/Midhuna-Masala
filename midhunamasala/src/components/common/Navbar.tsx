@@ -6,6 +6,8 @@ import { ShoppingCart, User, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLenis } from 'lenis/react';
+import { useEffect } from 'react';
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -20,6 +22,22 @@ export default function Navbar() {
   const { user, isAuthenticated } = useAuth();
   const { cartCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const lenis = useLenis();
+
+  // Prevent scrolling when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+      lenis?.stop();
+    } else {
+      document.body.style.overflow = '';
+      lenis?.start();
+    }
+    return () => {
+      document.body.style.overflow = '';
+      lenis?.start();
+    };
+  }, [mobileMenuOpen, lenis]);
 
   // Don't show navbar on login/signup pages or admin pages
   if (pathname === '/login' || pathname === '/signup' || pathname?.startsWith('/admin')) {
@@ -155,31 +173,80 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* Premium Full-Screen Mobile Menu */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
-              className="md:hidden bg-[#FFFDF5] border-t border-[#E5D2C5] relative z-20 overflow-hidden"
+              initial={{ opacity: 0, y: '-100%' }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: '-100%' }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed inset-0 z-[100] bg-[#8B1E1E] md:hidden flex flex-col"
             >
-              <div className="px-4 py-3 space-y-1">
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`block py-3 px-4 rounded-lg text-sm font-bold tracking-[0.15em] uppercase transition-all ${pathname === link.href
-                      ? 'bg-[#8B1E1E] text-white'
-                      : 'text-[#8B1E1E] hover:bg-[#8B1E1E]/5'
-                      }`}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+              {/* Dotted pattern overlay */}
+              <div className="absolute inset-0 opacity-20 pointer-events-none"
+                style={{ backgroundImage: 'radial-gradient(#F6C84C 1px, transparent 1px)', backgroundSize: '30px 30px' }}>
               </div>
+
+              {/* Header inside Menu */}
+              <div className="flex justify-between items-center h-16 sm:h-20 px-4 sm:px-6 relative z-10 border-b border-[#F6C84C]/20">
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex flex-col">
+                  <span className="text-2xl font-bold text-white font-serif tracking-wide">
+                    Midhuna Masala
+                  </span>
+                </Link>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-[#F6C84C] hover:text-[#8B1E1E] transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Navigation Links */}
+              <div className="flex-1 flex flex-col justify-center items-center relative z-10 px-6 gap-8">
+                {NAV_LINKS.map((link, i) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <div key={link.href} className="overflow-hidden">
+                      <motion.div
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 20, opacity: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                      >
+                        <Link
+                          href={link.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`text-2xl sm:text-3xl font-serif font-bold tracking-[0.15em] uppercase transition-colors relative group flex items-center gap-3 ${
+                            isActive ? 'text-[#F6C84C]' : 'text-white/80 hover:text-white'
+                          }`}
+                        >
+                          {isActive && (
+                            <motion.span 
+                              layoutId="mobile-nav-indicator"
+                              className="w-2 h-2 bg-[#F6C84C] rounded-full" 
+                            />
+                          )}
+                          {link.label}
+                        </Link>
+                      </motion.div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Footer inside menu */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="p-8 text-center relative z-10 border-t border-[#F6C84C]/20"
+              >
+                 <p className="text-[#F6C84C] text-xs tracking-[0.2em] uppercase opacity-80 font-bold">
+                   Traditional Stone Ground Spices
+                 </p>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>

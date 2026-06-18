@@ -34,12 +34,21 @@ const benefits = [
 
 export default function ProductDetails({ product, onClose }: ProductDetailsProps) {
     const [quantity, setQuantity] = useState(1);
+    const [selectedWeight, setSelectedWeight] = useState(product.weight || "100g");
     const [addedToCart, setAddedToCart] = useState(false);
     const [liked, setLiked] = useState(false);
     const { addToCart } = useCart();
     const router = useRouter();
 
     const isOutOfStock = product.inStock === false;
+
+    // Dynamically calculate price based on weight ratio
+    const baseWeightNum = parseInt(product.weight || "100g") || 100;
+    const selectedWeightNum = parseInt(selectedWeight) || 100;
+    const displayPrice = (product.price || 5.99) * (selectedWeightNum / baseWeightNum);
+
+    // Get unique available weights, sorted
+    const availableWeights = Array.from(new Set([product.weight || "100g", "200g", "500g"])).sort((a, b) => parseInt(a) - parseInt(b));
 
     const handleAddToCart = () => {
         if (isOutOfStock) {
@@ -52,8 +61,8 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
             productId: product.dbId,  // Supabase UUID for backend sync
             slug: product.id,          // Product slug
             name: product.name,
-            weight: product.weight || "100g",
-            price: product.price || 5.99,
+            weight: selectedWeight,
+            price: displayPrice,
             image: product.image,
             inStock: !isOutOfStock,
         }, quantity);
@@ -74,8 +83,8 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
             productId: product.dbId,
             slug: product.id,
             name: product.name,
-            weight: product.weight || "100g",
-            price: product.price || 5.99,
+            weight: selectedWeight,
+            price: displayPrice,
             image: product.image,
             quantity: quantity,
             inStock: !isOutOfStock,
@@ -85,7 +94,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
         router.push('/checkout?buyNow=true');
     };
 
-    const totalPrice = (product.price || 5.99) * quantity;
+    const totalPrice = displayPrice * quantity;
 
     return (
         <motion.div
@@ -97,7 +106,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
             {/* Close Button */}
             <motion.button
                 onClick={onClose}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-[#8B1E1E] text-white rounded-full flex items-center justify-center hover:bg-[#6B1515] transition-all shadow-lg"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-50 w-8 h-8 sm:w-10 sm:h-10 bg-[#8B1E1E] text-white rounded-full flex items-center justify-center hover:bg-[#6B1515] transition-all shadow-lg"
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
             >
@@ -107,40 +116,40 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
             <div className="flex flex-col lg:flex-row">
                 {/* ── Left Side - Product Image ── */}
                 <motion.div
-                    className="lg:w-1/2 bg-gradient-to-br from-white to-[#FAF7F2] p-5 sm:p-10 flex items-center justify-center relative"
+                    className="lg:w-1/2 bg-gradient-to-br from-white to-[#FAF7F2] p-4 sm:p-10 flex items-center justify-center relative"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: 0.15 }}
                 >
-                    {/* Decorative Corner Accents */}
+                    {/* Decorative Corner Accents (Hidden on mobile for cleaner look) */}
                     <motion.div
-                        className="absolute top-6 left-6 w-12 h-12 border-l-2 border-t-2 border-[#D4AF37]"
+                        className="hidden sm:block absolute top-6 left-6 w-12 h-12 border-l-2 border-t-2 border-[#D4AF37]"
                         initial={{ opacity: 0, x: -10, y: -10 }}
                         animate={{ opacity: 1, x: 0, y: 0 }}
                         transition={{ delay: 0.4 }}
                     />
                     <motion.div
-                        className="absolute bottom-6 right-6 w-12 h-12 border-r-2 border-b-2 border-[#D4AF37]"
+                        className="hidden sm:block absolute bottom-6 right-6 w-12 h-12 border-r-2 border-b-2 border-[#D4AF37]"
                         initial={{ opacity: 0, x: 10, y: 10 }}
                         animate={{ opacity: 1, x: 0, y: 0 }}
                         transition={{ delay: 0.5 }}
                     />
 
                     {/* Image container */}
-                    <div className="relative w-full aspect-square max-w-md">
+                    <div className="relative w-48 h-48 sm:w-full sm:h-auto sm:aspect-square max-w-md">
                         <CloudImage
                             src={product.image}
                             alt={product.name}
                             fill
-                            sizes="(max-width: 768px) 100vw, 50vw"
+                            sizes="(max-width: 768px) 192px, 50vw"
                             className="object-contain drop-shadow-xl"
                         />
                     </div>
 
-                    {/* ♥ Like Button — Top Right Corner of Image */}
+                    {/* ♥ Like Button — Bottom Right on Mobile to avoid Close Button overlap, Top Right on Desktop */}
                     <motion.button
                         onClick={() => setLiked(!liked)}
-                        className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-300"
+                        className="absolute bottom-4 right-4 sm:top-6 sm:bottom-auto sm:right-6 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-300 border border-[#D4AF37]/20"
                         style={{
                             backgroundColor: liked ? '#8B1E1E' : 'rgba(255,255,255,0.9)',
                         }}
@@ -160,7 +169,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
 
                 {/* ── Right Side - Product Details ── */}
                 <motion.div
-                    className="lg:w-1/2 p-5 sm:p-8 lg:p-10 bg-gradient-to-br from-[#8B1E1E] to-[#6B1515] text-white relative"
+                    className="lg:w-1/2 p-4 sm:p-8 lg:p-10 bg-gradient-to-br from-[#8B1E1E] to-[#6B1515] text-white relative"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.2 }}
@@ -199,7 +208,7 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
 
                         {/* Product Name */}
                         <motion.h2
-                            className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-[#F5E6D3]"
+                            className="text-xl sm:text-3xl lg:text-4xl font-bold mb-2 text-[#F5E6D3] leading-tight"
                             style={{ fontFamily: "'Playfair Display', serif" }}
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -208,20 +217,11 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                             {product.name}
                         </motion.h2>
 
-                        {/* Type */}
-                        <motion.p
-                            className="text-[#F5E6D3]/70 text-sm mb-5 italic"
-                            style={{ fontFamily: "'Crimson Text', serif" }}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                        >
-                            {product.type || "Stone Ground"}
-                        </motion.p>
+
 
                         {/* Rating */}
                         <motion.div
-                            className="flex items-center gap-3 mb-6 pb-5 border-b border-[#D4AF37]/30"
+                            className="flex items-center gap-3 mb-4 sm:mb-6 pb-3 sm:pb-5 border-b border-[#D4AF37]/30"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.45 }}
@@ -247,9 +247,9 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                         </motion.div>
 
                         {/* Benefits */}
-                        <motion.div className="mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}>
-                            <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-3 font-semibold">Benefits</p>
-                            <ul className="space-y-2.5 text-[#F5E6D3]/85 text-sm" style={{ fontFamily: "'Crimson Text', serif" }}>
+                        <motion.div className="mb-4 sm:mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}>
+                            <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-2 sm:mb-3 font-semibold">Benefits</p>
+                            <ul className="space-y-1.5 sm:space-y-2.5 text-[#F5E6D3]/85 text-sm" style={{ fontFamily: "'Crimson Text', serif" }}>
                                 {benefits.map((benefit, index) => (
                                     <motion.li key={index} className="flex items-center gap-2"
                                         initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }}
@@ -262,26 +262,30 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                         </motion.div>
 
                         {/* Weight */}
-                        <motion.div className="mb-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}>
+                        <motion.div className="mb-4 sm:mb-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}>
                             <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-2 font-semibold">Weight</p>
-                            <div className="flex gap-2">
-                                <button className="px-3 py-1 bg-[#D4AF37] text-[#8B1E1E] text-xs font-bold rounded">
-                                    {product.weight || "100g"}
-                                </button>
-                                <button className="px-3 py-1 bg-[#F5E6D3]/15 text-[#F5E6D3] text-xs font-medium rounded hover:bg-[#F5E6D3]/25 transition-colors border border-[#D4AF37]/30">
-                                    200g
-                                </button>
-                                <button className="px-3 py-1 bg-[#F5E6D3]/15 text-[#F5E6D3] text-xs font-medium rounded hover:bg-[#F5E6D3]/25 transition-colors border border-[#D4AF37]/30">
-                                    500g
-                                </button>
+                            <div className="flex flex-wrap gap-2">
+                                {availableWeights.map((w) => (
+                                    <button
+                                        key={w}
+                                        onClick={() => setSelectedWeight(w)}
+                                        className={`px-3 py-1 text-xs font-bold rounded transition-colors border ${
+                                            selectedWeight === w
+                                                ? "bg-[#D4AF37] text-[#8B1E1E] border-[#D4AF37]"
+                                                : "bg-[#F5E6D3]/15 text-[#F5E6D3] border-[#D4AF37]/30 hover:bg-[#F5E6D3]/25 font-medium"
+                                        }`}
+                                    >
+                                        {w}
+                                    </button>
+                                ))}
                             </div>
                         </motion.div>
 
                         {/* Quantity and Total */}
-                        <motion.div className="flex items-center justify-between mb-6"
+                        <motion.div className="flex items-center justify-between mb-4 sm:mb-6"
                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
                             <div>
-                                <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-2 font-semibold">Qty</p>
+                                <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-1 sm:mb-2 font-semibold">Qty</p>
                                 <div className="flex items-center gap-2">
                                     <motion.button onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                         className="w-6 h-6 bg-[#D4AF37]/20 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#8B1E1E] transition-all text-sm font-bold flex items-center justify-center"
@@ -293,10 +297,10 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-2 font-semibold">Total</p>
+                                <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-1 sm:mb-2 font-semibold">Total</p>
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-[#F5E6D3] text-lg">₹</span>
-                                    <span className="text-4xl font-bold text-[#F5E6D3]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                    <span className="text-3xl sm:text-4xl font-bold text-[#F5E6D3]" style={{ fontFamily: "'Playfair Display', serif" }}>
                                         {totalPrice.toFixed(2)}
                                     </span>
                                 </div>
@@ -304,12 +308,12 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                         </motion.div>
 
                         {/* Action Buttons: Add to Cart + Get Now */}
-                        <motion.div className="flex gap-3 sm:gap-4" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }}>
+                        <motion.div className="flex flex-row gap-2 sm:gap-4 mt-2 sm:mt-0" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }}>
                             {/* Add to Cart */}
                             <motion.button
                                 onClick={handleAddToCart}
                                 disabled={addedToCart || isOutOfStock}
-                                className={`flex-1 py-3.5 px-5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg border-2 ${addedToCart
+                                className={`flex-1 py-2.5 sm:py-3.5 px-2 sm:px-5 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-300 shadow-lg border-2 ${addedToCart
                                     ? 'bg-green-500 text-white border-green-500'
                                     : isOutOfStock
                                         ? 'bg-transparent border-[#D4AF37]/30 text-[#D4AF37]/40 cursor-not-allowed'
@@ -321,17 +325,17 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                             >
                                 <AnimatePresence mode="wait">
                                     {addedToCart ? (
-                                        <motion.span key="added" className="flex items-center gap-2"
+                                        <motion.span key="added" className="flex items-center gap-1.5 sm:gap-2"
                                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                             </svg>
                                             Added!
                                         </motion.span>
                                     ) : (
-                                        <motion.span key="add" className="flex items-center gap-2"
+                                        <motion.span key="add" className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap"
                                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                                            <ShoppingCart className="w-5 h-5" />
+                                            <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
                                             Add to Cart
                                         </motion.span>
                                     )}
@@ -342,13 +346,13 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                             <motion.button
                                 onClick={handleGetNow}
                                 disabled={isOutOfStock}
-                                className={`flex-1 py-3.5 px-5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#8B1E1E] hover:from-[#E5C04A] hover:to-[#C4A030] ${isOutOfStock ? 'opacity-50 cursor-not-allowed hover:from-[#D4AF37] hover:to-[#B8860B]' : ''}`}
+                                className={`flex-1 py-2.5 sm:py-3.5 px-2 sm:px-5 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-300 shadow-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#8B1E1E] hover:from-[#E5C04A] hover:to-[#C4A030] ${isOutOfStock ? 'opacity-50 cursor-not-allowed hover:from-[#D4AF37] hover:to-[#B8860B]' : ''}`}
                                 style={{ fontFamily: "'Crimson Text', serif", letterSpacing: '0.05em' }}
                                 whileHover={!isOutOfStock ? { scale: 1.02 } : undefined}
                                 whileTap={!isOutOfStock ? { scale: 0.98 } : undefined}
                             >
-                                <Zap className="w-5 h-5" />
-                                Get Now
+                                <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span className="whitespace-nowrap">Buy Now</span>
                             </motion.button>
                         </motion.div>
                     </div>

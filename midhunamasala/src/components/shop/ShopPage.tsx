@@ -7,6 +7,7 @@ import ProductDetails from "@/components/shop/ProductDetails";
 import Footer from "@/components/layout/Footer";
 import { ChevronRight, Filter, Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useLenis } from 'lenis/react';
 import { clientEnv } from "@/lib/env";
 
 const API_URL = clientEnv.NEXT_PUBLIC_API_URL;
@@ -35,23 +36,17 @@ const collections = [
     color: "white"
   },
   {
-    id: "whole-spices",
-    title: "WHOLE SPICES",
-    subtitle: "SEEDS & PODS",
+    id: "spices",
+    title: "SPICES",
+    subtitle: "WHOLE & GROUND",
     color: "white"
   },
   {
-    id: "ground-powders",
-    title: "GROUND POWDERS",
-    subtitle: "DAILY ESSENTIALS",
+    id: "oils",
+    title: "OILS",
+    subtitle: "PURE & NATURAL",
     color: "white"
-  },
-  {
-    id: "secret-blends",
-    title: "SECRET BLENDS",
-    subtitle: "SPECIAL MASALAS",
-    color: "white"
-  },
+  }
 ];
 
 export default function ShopPage() {
@@ -96,6 +91,25 @@ export default function ShopPage() {
     setSelectedProduct(null);
   };
 
+  const lenis = useLenis();
+
+  // Lock body scroll and pause Lenis when modal is open
+  useEffect(() => {
+    if (selectedProduct) {
+      document.body.style.overflow = 'hidden';
+      lenis?.stop();
+    } else {
+      document.body.style.overflow = '';
+      lenis?.start();
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = '';
+      lenis?.start();
+    };
+  }, [selectedProduct, lenis]);
+
   // Filter products based on selected collection
   const filteredProducts = React.useMemo(() => {
     if (selectedCollection === "all") {
@@ -103,13 +117,12 @@ export default function ShopPage() {
     }
 
     const categoryMap: Record<string, string[]> = {
-      "whole-spices": ["WHOLE SPICES"],
-      "ground-powders": ["POWDER"],
-      "secret-blends": ["BLEND"]
+      "spices": ["SPICE", "WHOLE SPICES", "POWDER", "BLEND", "SPICES"],
+      "oils": ["OIL", "OILS"]
     };
 
     const allowedCategories = categoryMap[selectedCollection] || [];
-    return products.filter(p => allowedCategories.includes(p.category));
+    return products.filter(p => allowedCategories.includes(p.category.toUpperCase()));
   }, [selectedCollection, products]);
 
   return (
@@ -186,34 +199,25 @@ export default function ShopPage() {
                   : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
                   }`}
               >
-                All Spices
+                All Products
               </button>
               <button
-                onClick={() => setSelectedCollection('whole-spices')}
-                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'whole-spices'
+                onClick={() => setSelectedCollection('spices')}
+                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'spices'
                   ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
                   : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
                   }`}
               >
-                Whole Spices
+                Spices
               </button>
               <button
-                onClick={() => setSelectedCollection('ground-powders')}
-                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'ground-powders'
+                onClick={() => setSelectedCollection('oils')}
+                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'oils'
                   ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
                   : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
                   }`}
               >
-                Powders
-              </button>
-              <button
-                onClick={() => setSelectedCollection('secret-blends')}
-                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 ${selectedCollection === 'secret-blends'
-                  ? 'bg-gradient-to-r from-[#8B1E1E] to-[#6B1616] text-white shadow-md'
-                  : 'text-[#8B1E1E] hover:bg-[#FAF7F2]'
-                  }`}
-              >
-                Secret Blends
+                Oils
               </button>
             </div>
           </div>

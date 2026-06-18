@@ -17,7 +17,7 @@ import { clientEnv } from '@/lib/env';
 const API_URL = clientEnv.NEXT_PUBLIC_API_URL;
 
 // Category Filters
-const CATEGORIES = ['All Spices', 'Powder', 'Whole Spices', 'Blends'];
+const CATEGORIES = ['All Products', 'Spices', 'Oils'];
 
 // DB Product type (matches API response)
 type Product = {
@@ -40,7 +40,7 @@ export default function SpiceCatalogPage() {
     const { user, isAdmin, isLoading: authLoading, getIdToken } = useAuth();
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
-    const [activeCategory, setActiveCategory] = useState('All Spices');
+    const [activeCategory, setActiveCategory] = useState('All Products');
     const [searchQuery, setSearchQuery] = useState('');
 
     // Product state
@@ -59,7 +59,7 @@ export default function SpiceCatalogPage() {
         name: '',
         type: 'Stone Ground',
         imageUrl: '',
-        category: 'POWDER',
+        category: 'SPICE',
         description: '',
         price: '',
         weight: '100g',
@@ -111,7 +111,7 @@ export default function SpiceCatalogPage() {
             name: '',
             type: 'Stone Ground',
             imageUrl: '',
-            category: 'POWDER',
+            category: 'SPICE',
             description: '',
             price: '',
             weight: '100g',
@@ -292,9 +292,14 @@ export default function SpiceCatalogPage() {
 
     // Filter products
     const filteredProducts = products.filter(product => {
-        const matchesCategory = activeCategory === 'All Spices' ||
-            product.category.toLowerCase() === activeCategory.toLowerCase() ||
-            (activeCategory === 'Blends' && product.category === 'BLEND');
+        const cat = product.category ? product.category.toUpperCase() : '';
+        const isSpice = ['SPICE', 'SPICES', 'POWDER', 'WHOLE SPICES', 'BLEND'].includes(cat);
+        const isOil = ['OIL', 'OILS'].includes(cat);
+
+        const matchesCategory = activeCategory === 'All Products' ||
+            (activeCategory === 'Spices' && isSpice) ||
+            (activeCategory === 'Oils' && isOil);
+            
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
     });
@@ -310,8 +315,21 @@ export default function SpiceCatalogPage() {
     // ─── Reusable Form Component ───
     const ProductForm = ({ isEdit = false }: { isEdit?: boolean }) => (
         <div className="px-6 pb-6 space-y-5 max-h-[60vh] overflow-y-auto">
-            {/* Category & Type Row */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Product Name & Category */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                        <Tag className="w-3 h-3" />
+                        Product Name
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="e.g. Erode Turmeric Powder"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
+                    />
+                </div>
                 <div>
                     <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
                         <Tag className="w-3 h-3" />
@@ -322,44 +340,10 @@ export default function SpiceCatalogPage() {
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A] cursor-pointer"
                     >
-                        <option value="POWDER">Powder</option>
-                        <option value="WHOLE SPICES">Whole Spices</option>
-                        <option value="BLEND">Blends</option>
+                        <option value="SPICE">Spice</option>
+                        <option value="OIL">Oil</option>
                     </select>
                 </div>
-                <div>
-                    <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                        <Tag className="w-3 h-3" />
-                        Type
-                    </label>
-                    <select
-                        value={formData.type}
-                        onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                        className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A] cursor-pointer"
-                    >
-                        <option>Stone Ground</option>
-                        <option>Hand Picked</option>
-                        <option>Traditional Recipe</option>
-                        <option>Seeds & Pods</option>
-                        <option>Premium Quality</option>
-                        <option>Organic</option>
-                    </select>
-                </div>
-            </div>
-
-            {/* Product Name */}
-            <div>
-                <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                    <Tag className="w-3 h-3" />
-                    Product Name
-                </label>
-                <input
-                    type="text"
-                    placeholder="e.g. Erode Turmeric Powder (Manjal)"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm focus:outline-none focus:border-[#7A1A1A]"
-                />
             </div>
 
             {/* Description */}
@@ -489,12 +473,12 @@ export default function SpiceCatalogPage() {
             </AnimatePresence>
 
             {/* MAIN CONTENT */}
-            <main className="p-6 max-w-[1600px] mx-auto space-y-6">
+            <main className="p-3 sm:p-6 max-w-[1600px] mx-auto space-y-4 sm:space-y-6">
 
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div>
-                        <h2 className="text-4xl font-serif font-bold text-[#7A1A1A]">Spice Catalog</h2>
+                        <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A]">Spice Catalog</h2>
                         <p className="text-gray-500 mt-1">
                             Manage your premium product offerings
                             {!isLoadingProducts && <span className="text-[#7A1A1A] font-medium ml-2">({products.length} products)</span>}
@@ -597,7 +581,6 @@ export default function SpiceCatalogPage() {
                                         <span className="text-xs font-bold text-white bg-[#7A1A1A] px-3 py-1 rounded-full uppercase">
                                             {selectedProduct.category}
                                         </span>
-                                        <span className="text-xs text-gray-500 italic">{selectedProduct.type || 'Stone Ground'}</span>
                                         {selectedProduct.isFeatured && (
                                             <span className="text-xs font-bold text-[#D4AF37] bg-[#D4AF37]/10 px-3 py-1 rounded-full">⭐ Featured</span>
                                         )}
@@ -760,8 +743,8 @@ export default function SpiceCatalogPage() {
                 </AnimatePresence>
 
                 {/* Filters & Search */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-1 bg-white rounded-xl p-1.5 border border-[#F3EFEA] shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                    <div className="flex items-center gap-1 bg-white rounded-xl p-1.5 border border-[#F3EFEA] shadow-sm overflow-x-auto scrollbar-hide">
                         {CATEGORIES.map((category) => (
                             <button
                                 key={category}
@@ -783,7 +766,7 @@ export default function SpiceCatalogPage() {
                             placeholder="Search catalog..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm w-72 focus:outline-none focus:border-[#7A1A1A] focus:ring-1 focus:ring-[#7A1A1A]/20"
+                            className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 text-gray-700 placeholder-gray-400 rounded-xl text-sm w-full sm:w-72 focus:outline-none focus:border-[#7A1A1A] focus:ring-1 focus:ring-[#7A1A1A]/20"
                         />
                     </div>
                 </div>
@@ -870,7 +853,6 @@ export default function SpiceCatalogPage() {
                                         <div className="flex items-start justify-between gap-2 mb-3">
                                             <div>
                                                 <h3 className="font-serif font-bold text-[#7A1A1A] leading-tight">{product.name}</h3>
-                                                <p className="text-xs text-gray-500 italic">{product.type || 'Stone Ground'}</p>
                                             </div>
                                             <div className="text-right">
                                                 <span className="text-[#D4AF37] font-serif font-bold text-lg">₹{product.price}</span>

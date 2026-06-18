@@ -336,13 +336,13 @@ export default function OrdersPage() {
             <AdminNavbar user={user} onLogout={handleLogout} />
 
             {/* 3. MAIN CONTENT */}
-            <main className="p-6 max-w-[1600px] mx-auto space-y-6">
+            <main className="p-3 sm:p-6 max-w-[1600px] mx-auto space-y-4 sm:space-y-6">
 
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div>
-                        <h2 className="text-4xl font-serif font-bold text-[#7A1A1A]">Orders & Shipments</h2>
-                        <p className="text-gray-500 mt-1">Track wholesale and retail distribution</p>
+                        <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#7A1A1A]">Orders & Shipments</h2>
+                        <p className="text-sm sm:text-base text-gray-500 mt-1">Track wholesale and retail distribution</p>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -474,7 +474,7 @@ export default function OrdersPage() {
                                 placeholder="Search order ID..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm w-48 focus:outline-none focus:border-[#7A1A1A] focus:ring-1 focus:ring-[#7A1A1A]"
+                                className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm w-full sm:w-48 focus:outline-none focus:border-[#7A1A1A] focus:ring-1 focus:ring-[#7A1A1A]"
                             />
                         </div>
                     </div>
@@ -482,8 +482,8 @@ export default function OrdersPage() {
 
                 {/* Orders Table */}
                 <div className="bg-white rounded-2xl border border-[#F3EFEA] overflow-hidden shadow-sm">
-                    {/* Table Header */}
-                    <div className="grid grid-cols-8 gap-4 px-6 py-4 bg-gray-50/50 border-b border-[#F3EFEA] text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    {/* Table Header - Desktop Only */}
+                    <div className="hidden md:grid grid-cols-8 gap-4 px-6 py-4 bg-gray-50/50 border-b border-[#F3EFEA] text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                         <div>Order ID</div>
                         <div className="col-span-2">Customer</div>
                         <div>Date & Time</div>
@@ -509,49 +509,71 @@ export default function OrdersPage() {
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
                                     transition={{ delay: index * 0.02 }}
-                                    className="grid grid-cols-8 gap-4 px-6 py-4 items-center hover:bg-gray-50/50 transition-colors"
+                                    className="hover:bg-gray-50/50 transition-colors"
                                 >
-                                    {/* Order ID */}
-                                    <div className="font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">#{order.id}</div>
+                                    {/* Desktop Row */}
+                                    <div className="hidden md:grid grid-cols-8 gap-4 px-6 py-4 items-center">
+                                        <div className="font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">#{order.id}</div>
+                                        <div
+                                            className="col-span-2 flex items-center gap-3 cursor-pointer group"
+                                            onClick={() => {
+                                                setSelectedOrder(order);
+                                                setViewOrderOpen(true);
+                                                loadOrderDetails(order);
+                                            }}
+                                        >
+                                            <div className={`w-8 h-8 rounded-full ${order.customer.color} flex items-center justify-center font-bold text-sm`}>
+                                                {order.customer.initial}
+                                            </div>
+                                            <span className="font-medium text-gray-800 group-hover:text-[#7A1A1A] transition-colors underline-offset-2 group-hover:underline">
+                                                {order.customer.name}
+                                            </span>
+                                        </div>
+                                        <div className="text-sm text-gray-500">{order.date}</div>
+                                        <div className="text-sm text-gray-600 font-serif tabular-nums lining-nums">{order.items} Items</div>
+                                        <div className="font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">₹{order.amount.toLocaleString()}</div>
+                                        <div>
+                                            <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded-md border border-gray-200 uppercase">
+                                                {order.payment}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className={`px-3 py-1 text-[10px] font-bold rounded-full border ${STATUS_STYLES[order.status]} uppercase tracking-wide`}>
+                                                {order.status}
+                                            </span>
+                                        </div>
+                                    </div>
 
-                                    {/* Customer - Clickable */}
+                                    {/* Mobile Card */}
                                     <div
-                                        className="col-span-2 flex items-center gap-3 cursor-pointer group"
+                                        className="md:hidden p-4 cursor-pointer"
                                         onClick={() => {
                                             setSelectedOrder(order);
                                             setViewOrderOpen(true);
                                             loadOrderDetails(order);
                                         }}
                                     >
-                                        <div className={`w-8 h-8 rounded-full ${order.customer.color} flex items-center justify-center font-bold text-sm`}>
-                                            {order.customer.initial}
+                                        <div className="flex items-start justify-between gap-3 mb-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-9 h-9 rounded-full ${order.customer.color} flex items-center justify-center font-bold text-sm flex-shrink-0`}>
+                                                    {order.customer.initial}
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-gray-800 text-sm">{order.customer.name}</p>
+                                                    <p className="text-xs text-gray-400">#{order.id}</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-serif font-bold text-[#7A1A1A]">₹{order.amount.toLocaleString()}</p>
+                                                <p className="text-[10px] text-gray-400 mt-0.5">{order.items} Items</p>
+                                            </div>
                                         </div>
-                                        <span className="font-medium text-gray-800 group-hover:text-[#7A1A1A] transition-colors underline-offset-2 group-hover:underline">
-                                            {order.customer.name}
-                                        </span>
-                                    </div>
-
-                                    {/* Date */}
-                                    <div className="text-sm text-gray-500">{order.date}</div>
-
-                                    {/* Items */}
-                                    <div className="text-sm text-gray-600 font-serif tabular-nums lining-nums">{order.items} Items</div>
-
-                                    {/* Amount */}
-                                    <div className="font-serif font-bold text-[#7A1A1A] tabular-nums lining-nums">₹{order.amount.toLocaleString()}</div>
-
-                                    {/* Payment */}
-                                    <div>
-                                        <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded-md border border-gray-200 uppercase">
-                                            {order.payment}
-                                        </span>
-                                    </div>
-
-                                    {/* Status */}
-                                    <div>
-                                        <span className={`px-3 py-1 text-[10px] font-bold rounded-full border ${STATUS_STYLES[order.status]} uppercase tracking-wide`}>
-                                            {order.status}
-                                        </span>
+                                        <div className="flex items-center justify-between mt-2">
+                                            <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full border ${STATUS_STYLES[order.status]} uppercase tracking-wide`}>
+                                                {order.status}
+                                            </span>
+                                            <span className="text-xs text-gray-400">{order.date}</span>
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}

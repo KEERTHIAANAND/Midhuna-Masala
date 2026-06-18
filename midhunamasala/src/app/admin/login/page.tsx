@@ -88,7 +88,7 @@ export default function AdminLoginPage() {
                 <div className="bg-white rounded-3xl shadow-xl shadow-[#8B1E1E]/5 border border-[#E5D2C5] overflow-hidden">
 
                     {/* Header Section */}
-                    <div className="bg-[#8B1E1E] px-8 py-10 text-center relative overflow-hidden">
+                    <div className="bg-[#8B1E1E] px-6 sm:px-8 py-8 sm:py-10 text-center relative overflow-hidden">
                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")" }}></div>
 
                         {/* Logo Icon */}
@@ -96,7 +96,7 @@ export default function AdminLoginPage() {
                             <LayoutDashboard className="w-7 h-7 text-[#F6C84C]" />
                         </div>
 
-                        <h1 className="relative text-2xl font-serif font-bold text-white tracking-wide">
+                        <h1 className="relative text-xl sm:text-2xl font-serif font-bold text-white tracking-wide">
                             Admin Console
                         </h1>
                         <p className="relative text-[#F6C84C]/90 text-xs font-bold tracking-[0.2em] uppercase mt-2">
@@ -105,7 +105,7 @@ export default function AdminLoginPage() {
                     </div>
 
                     {/* Auth Section */}
-                    <div className="px-8 py-10">
+                    <div className="px-5 sm:px-8 py-8 sm:py-10">
                         <div className="mb-8 text-center">
                             <h2 className="text-xl font-bold text-gray-800 font-serif">Welcome Back</h2>
                             <p className="text-sm text-gray-500 mt-2">Please sign in to manage your store.</p>

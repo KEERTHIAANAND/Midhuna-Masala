@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Youtube, Instagram } from 'lucide-react';
 
 const QUICK_LINKS = [
   { href: '/shop', label: 'Our Spices' },
@@ -82,47 +83,42 @@ export default function Footer() {
             </h3>
             <div className="flex items-center justify-center md:justify-start space-x-3">
 
-              {/* Facebook */}
-              <a
-                href="#"
-                className="w-10 h-10 bg-transparent border-2 border-[#F6C84C]/40 rounded-full flex items-center justify-center hover:bg-[#F6C84C]/20 hover:border-[#F6C84C] transition-all"
-                aria-label="Facebook"
-              >
-                <svg className="w-4 h-4 text-[#F6C84C]" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                  <path d="M22.675 0H1.325C.593 0 0 .593 0 1.326v21.348C0 23.407.593 24 1.325 24H12.82v-9.294H9.692V11.09h3.128V8.41c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.794.716-1.794 1.764v2.313h3.587l-.467 3.616h-3.12V24h6.116C23.407 24 24 23.407 24 22.674V1.326C24 .593 23.407 0 22.675 0z" />
-                </svg>
-              </a>
-
-              {/* Twitter/X */}
-              <a
-                href="#"
-                className="w-10 h-10 bg-transparent border-2 border-[#F6C84C]/40 rounded-full flex items-center justify-center hover:bg-[#F6C84C]/20 hover:border-[#F6C84C] transition-all"
-                aria-label="Twitter"
-              >
-                <svg className="w-4 h-4 text-[#F6C84C]" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                  <path d="M23 4.557a9.83 9.83 0 0 1-2.828.775 4.932 4.932 0 0 0 2.165-2.724 9.864 9.864 0 0 1-3.127 1.195 4.916 4.916 0 0 0-8.38 4.482A13.944 13.944 0 0 1 1.671 3.149a4.916 4.916 0 0 0 1.523 6.574 4.897 4.897 0 0 1-2.228-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.93 4.93 0 0 1-2.224.085c.626 1.956 2.444 3.379 4.6 3.419A9.868 9.868 0 0 1 0 19.54a13.94 13.94 0 0 0 7.548 2.212c9.056 0 14.01-7.506 14.01-14.01 0-.213-.005-.425-.014-.636A10.012 10.012 0 0 0 23 4.557z" />
-                </svg>
-              </a>
-
               {/* YouTube */}
               <a
-                href="#"
-                className="w-10 h-10 bg-transparent border-2 border-[#F6C84C]/40 rounded-full flex items-center justify-center hover:bg-[#F6C84C]/20 hover:border-[#F6C84C] transition-all"
+                href="https://www.youtube.com/@MIDHUNAMASALA"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:scale-110 hover:-translate-y-1 transition-all duration-300 drop-shadow-md"
                 aria-label="YouTube"
               >
-                <svg className="w-5 h-5 text-[#F6C84C]" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21.58 7.19C21.36 6.31 20.69 5.64 19.81 5.42C18.25 5 12 5 12 5C12 5 5.75 5 4.19 5.42C3.31 5.64 2.64 6.31 2.42 7.19C2 8.75 2 12 2 12C2 12 2 15.25 2.42 16.81C2.64 17.69 3.31 18.36 4.19 18.58C5.75 19 12 19 12 19C12 19 18.25 19 19.81 18.58C20.69 18.36 21.36 17.69 21.58 16.81C22 15.25 22 12 22 12C22 12 22 8.75 21.58 7.19Z" fill="#FF0000"/>
+                  <path d="M10 15L15.5 12L10 9V15Z" fill="white"/>
                 </svg>
               </a>
 
               {/* Instagram */}
               <a
-                href="#"
-                className="w-10 h-10 bg-transparent border-2 border-[#F6C84C]/40 rounded-full flex items-center justify-center hover:bg-[#F6C84C]/20 hover:border-[#F6C84C] transition-all"
+                href="https://www.instagram.com/midhunamasala?igsh=MWJ3d3Y4YWtnc2R1aw=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:scale-110 hover:-translate-y-1 transition-all duration-300 drop-shadow-md"
                 aria-label="Instagram"
               >
-                <svg className="w-4 h-4 text-[#F6C84C]" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                  <path d="M7.001 2C4.243 2 2 4.243 2 7.001v9.998C2 19.757 4.243 22 7.001 22h9.998C19.757 22 22 19.757 22 17V7.001C22 4.243 19.757 2 17 2H7.001zM12 7.5A4.5 4.5 0 1 1 7.5 12 4.505 4.505 0 0 1 12 7.5zm5.25-1.875a1.125 1.125 0 1 1-1.125 1.125A1.124 1.124 0 0 1 17.25 5.625zM12 9.75A2.25 2.25 0 1 0 14.25 12 2.253 2.253 0 0 0 12 9.75z" />
+                <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="ig-grad" x1="12%" y1="100%" x2="88%" y2="0%">
+                      <stop offset="0%" stopColor="#feda75" />
+                      <stop offset="25%" stopColor="#fa7e1e" />
+                      <stop offset="50%" stopColor="#d62976" />
+                      <stop offset="75%" stopColor="#962fbf" />
+                      <stop offset="100%" stopColor="#4f5bd5" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="2" y="2" width="20" height="20" rx="5.5" fill="url(#ig-grad)" />
+                  <rect x="5.5" y="5.5" width="13" height="13" rx="3.5" stroke="white" strokeWidth="1.5" />
+                  <circle cx="12" cy="12" r="3.2" stroke="white" strokeWidth="1.5" />
+                  <circle cx="16.5" cy="7.5" r="1.1" fill="white" />
                 </svg>
               </a>
 

@@ -37,7 +37,7 @@ export default function HeroSection() {
           </div>
 
           {/* Subtitle */}
-          <p className="text-[#171717] font-bold tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm md:text-base mb-3 sm:mb-4 uppercase opacity-70">
+          <p className="text-white font-bold tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm md:text-base mb-3 sm:mb-4 uppercase opacity-80">
             Aachi's Kitchen Secrets
           </p>
 

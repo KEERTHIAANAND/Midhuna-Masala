@@ -49,23 +49,25 @@ export default function OurHeritage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         {/* Header Section */}
         <div className="text-center mb-12 sm:mb-16 md:mb-25">
-          {/* Decorative line with icon */}
-          <div className="flex items-center justify-center gap-4 mb-3">
-            <div className="w-14 sm:w-24 h-px bg-[#8B1E1E]"></div>
-            <div className="text-[#8B1E1E]">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-              </svg>
+          <div className="inline-block bg-[#EBE4D8] px-8 py-4">
+            {/* Decorative line with icon */}
+            <div className="flex items-center justify-center gap-4 mb-3">
+              <div className="w-14 sm:w-24 h-px bg-[#8B1E1E]"></div>
+              <div className="text-[#8B1E1E]">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                </svg>
+              </div>
+              <div className="w-14 sm:w-24 h-px bg-[#8B1E1E]"></div>
             </div>
-            <div className="w-14 sm:w-24 h-px bg-[#8B1E1E]"></div>
-          </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#8B1E1E] font-serif mb-2">
-            Our Heritage
-          </h2>
-          <p className="text-sm sm:text-base md:text-lg text-[#8B1E1E] italic font-serif">
-            Authentic varieties from the heart of Tamil Nadu
-          </p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#8B1E1E] font-serif mb-2">
+              Our Heritage
+            </h2>
+            <p className="text-sm sm:text-base md:text-lg text-[#8B1E1E] italic font-serif">
+              Authentic varieties from the heart of Tamil Nadu
+            </p>
+          </div>
         </div>
 
         {/* Heritage Items Grid */}
@@ -90,7 +92,7 @@ export default function OurHeritage() {
               </div>
 
               {/* Text Content */}
-              <div className="space-y-0.5">
+              <div className="space-y-0.5 bg-[#EBE4D8] px-4 py-2 mt-2">
                 <h3 className="text-xs sm:text-sm md:text-lg font-bold text-[#8B1E1E] font-serif">
                   {item.title}
                 </h3>
@@ -114,28 +116,6 @@ export default function OurHeritage() {
         </div>
       </div>
 
-      {/* ─── "Our Craft" Momentum Arrow CTA (Corner Positioned) ─── */}
-      <Link
-        href="/our-craft"
-        className="absolute bottom-8 right-6 sm:bottom-12 sm:right-12 z-30 group flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#8B1E1E]/5 hover:bg-[#8B1E1E]/10 border border-[#8B1E1E]/20 backdrop-blur-sm transition-all duration-500 overflow-hidden"
-        aria-label="Discover Our Craft"
-      >
-        {/* Idle Icon (Minimalist Diamond) */}
-        <div className="absolute w-3 h-3 border-[1.5px] border-[#8B1E1E] rotate-45 transition-all duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:translate-x-16 group-hover:opacity-0 group-hover:rotate-90" />
-
-        {/* Hover Arrow (Elegant arrow sliding in from left) */}
-        <div className="absolute flex items-center justify-center -translate-x-16 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:translate-x-0 group-hover:opacity-100">
-          <svg 
-            className="w-8 h-8 sm:w-10 sm:h-10 text-[#8B1E1E] group-hover:text-[#D4AF37] transition-colors duration-500" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor" 
-            strokeWidth={1.5}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-          </svg>
-        </div>
-      </Link>
     </section>
   );
 }

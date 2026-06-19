@@ -24,7 +24,7 @@ export default function BrandStory() {
             {/* Traditional frame/border */}
             <div className="relative">
               {/* EST 1983 Badge */}
-              <div className="absolute -top-10 -right-10 z-10">
+              <div className="absolute -top-6 -right-2 sm:-top-10 sm:-right-10 z-10">
                 <div className="relative w-20 h-20 sm:w-28 sm:h-28 bg-gradient-to-br from-[#F6C84C] to-[#D4AF37] rounded-full shadow-2xl flex items-center justify-center animate-pulse">
                   <div className="absolute inset-2 bg-gradient-to-br from-[#F6C84C]/80 to-[#D4AF37]/80 rounded-full"></div>
                   <div className="text-center relative z-10">

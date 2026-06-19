@@ -30,7 +30,7 @@ export default function OurHeritage() {
   return (
     <section className="py-14 sm:py-20 md:py-24 bg-[#EBE4D8] relative overflow-hidden min-h-[400px] sm:min-h-[500px] md:min-h-[600px] flex items-center">
       {/* Decorative pattern border at top */}
-      <div className="absolute top-0 left-0 right-0 h-6 flex items-center justify-center overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-6 bg-[#EBE4D8] z-10 flex items-center justify-center overflow-hidden">
         <div className="flex gap-4 text-[#D4AF37] opacity-60">
           {[...Array(50)].map((_, i) => (
             <span key={i} className="text-lg">✦</span>
@@ -106,7 +106,7 @@ export default function OurHeritage() {
       </div>
 
       {/* Decorative pattern border at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-6 flex items-center justify-center overflow-hidden pointer-events-none">
+      <div className="absolute bottom-0 left-0 right-0 h-6 bg-[#EBE4D8] z-10 flex items-center justify-center overflow-hidden pointer-events-none">
         <div className="flex gap-4 text-[#D4AF37] opacity-60">
           {[...Array(50)].map((_, i) => (
             <span key={i} className="text-lg">✦</span>

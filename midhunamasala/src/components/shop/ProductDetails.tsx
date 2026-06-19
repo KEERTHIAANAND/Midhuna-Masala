@@ -285,8 +285,17 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                         <motion.div className="flex items-center justify-between mb-4 sm:mb-6"
                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
                             <div>
-                                <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-1 sm:mb-2 font-semibold">Qty</p>
-                                <div className="flex items-center gap-2">
+                                <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-1 sm:mb-2 font-semibold text-left">Total</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-[#F5E6D3] text-lg">₹</span>
+                                    <span className="text-3xl sm:text-4xl font-bold text-[#F5E6D3]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                        {totalPrice.toFixed(2)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-1 sm:mb-2 font-semibold text-center">Qty</p>
+                                <div className="flex items-center gap-2 justify-end">
                                     <motion.button onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                         className="w-6 h-6 bg-[#D4AF37]/20 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#8B1E1E] transition-all text-sm font-bold flex items-center justify-center"
                                         whileTap={{ scale: 0.85 }}>−</motion.button>
@@ -296,32 +305,23 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                                         whileTap={{ scale: 0.85 }}>+</motion.button>
                                 </div>
                             </div>
-                            <div>
-                                <p className="text-[#D4AF37] text-xs uppercase tracking-[0.15em] mb-1 sm:mb-2 font-semibold">Total</p>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-[#F5E6D3] text-lg">₹</span>
-                                    <span className="text-3xl sm:text-4xl font-bold text-[#F5E6D3]" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                        {totalPrice.toFixed(2)}
-                                    </span>
-                                </div>
-                            </div>
                         </motion.div>
 
                         {/* Action Buttons: Add to Cart + Get Now */}
-                        <motion.div className="flex flex-row gap-2 sm:gap-4 mt-2 sm:mt-0" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }}>
+                        <motion.div className="flex flex-row gap-3 sm:gap-5 mt-2 sm:mt-0" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }}>
                             {/* Add to Cart */}
                             <motion.button
                                 onClick={handleAddToCart}
                                 disabled={addedToCart || isOutOfStock}
-                                className={`flex-1 py-2.5 sm:py-3.5 px-2 sm:px-5 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-300 shadow-lg border-2 ${addedToCart
-                                    ? 'bg-green-500 text-white border-green-500'
+                                className={`flex-1 py-3 sm:py-4 px-2 sm:px-5 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-300 border ${addedToCart
+                                    ? 'bg-green-500/20 text-green-400 border-green-500/50'
                                     : isOutOfStock
-                                        ? 'bg-transparent border-[#D4AF37]/30 text-[#D4AF37]/40 cursor-not-allowed'
-                                        : 'bg-transparent border-[#D4AF37]/60 text-[#D4AF37] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]'
+                                        ? 'bg-white/5 border-white/10 text-white/40 cursor-not-allowed'
+                                        : 'bg-white/10 backdrop-blur-md border-white/20 text-[#F5E6D3] hover:bg-white/20 hover:border-white/40 shadow-lg hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]'
                                     }`}
                                 style={{ fontFamily: "'Crimson Text', serif", letterSpacing: '0.05em' }}
-                                whileHover={!addedToCart && !isOutOfStock ? { scale: 1.02 } : undefined}
-                                whileTap={!addedToCart && !isOutOfStock ? { scale: 0.98 } : undefined}
+                                whileHover={!addedToCart && !isOutOfStock ? { scale: 1.03 } : undefined}
+                                whileTap={!addedToCart && !isOutOfStock ? { scale: 0.97 } : undefined}
                             >
                                 <AnimatePresence mode="wait">
                                     {addedToCart ? (
@@ -346,10 +346,10 @@ export default function ProductDetails({ product, onClose }: ProductDetailsProps
                             <motion.button
                                 onClick={handleGetNow}
                                 disabled={isOutOfStock}
-                                className={`flex-1 py-2.5 sm:py-3.5 px-2 sm:px-5 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-300 shadow-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#8B1E1E] hover:from-[#E5C04A] hover:to-[#C4A030] ${isOutOfStock ? 'opacity-50 cursor-not-allowed hover:from-[#D4AF37] hover:to-[#B8860B]' : ''}`}
+                                className={`flex-1 py-3 sm:py-4 px-2 sm:px-5 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-300 ${isOutOfStock ? 'opacity-50 cursor-not-allowed bg-gray-500 text-white' : 'bg-[#D4AF37] text-[#5A1010] shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:bg-[#F6C84C] hover:shadow-[0_0_25px_rgba(246,200,76,0.5)]'}`}
                                 style={{ fontFamily: "'Crimson Text', serif", letterSpacing: '0.05em' }}
-                                whileHover={!isOutOfStock ? { scale: 1.02 } : undefined}
-                                whileTap={!isOutOfStock ? { scale: 0.98 } : undefined}
+                                whileHover={!isOutOfStock ? { scale: 1.03 } : undefined}
+                                whileTap={!isOutOfStock ? { scale: 0.97 } : undefined}
                             >
                                 <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
                                 <span className="whitespace-nowrap">Buy Now</span>

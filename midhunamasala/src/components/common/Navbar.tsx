@@ -83,10 +83,6 @@ export default function Navbar() {
 
       {/* Navbar Section */}
       <nav className="bg-[#FFFDF5] border-b border-[#E5D2C5] relative overflow-visible">
-        {/* Dotted pattern overlay */}
-        <div className="absolute inset-0 opacity-50 pointer-events-none"
-          style={{ backgroundImage: 'radial-gradient(#8B1E1E 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
-        </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 overflow-visible">
           <div className="flex justify-between items-center h-16 sm:h-20 md:h-24 overflow-visible">
@@ -183,10 +179,6 @@ export default function Navbar() {
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="fixed inset-0 z-[100] bg-[#8B1E1E] md:hidden flex flex-col"
             >
-              {/* Dotted pattern overlay */}
-              <div className="absolute inset-0 opacity-20 pointer-events-none"
-                style={{ backgroundImage: 'radial-gradient(#F6C84C 1px, transparent 1px)', backgroundSize: '30px 30px' }}>
-              </div>
 
               {/* Header inside Menu */}
               <div className="flex justify-between items-center h-16 sm:h-20 px-4 sm:px-6 relative z-10 border-b border-[#F6C84C]/20">

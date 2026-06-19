@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { CRAFT_TOOLS } from './craftData';
+import TranslateToggle from '@/components/common/TranslateToggle';
 
 // Premium warm editorial color palettes matching Midhuna's brand and tools
 const TOOL_THEMES: Record<string, { bg: string; panelBg: string; textAccent: string }> = {
@@ -85,6 +86,7 @@ export default function CraftToolsScroll() {
 function FarmMineralsSection({ tool, index }: { tool: any; index: number }) {
   const theme = TOOL_THEMES[tool.id] || TOOL_THEMES.ammikall;
   const isEven = index % 2 === 0;
+  const [isEnglish, setIsEnglish] = useState(false);
 
   return (
     <section className={`relative w-full flex flex-col lg:flex-row ${theme.bg} border-b border-[#8B1E1E]/5 last:border-0`}>
@@ -141,8 +143,9 @@ function FarmMineralsSection({ tool, index }: { tool: any; index: number }) {
         </div>
 
         {/* Dynamic High-Contrast Editorial Title */}
-        <h2 className="text-4xl sm:text-5xl lg:text-7xl font-serif tracking-tight text-[#1A0A0A] mb-3">
-          {tool.tamilName}
+        <h2 className="text-4xl sm:text-5xl lg:text-7xl font-serif tracking-tight text-[#1A0A0A] mb-3 flex items-center gap-3">
+          {isEnglish ? tool.name : tool.tamilName}
+          <TranslateToggle isEnglish={isEnglish} onToggle={() => setIsEnglish(!isEnglish)} size="md" />
         </h2>
         <p className="text-lg font-mono tracking-widest text-[#8B1E1E] uppercase mb-8">
           {tool.name} / {tool.subtitle}
@@ -150,7 +153,7 @@ function FarmMineralsSection({ tool, index }: { tool: any; index: number }) {
 
         {/* Clean, spacious introduction */}
         <p className="text-base sm:text-lg text-[#1A0A0A]/70 font-light leading-relaxed tracking-wide mb-16 max-w-xl">
-          {tool.tamilDescription}
+          {isEnglish ? tool.description : tool.tamilDescription}
         </p>
 
         {/* Staggered Benefits List */}
@@ -169,7 +172,7 @@ function FarmMineralsSection({ tool, index }: { tool: any; index: number }) {
                 <span className="font-mono text-xs text-[#8B1E1E] tracking-widest">[ 0{i + 1} ]</span>
                 <span className="text-xl transition-transform duration-300 group-hover:scale-110">{benefit.icon}</span>
                 <h4 className="text-lg sm:text-xl font-bold text-[#1A0A0A] group-hover:text-[#8B1E1E] transition-colors duration-300">
-                  {benefit.tamilTitle}
+                  {isEnglish ? benefit.title : benefit.tamilTitle}
                 </h4>
                 <span className="text-xs font-sans text-[#1A0A0A]/35 font-normal tracking-wide">
                   / {benefit.title}
@@ -178,7 +181,7 @@ function FarmMineralsSection({ tool, index }: { tool: any; index: number }) {
               
               {/* Description */}
               <p className="text-sm sm:text-base text-[#1A0A0A]/60 font-light leading-relaxed pl-7 border-l border-[#8B1E1E]/10 group-hover:border-[#8B1E1E]/30 transition-colors duration-300">
-                {benefit.tamilDescription}
+                {isEnglish ? benefit.description : benefit.tamilDescription}
               </p>
             </motion.div>
           ))}
@@ -196,7 +199,7 @@ function FarmMineralsSection({ tool, index }: { tool: any; index: number }) {
             Heritage Fact
           </span>
           <p className="text-sm text-[#1A0A0A]/55 leading-relaxed font-light italic">
-            "{tool.tamilFunFact}"
+            "{isEnglish ? tool.funFact : tool.tamilFunFact}"
           </p>
         </motion.div>
 

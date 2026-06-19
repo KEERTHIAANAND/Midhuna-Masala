@@ -1,6 +1,59 @@
 'use client';
 
+import { useRef, useEffect, useState } from 'react';
+
 export default function Testimonials() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isPausedRef = useRef(false);
+
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    let animationFrameId: number;
+    let position = scrollContainer.scrollLeft;
+
+    const scroll = () => {
+      if (!isPausedRef.current) {
+        // Desktop is generally wider, so we can scroll a bit faster. 
+        // 1.5 for desktop, 0.5 for mobile.
+        const speed = typeof window !== 'undefined' && window.innerWidth > 768 ? 1.5 : 0.5;
+        position += speed;
+
+        // Seamless loop
+        if (position >= scrollContainer.scrollWidth / 2) {
+          position -= scrollContainer.scrollWidth / 2;
+        }
+        scrollContainer.scrollLeft = position;
+      } else {
+        // Sync position when user is manually scrolling
+        position = scrollContainer.scrollLeft;
+      }
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    animationFrameId = requestAnimationFrame(scroll);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []); // Run once, rely on refs for state
+
+  const handleTouchStart = () => {
+    isPausedRef.current = true;
+  };
+
+  const handleTouchEnd = () => {
+    setTimeout(() => {
+      isPausedRef.current = false;
+    }, 1000);
+  };
+
+  const handleMouseEnter = () => {
+    isPausedRef.current = true;
+  };
+
+  const handleMouseLeave = () => {
+    isPausedRef.current = false;
+  };
   const testimonials = [
     {
       id: 1,
@@ -70,7 +123,7 @@ export default function Testimonials() {
   return (
     <section className="py-20 bg-[#EBE4D8] relative overflow-hidden">
       {/* Decorative pattern border at top */}
-      <div className="absolute top-0 left-0 right-0 h-6 flex items-center justify-center overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-6 bg-[#EBE4D8] z-10 flex items-center justify-center overflow-hidden">
         <div className="flex gap-4 text-[#D4AF37] opacity-60">
           {[...Array(50)].map((_, i) => (
             <span key={i} className="text-lg">✦</span>
@@ -109,8 +162,19 @@ export default function Testimonials() {
         </div>
 
         {/* Marquee Testimonials */}
-        <div className="overflow-hidden">
-          <div className="flex animate-marquee">
+        <div className="relative overflow-hidden w-full">
+          <div 
+            ref={scrollRef}
+            className="flex overflow-x-auto scrollbar-hide py-4 w-full"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            style={{ 
+              scrollBehavior: 'auto',
+              WebkitOverflowScrolling: 'touch' 
+            }}
+          >
             {/* First set of testimonials */}
             {testimonials.map((testimonial) => (
               <div key={testimonial.id} className="flex-shrink-0 w-80 mx-4">
@@ -165,7 +229,7 @@ export default function Testimonials() {
       </div>
 
       {/* Decorative pattern border at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-6 flex items-center justify-center overflow-hidden">
+      <div className="absolute bottom-0 left-0 right-0 h-6 bg-[#EBE4D8] z-10 flex items-center justify-center overflow-hidden">
         <div className="flex gap-4 text-[#D4AF37] opacity-60">
           {[...Array(50)].map((_, i) => (
             <span key={i} className="text-lg">✦</span>
@@ -174,22 +238,7 @@ export default function Testimonials() {
       </div>
 
       <style jsx>{`
-        @keyframes marquee {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-        
-        .animate-marquee:hover {
-          animation-play-state: paused;
-        }
+        /* Removed CSS marquee to use JS scrolling instead */
       `}</style>
     </section>
   );

@@ -120,26 +120,27 @@ export default function ContactContent() {
           </svg>
         </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 text-center">
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-            className="flex justify-center mb-5"
-          >
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-[#F6C84C]/40 flex items-center justify-center text-[#F6C84C]">
-              <MessageCircle className="w-7 h-7 sm:w-8 sm:h-8" />
-            </div>
-          </motion.div>
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 flex flex-col items-center text-center">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+            >
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-[#F6C84C]/40 flex items-center justify-center text-[#F6C84C]">
+                <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
+            </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-bold text-white font-serif tracking-wide mb-3"
-          >
-            Contact Us
-          </motion.h1>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-white font-serif tracking-wide"
+            >
+              Contact Us
+            </motion.h1>
+          </div>
 
           <motion.p
             initial={{ opacity: 0, y: 15 }}
@@ -173,13 +174,15 @@ export default function ContactContent() {
               transition={{ duration: 0.4, delay: idx * 0.1 }}
               className="group relative bg-white rounded-2xl p-5 sm:p-6 border border-[#F5E9DB]/60 shadow-[0_2px_20px_rgba(139,30,30,0.04)] hover:shadow-[0_8px_40px_rgba(139,30,30,0.08)] hover:border-[#8B1E1E]/15 transition-all duration-300"
             >
-              <div className="w-11 h-11 rounded-xl bg-[#8B1E1E]/5 border border-[#8B1E1E]/10 flex items-center justify-center text-[#8B1E1E] group-hover:bg-[#8B1E1E] group-hover:text-white transition-all duration-300 mb-4">
-                {info.icon}
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-11 h-11 rounded-xl bg-[#8B1E1E]/5 border border-[#8B1E1E]/10 flex items-center justify-center text-[#8B1E1E] group-hover:bg-[#8B1E1E] group-hover:text-white transition-all duration-300">
+                  {info.icon}
+                </div>
+                <p className="text-xs font-bold text-[#8B1E1E]/40 tracking-widest uppercase">
+                  {info.label}
+                </p>
               </div>
-              <p className="text-xs font-bold text-[#8B1E1E]/40 tracking-widest uppercase mb-1">
-                {info.label}
-              </p>
-              <p className="text-sm font-semibold text-[#8B1E1E] mb-1">{info.value}</p>
+              <p className="text-base font-bold text-[#8B1E1E] mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>{info.value}</p>
               <p className="text-xs text-[#4A3728]/50">{info.description}</p>
             </motion.a>
           ))}
@@ -233,7 +236,7 @@ export default function ContactContent() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="contact-name" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5">
+                      <label htmlFor="contact-name" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5" style={{ fontFamily: "'Crimson Text', serif" }}>
                         Full Name *
                       </label>
                       <input
@@ -243,11 +246,12 @@ export default function ContactContent() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="w-full px-4 py-2.5 rounded-lg border border-[#F5E9DB] bg-[#FFFDF5] text-sm text-[#4A3728] focus:outline-none focus:ring-2 focus:ring-[#8B1E1E]/20 focus:border-[#8B1E1E]/30 transition-all placeholder:text-[#4A3728]/30"
+                        style={{ fontFamily: "'Crimson Text', serif" }}
                         placeholder="Your name"
                       />
                     </div>
                     <div>
-                      <label htmlFor="contact-phone" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5">
+                      <label htmlFor="contact-phone" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5" style={{ fontFamily: "'Crimson Text', serif" }}>
                         Phone Number *
                       </label>
                       <input
@@ -257,13 +261,14 @@ export default function ContactContent() {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full px-4 py-2.5 rounded-lg border border-[#F5E9DB] bg-[#FFFDF5] text-sm text-[#4A3728] focus:outline-none focus:ring-2 focus:ring-[#8B1E1E]/20 focus:border-[#8B1E1E]/30 transition-all placeholder:text-[#4A3728]/30"
+                        style={{ fontFamily: "'Crimson Text', serif" }}
                         placeholder="+91 XXXXX XXXXX"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="contact-subject" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5">
+                    <label htmlFor="contact-subject" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5" style={{ fontFamily: "'Crimson Text', serif" }}>
                       Subject *
                     </label>
                     <select
@@ -272,6 +277,7 @@ export default function ContactContent() {
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-lg border border-[#F5E9DB] bg-[#FFFDF5] text-sm text-[#4A3728] focus:outline-none focus:ring-2 focus:ring-[#8B1E1E]/20 focus:border-[#8B1E1E]/30 transition-all"
+                      style={{ fontFamily: "'Crimson Text', serif" }}
                     >
                       <option value="">Select a subject</option>
                       <option value="order">Order Related Query</option>
@@ -285,7 +291,7 @@ export default function ContactContent() {
                   </div>
 
                   <div>
-                    <label htmlFor="contact-message" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5">
+                    <label htmlFor="contact-message" className="block text-xs font-bold text-[#8B1E1E]/60 tracking-wider uppercase mb-1.5" style={{ fontFamily: "'Crimson Text', serif" }}>
                       Message *
                     </label>
                     <textarea
@@ -295,6 +301,7 @@ export default function ContactContent() {
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-lg border border-[#F5E9DB] bg-[#FFFDF5] text-sm text-[#4A3728] focus:outline-none focus:ring-2 focus:ring-[#8B1E1E]/20 focus:border-[#8B1E1E]/30 transition-all resize-none placeholder:text-[#4A3728]/30"
+                      style={{ fontFamily: "'Crimson Text', serif" }}
                       placeholder="Tell us how we can help you..."
                     />
                   </div>
@@ -303,6 +310,7 @@ export default function ContactContent() {
                     type="submit"
                     disabled={isSubmitting}
                     className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-[#8B1E1E] text-white text-sm font-bold tracking-[0.15em] uppercase rounded-lg hover:bg-[#6B1616] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg"
+                    style={{ fontFamily: "'Crimson Text', serif" }}
                   >
                     {isSubmitting ? (
                       <>

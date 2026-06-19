@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import TranslateToggle from '@/components/common/TranslateToggle';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -9,6 +10,7 @@ interface NodeData {
   title: string;
   englishTitle: string;
   description: string;
+  englishDescription: string;
   x: string; // CSS position left/right
   y: string; // CSS position top/bottom
   cardX: number; // For SVG line source connection offsets
@@ -21,6 +23,7 @@ const NODES_DATA: NodeData[] = [
     title: 'உடற்பயிற்சி',
     englishTitle: 'Physical Work & Health',
     description: 'பாரம்பரிய முறையில் அம்மியிலும் உரலிலும் அரைப்பது உடலுக்கு ஒரு சிறந்த உடற்பயிற்சியாகும். இது கைகள், தோள்பட்டைகள் மற்றும் இடுப்புப் பகுதிகளை இயற்கையாக வலுவாக்க உதவுகிறது.',
+    englishDescription: 'Traditional grinding with Ammikall and mortar is an excellent physical exercise. It naturally strengthens the hands, shoulders, and hip areas.',
     x: '32%',
     y: '30%',
     cardX: 32,
@@ -31,6 +34,7 @@ const NODES_DATA: NodeData[] = [
     title: 'இயற்கையான சுவை',
     englishTitle: 'Natural Oils & Flavor',
     description: 'மின்சார மிக்சிகள் போல அரைக்கும் போது அதிக வெப்பத்தை உருவாக்காமல், குளிர் அழுத்த முறையில் அரைப்பதால் மசாலாவின் இயற்கை சுவை மற்றும் நறுமண எண்ணெய்கள் அப்படியே காக்கப்படுகின்றன.',
+    englishDescription: 'Unlike electric mixers that generate excessive heat, cold-pressure grinding preserves the natural flavour and aromatic oils of the spices.',
     x: '68%',
     y: '25%',
     cardX: 68,
@@ -41,6 +45,7 @@ const NODES_DATA: NodeData[] = [
     title: 'ஊட்டச்சத்து பாதுகாப்பு',
     englishTitle: 'Nutrient Retention',
     description: 'மெதுவான அழுத்த அரைப்பு முறை வைட்டமின்கள், என்சைம்கள் மற்றும் தாதுக்கள் சிதைவடையாமல் பாதுகாக்கிறது. இது உணவை மேலும் ஆரோக்கியமானதாகவும் சத்தானதாகவும் மாற்றுகிறது.',
+    englishDescription: 'The slow pressure grinding method preserves vitamins, enzymes, and minerals without degradation, making food healthier and more nutritious.',
     x: '24%',
     y: '65%',
     cardX: 24,
@@ -51,6 +56,7 @@ const NODES_DATA: NodeData[] = [
     title: 'உலோகக் கலப்பற்றது',
     englishTitle: 'No Metal Contamination',
     description: 'மின்சார மிக்சியின் எஃகு பிளேடுகள் தேய்ந்து நுண் துகள்களாக உணவில் கலக்கும் அபாயம் இதில் இல்லை. முற்றிலும் தூய்மையான கல் அரைப்பு முறை உடலுக்கு 100% பாதுகாப்பானது.',
+    englishDescription: 'There is no risk of steel blades wearing down and mixing micro-particles into food. Pure stone grinding is 100% safe for the body.',
     x: '72%',
     y: '70%',
     cardX: 72,
@@ -60,6 +66,7 @@ const NODES_DATA: NodeData[] = [
 
 export default function ThreeDExhibit() {
   const [activeNode, setActiveNode] = useState<number>(0);
+  const [isEnglish, setIsEnglish] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Parallax / 3D tilt coordinates
@@ -169,7 +176,7 @@ export default function ThreeDExhibit() {
                 <span className={`absolute top-8 left-1/2 -translate-x-1/2 font-mono text-[9px] tracking-widest uppercase transition-colors duration-300 ${
                   isActive ? 'text-[#8B1E1E] font-bold' : 'text-[#1A0A0A]/40 group-hover:text-[#1A0A0A]/70'
                 }`}>
-                  {node.title}
+                  {isEnglish ? node.englishTitle : node.title}
                 </span>
               </button>
             );
@@ -215,12 +222,13 @@ export default function ThreeDExhibit() {
                 </span>
                 
                 {/* Tamil Title */}
-                <h4 className="font-serif text-2xl sm:text-3xl text-[#1A0A0A] font-medium">
-                  {activeNodeData.title}
+                <h4 className="font-serif text-2xl sm:text-3xl text-[#1A0A0A] font-medium flex items-center gap-2">
+                  {isEnglish ? activeNodeData.englishTitle : activeNodeData.title}
+                  <TranslateToggle isEnglish={isEnglish} onToggle={() => setIsEnglish(!isEnglish)} size="sm" />
                 </h4>
 
                 <p className="text-sm sm:text-base text-[#1A0A0A]/75 font-light leading-relaxed pl-4 border-l-2 border-[#8B1E1E]/30">
-                  {activeNodeData.description}
+                  {isEnglish ? activeNodeData.englishDescription : activeNodeData.description}
                 </p>
               </motion.div>
             </AnimatePresence>

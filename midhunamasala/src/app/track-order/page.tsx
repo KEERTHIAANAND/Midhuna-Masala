@@ -235,15 +235,17 @@ export default function TrackOrderPage() {
       <div className="flex-1 px-4 py-6">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#8B1E1E] to-[#A02C2C] rounded-full mb-4 shadow-md">
-            <svg className="w-8 h-8 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div className="mb-8 flex flex-col items-center text-center">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#8B1E1E] to-[#A02C2C] rounded-full shadow-md">
+              <svg className="w-6 h-6 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold text-[#8B1E1E]" style={{ fontFamily: 'Playfair Display, serif' }}>
+              Order Tracking
+            </h1>
           </div>
-          <h1 className="text-3xl font-bold text-[#8B1E1E] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
-            Order Tracking
-          </h1>
           <p className="text-base text-[#D4AF37] italic" style={{ fontFamily: 'Crimson Text, serif' }}>
             Track your spice journey from our village to your kitchen.
           </p>

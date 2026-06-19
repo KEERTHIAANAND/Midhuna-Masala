@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, AnimatePresence, useSpring } from 'framer-motion';
+import TranslateToggle from '@/components/common/TranslateToggle';
 
 /* ─────────────────────────────────────────────
    Data for each masala / powder
@@ -14,11 +15,13 @@ const TOOLS = [
     tamilName: 'அம்மிக்கல்',
     tag: 'Hand-Rolled',
     rating: '4.9',
+    englishName: 'Ammikall (Flat Stone Grinder)',
     description: (
       <>
         அம்மிக்கல் என்பது பாரம்பரியமாக சமையலில் மசாலா, சட்னி மற்றும் மூலிகைகளை அரைக்கப் பயன்படும் ஒரு <strong className="font-semibold text-[#1A0A0A]">தட்டையான கருங்கல்</strong> ஆகும். இதன் மீது பொருட்களை வைத்து அரைக்க உருளை வடிவக் குழவிக்கல் பயன்படுகிறது. இயந்திரங்களின் வரவுக்குப் பிறகும் பல வீடுகளில் இது இன்றளவும் பயன்படுத்தப்படுவதற்கு முக்கியக் காரணம், இதில் குறைந்த வெப்பநிலையில் பொருட்கள் அரைக்கப்படுவதால் <strong className="font-semibold text-[#1A0A0A]">அவற்றின் ஊட்டச்சத்துக்கள் அழியாமல் பாதுகாக்கப்படுவதோடு</strong>, மசாலாப் பொருட்களின் <strong className="font-semibold text-[#1A0A0A]">இயற்கை சுவை மற்றும் நிறம் சற்றும் மாறாமல் முழுமையான ஆரோக்கியத்துடன்</strong> கிடைப்பதுதான்.
       </>
     ),
+    englishDescription: 'The Ammikall is a flat granite slab used traditionally to grind masala, chutney, and herbs. A cylindrical rolling stone is used on top of it. The key reason it is still used in many homes is that grinding at low temperatures preserves the nutrients, natural flavour, and colour of the spices completely.',
     image: '/images/benefits/ammikall.png',
     accentColor: '#C4A265',
     bgGradient: 'from-[#F5EFE0] to-[#FFFDF8]',
@@ -29,11 +32,13 @@ const TOOLS = [
     tamilName: 'ஆட்டுக்கல்',
     tag: 'Mortar & Pestle',
     rating: '4.9',
+    englishName: 'Aatukal (Stone Mortar)',
     description: (
       <>
         ஆட்டுக்கல் என்பது சமையலில் மசாலாப் பொருட்கள் மற்றும் மாவுகளை பாரம்பரிய முறையில் அரைக்கப் பயன்படும் <strong className="font-semibold text-[#1A0A0A]">கருங்கல்லால் செய்யப்பட்ட</strong> ஒரு சமையலறை சாதனமாகும். தேங்காய், மிளகாய், மசாலா மற்றும் இட்லி, தோசைக்கான மாவு அரைக்கப் பயன்படுகிறது. நடுவில் குழி உள்ள உரல் போன்ற பகுதி (ஆட்டுக்கல்) மற்றும் கையால் பிடித்து அரைக்க உருண்டையான கல் (குழவி) ஆகிய இரு பகுதிகளைக் கொண்டது. <strong className="font-semibold text-[#1A0A0A]">மின்சாரம் தேவையில்லை</strong>. இதில் அரைக்கும் போது பொருட்களின் <strong className="font-semibold text-[#1A0A0A]">சுவை மற்றும் மணம் மாறாமல்</strong> இருக்கும்.
       </>
     ),
+    englishDescription: 'The Aatukal is a granite kitchen tool used to grind spices and batters traditionally. It is used for grinding coconut, chilli, masala, and batter for idli and dosa. It consists of a bowl-shaped mortar and a round stone pestle. No electricity needed. The flavour and aroma of ingredients remain unchanged when ground in it.',
     image: '/images/benefits/Aatukal.png',
     accentColor: '#C46B28',
     bgGradient: 'from-[#F0E4D4] to-[#FFFDF8]',
@@ -44,11 +49,13 @@ const TOOLS = [
     tamilName: 'சக்கி',
     tag: 'Rotary Stone',
     rating: '5.0',
+    englishName: 'Chakki (Rotary Stone Mill)',
     description: (
       <>
         இந்தியில் 'சக்கி' (Chakki) என்று அழைக்கப்படுவது தமிழில் <strong className="font-semibold text-[#1A0A0A]">'திருகல்'</strong>, <strong className="font-semibold text-[#1A0A0A]">'அரைக்கும் கல்'</strong>, <strong className="font-semibold text-[#1A0A0A]">'திரிகை'</strong> அல்லது <strong className="font-semibold text-[#1A0A0A]">'திருவை'</strong> என்று அழைக்கப்படுகிறது. தானியங்கள் மற்றும் கோதுமையை மாவாக அரைக்கப் பயன்படும் எந்திரத்தை 'அட்டா சக்கி' (Atta Chakki) என்று குறிப்பிடுவர். நவீன மின்சார மாவரைக்கும் எந்திரங்களை 'மாவு மில்' (Flour Mill) என்றும் அழைக்கலாம். கையினால் திருகப்படும் <strong className="font-semibold text-[#1A0A0A]">பாரம்பரியக் கல்லை</strong> 'திருவை' அல்லது 'திருகல்' என்று அழைப்பார்கள்.
       </>
     ),
+    englishDescription: 'Known as Chakki in Hindi, it is called Thirugal, Araikum Kal, Thirigai, or Thiruvai in Tamil. The machine used to grind grains and wheat into flour is called Atta Chakki. Modern electric flour grinding machines are called Flour Mills. The traditional hand-cranked stone is called Thiruvai or Thirugal.',
     image: '/images/benefits/chakki.png',
     accentColor: '#D4A017',
     bgGradient: 'from-[#F5EED0] to-[#FFFDF8]',
@@ -73,6 +80,7 @@ export default function MasalaCarousel() {
 
   /* We need a stateful active index for discrete, clean transitions */
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const [isEnglish, setIsEnglish] = useState(false);
 
   React.useEffect(() => {
     const unsubscribe = activeIndexFloat.on('change', (v) => {
@@ -127,10 +135,11 @@ export default function MasalaCarousel() {
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: -20, filter: 'blur(4px)' }}
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className="text-3xl sm:text-5xl lg:text-[5rem] text-[#1A0A0A] tracking-normal leading-[1.2] mb-1 sm:mb-2"
+                className="text-3xl sm:text-5xl lg:text-[5rem] text-[#1A0A0A] tracking-normal leading-[1.2] mb-1 sm:mb-2 flex items-center gap-3"
                 style={{ fontFamily: 'var(--font-arima), display', fontWeight: 700 }}
               >
-                {activeTool.tamilName}
+                {isEnglish ? activeTool.englishName : activeTool.tamilName}
+                <TranslateToggle isEnglish={isEnglish} onToggle={() => setIsEnglish(!isEnglish)} size="md" />
               </motion.h2>
             </AnimatePresence>
 
@@ -160,7 +169,7 @@ export default function MasalaCarousel() {
                 className="text-xs sm:text-base text-[#1A0A0A]/70 font-light leading-relaxed mb-4 sm:mb-8 max-w-md pl-4 border-l-2"
                 style={{ borderColor: activeTool.accentColor + '40' }}
               >
-                {activeTool.description}
+                {isEnglish ? activeTool.englishDescription : activeTool.description}
               </motion.p>
             </AnimatePresence>
           </div>

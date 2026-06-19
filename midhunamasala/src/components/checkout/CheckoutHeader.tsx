@@ -28,20 +28,13 @@ export default function CheckoutHeader({
         <div className="bg-[#F0EAE0]">
             <div className="max-w-2xl mx-auto px-6 sm:px-8 pt-8 pb-6">
                 {/* ── Top Row ── */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="mb-8">
                     <h1
                         className="text-2xl sm:text-3xl font-bold text-[#8B1E1E]"
                         style={{ fontFamily: "'Playfair Display', serif" }}
                     >
                         Checkout
                     </h1>
-                    <div className="flex items-center gap-1.5">
-                        <Lock className="w-3.5 h-3.5 text-[#D4AF37]" />
-                        <span className="text-xs sm:text-[13px] font-normal tracking-wide text-[#D4AF37] italic"
-                            style={{ fontFamily: "'Crimson Text', serif" }}>
-                            Secure checkout
-                        </span>
-                    </div>
                 </div>
 
                 {/* ── Stepper ── */}

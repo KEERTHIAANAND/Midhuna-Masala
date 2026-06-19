@@ -20,6 +20,7 @@ const API_URL = clientEnv.NEXT_PUBLIC_API_URL;
    ═══════════════════════════════════════════ */
 
 const SERIF = "'Playfair Display', serif";
+const CRIMSON = "'Crimson Text', serif";
 
 
 interface Address {
@@ -155,14 +156,14 @@ function SectionCard({ title, action, children }: {
     children: React.ReactNode;
 }) {
     return (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h2 className="text-base text-[#1A1A1A]" style={{ fontFamily: SERIF, fontWeight: 600 }}>
+        <div className="bg-white rounded-lg border border-[#D4AF37]/20 overflow-hidden shadow-sm">
+            <div className="px-6 py-4 border-b border-[#D4AF37]/20 flex items-center justify-between bg-[#FAF7F2]/50">
+                <h2 className="text-lg text-[#8B1E1E] font-bold" style={{ fontFamily: SERIF }}>
                     {title}
                 </h2>
                 {action}
             </div>
-            <div className="p-6">{children}</div>
+            <div className="p-6" style={{ fontFamily: CRIMSON }}>{children}</div>
         </div>
     );
 }
@@ -173,13 +174,14 @@ function InputField({ label, value, onChange, error, prefix }: {
 }) {
     return (
         <div>
-            <label className="block text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-1.5">{label}</label>
-            <div className={`flex items-center rounded-md border transition-colors ${error ? 'border-red-300 bg-red-50/20' : 'border-gray-200 focus-within:border-[#8B1E1E]/50'}`}>
-                {prefix && <span className="pl-3 text-sm text-gray-400 select-none">{prefix}</span>}
+            <label className="block text-xs font-bold text-[#8B1E1E] uppercase tracking-wider mb-1.5" style={{ fontFamily: CRIMSON }}>{label}</label>
+            <div className={`flex items-center rounded-md border transition-colors ${error ? 'border-red-300 bg-red-50/20' : 'border-[#D4AF37]/40 focus-within:border-[#D4AF37] bg-white'}`}>
+                {prefix && <span className="pl-3 text-sm text-[#D4AF37] select-none font-bold" style={{ fontFamily: CRIMSON }}>{prefix}</span>}
                 <input type="text" value={value} onChange={e => onChange(e.target.value)}
-                    className={`w-full ${prefix ? 'pl-1' : 'pl-3'} pr-3 py-2.5 text-sm bg-transparent focus:outline-none text-gray-700`} />
+                    className={`w-full ${prefix ? 'pl-2' : 'pl-3'} pr-3 py-2.5 text-sm bg-transparent focus:outline-none text-[#1A1A1A]`}
+                    style={{ fontFamily: CRIMSON }} />
             </div>
-            {error && <p className="text-[11px] text-red-400 mt-1 font-medium">{error}</p>}
+            {error && <p className="text-xs text-red-500 mt-1 font-bold" style={{ fontFamily: CRIMSON }}>{error}</p>}
         </div>
     );
 }
@@ -327,12 +329,13 @@ function CheckoutPageInner() {
     const validate = (): boolean => {
         const a = activeAddr();
         const e: Partial<Record<keyof Address, string>> = {};
-        if (!a.fullName.trim()) e.fullName = 'Required';
-        if (!a.phone.trim() || a.phone.length < 10) e.phone = 'Valid 10-digit number';
-        if (!a.street.trim()) e.street = 'Required';
-        if (!a.city.trim()) e.city = 'Required';
+        if (!a.fullName?.trim()) e.fullName = 'Required';
+        if (!a.phone?.trim() || a.phone.length < 10) e.phone = 'Valid 10-digit number';
+        if (!a.street?.trim()) e.street = 'Required';
+        if ((showForm || saved.length === 0) && !a.landmark?.trim()) e.landmark = 'Required';
+        if (!a.city?.trim()) e.city = 'Required';
         if (!a.state) e.state = 'Required';
-        if (!a.pincode.trim() || a.pincode.length !== 6) e.pincode = '6-digit pincode';
+        if (!a.pincode?.trim() || a.pincode.length !== 6) e.pincode = '6-digit pincode';
         setErrs(e);
         return Object.keys(e).length === 0;
     };
@@ -754,17 +757,17 @@ function CheckoutPageInner() {
                                                                     }`}>
                                                                 <div className="flex items-start justify-between gap-3">
                                                                     <div className="flex-1 min-w-0">
-                                                                        <span className={`text-[10px] uppercase font-medium px-2 py-0.5 rounded tracking-wider ${a.label === 'home' ? 'bg-[#F5F0EB] text-[#8B6914]'
-                                                                            : a.label === 'work' ? 'bg-gray-50 text-gray-500'
-                                                                                : 'bg-gray-50 text-gray-400'
-                                                                            }`}>{a.label}</span>
-                                                                        <p className="font-medium text-gray-800 mt-2 text-[13px]">{a.fullName}</p>
-                                                                        <p className="text-xs text-gray-400 mt-0.5 leading-relaxed font-light">
+                                                                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded tracking-wider ${a.label === 'home' ? 'bg-[#F5E6D3] text-[#8B1E1E]'
+                                                                            : a.label === 'work' ? 'bg-[#D4AF37]/20 text-[#8B1E1E]'
+                                                                                : 'bg-gray-100 text-[#8B1E1E]'
+                                                                            }`} style={{ fontFamily: CRIMSON }}>{a.label}</span>
+                                                                        <p className="font-bold text-[#8B1E1E] mt-2 text-sm" style={{ fontFamily: SERIF }}>{a.fullName}</p>
+                                                                        <p className="text-sm text-[#1A1A1A] mt-1 leading-relaxed" style={{ fontFamily: CRIMSON }}>
                                                                             {a.street}{a.landmark && `, ${a.landmark}`}<br />
-                                                                            {a.city}, {a.state} — {a.pincode}
+                                                                            {a.city}, {a.state} — <span className="font-bold">{a.pincode}</span>
                                                                         </p>
-                                                                        <p className="text-xs text-gray-300 mt-1.5 flex items-center gap-1">
-                                                                            <Phone className="w-3 h-3" strokeWidth={1.5} /> +91 {a.phone}
+                                                                        <p className="text-sm text-[#1A1A1A] mt-1.5 flex items-center gap-1" style={{ fontFamily: CRIMSON }}>
+                                                                            <Phone className="w-3.5 h-3.5 text-[#D4AF37]" strokeWidth={2} /> +91 {a.phone}
                                                                         </p>
                                                                     </div>
                                                                     <div className="mt-1"><SelectionIndicator selected={selIdx === idx} /></div>
@@ -773,8 +776,9 @@ function CheckoutPageInner() {
                                                         ))}
                                                         <motion.button variants={staggerChild}
                                                             onClick={() => { setShowForm(true); setAddress({ ...EMPTY_ADDRESS, fullName: user?.name || '' }); }}
-                                                            className="w-full py-3 border border-dashed border-gray-200 rounded-md text-sm font-medium text-gray-400 hover:text-[#8B1E1E] hover:border-[#8B1E1E]/30 transition-all flex items-center justify-center gap-2">
-                                                            <Plus className="w-4 h-4" strokeWidth={1.5} /> Add New Address
+                                                            className="w-full py-3.5 border border-dashed border-[#D4AF37]/50 rounded-md text-[13px] font-bold text-[#8B1E1E] uppercase tracking-wider hover:bg-[#D4AF37]/5 hover:border-[#D4AF37] transition-all flex items-center justify-center gap-2"
+                                                            style={{ fontFamily: CRIMSON }}>
+                                                            <Plus className="w-4 h-4" strokeWidth={2} /> Add New Address
                                                         </motion.button>
                                                     </motion.div>
                                                 )}
@@ -785,8 +789,9 @@ function CheckoutPageInner() {
                                                         {saved.length > 0 && (
                                                             <motion.button variants={staggerChild}
                                                                 onClick={() => { setShowForm(false); setSelIdx(0); }}
-                                                                className="text-sm text-[#8B1E1E] font-medium hover:underline flex items-center gap-1">
-                                                                <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} /> Saved addresses
+                                                                className="text-xs text-[#8B1E1E] font-bold uppercase tracking-wider hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors"
+                                                                style={{ fontFamily: CRIMSON }}>
+                                                                <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} /> Saved addresses
                                                             </motion.button>
                                                         )}
                                                         <motion.div variants={staggerChild} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -800,52 +805,36 @@ function CheckoutPageInner() {
                                                                 onChange={v => setAddress(p => ({ ...p, street: v }))} />
                                                         </motion.div>
                                                         <motion.div variants={staggerChild}>
-                                                            <InputField label="Landmark (Optional)" value={address.landmark}
+                                                            <InputField label="Landmark" value={address.landmark} error={errs.landmark}
                                                                 onChange={v => setAddress(p => ({ ...p, landmark: v }))} />
                                                         </motion.div>
                                                         <motion.div variants={staggerChild} className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                                             <InputField label="City" value={address.city} error={errs.city}
                                                                 onChange={v => setAddress(p => ({ ...p, city: v }))} />
                                                             <div>
-                                                                <label className="block text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-1.5">State</label>
-                                                                <select value={address.state}
-                                                                    onChange={e => setAddress(p => ({ ...p, state: e.target.value }))}
-                                                                    className={`w-full px-3 py-2.5 rounded-md border text-sm bg-white text-gray-700 ${errs.state ? 'border-red-300' : 'border-gray-200 focus:border-[#8B1E1E]/50'} focus:outline-none transition-colors`}>
-                                                                    <option value="">Select</option>
-                                                                    {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                                                                </select>
-                                                                {errs.state && <p className="text-[11px] text-red-400 mt-1">{errs.state}</p>}
+                                                                <label className="block text-xs font-bold text-[#8B1E1E] uppercase tracking-wider mb-1.5" style={{ fontFamily: CRIMSON }}>State</label>
+                                                                <div className={`flex items-center rounded-md border transition-colors ${errs.state ? 'border-red-300 bg-red-50/20' : 'border-[#D4AF37]/40 focus-within:border-[#D4AF37] bg-white'}`}>
+                                                                    <select value={address.state} onChange={e => setAddress(p => ({ ...p, state: e.target.value }))}
+                                                                        className="w-full pl-3 pr-3 py-2.5 text-sm bg-transparent focus:outline-none text-[#1A1A1A] appearance-none" style={{ fontFamily: CRIMSON }}>
+                                                                        <option value="" disabled>Select state</option>
+                                                                        {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                                                                    </select>
+                                                                </div>
+                                                                {errs.state && <p className="text-xs text-red-500 mt-1 font-bold" style={{ fontFamily: CRIMSON }}>{errs.state}</p>}
                                                             </div>
                                                             <InputField label="Pincode" value={address.pincode} error={errs.pincode}
                                                                 onChange={v => setAddress(p => ({ ...p, pincode: v.replace(/\D/g, '').slice(0, 6) }))} />
-                                                        </motion.div>
-                                                        <motion.div variants={staggerChild}>
-                                                            <label className="block text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-2">Save As</label>
-                                                            <div className="flex gap-2">
-                                                                {([
-                                                                    { k: 'home' as const, ic: Home, l: 'Home' },
-                                                                    { k: 'work' as const, ic: Briefcase, l: 'Work' },
-                                                                    { k: 'other' as const, ic: Pin, l: 'Other' },
-                                                                ]).map(t => (
-                                                                    <button key={t.k} onClick={() => setAddress(p => ({ ...p, label: t.k }))}
-                                                                        className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium transition-all duration-300 ${address.label === t.k
-                                                                            ? 'bg-[#8B1E1E] text-white'
-                                                                            : 'border border-gray-200 text-gray-500 hover:border-[#8B1E1E]/30 hover:text-[#8B1E1E]'
-                                                                            }`}>
-                                                                        <t.ic className="w-3.5 h-3.5" strokeWidth={1.5} /> {t.l}
-                                                                    </button>
-                                                                ))}
-                                                            </div>
                                                         </motion.div>
                                                     </motion.div>
                                                 )}
 
                                                 <button onClick={() => go(1)} disabled={savingAddress || loadingAddresses}
-                                                    className="w-full mt-6 bg-[#8B1E1E] text-white py-3 rounded-md font-medium text-sm hover:bg-[#6B1515] transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50">
+                                                    className="w-full mt-6 bg-[#8B1E1E] text-white py-3.5 rounded-md font-bold text-[13px] uppercase tracking-[0.15em] hover:bg-[#6B1515] hover:shadow-lg transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+                                                    style={{ fontFamily: CRIMSON }}>
                                                     {savingAddress ? (
-                                                        <><Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> Saving Address...</>
+                                                        <><Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} /> Saving Address...</>
                                                     ) : (
-                                                        <>Continue to Review <ChevronRight className="w-4 h-4" strokeWidth={1.5} /></>
+                                                        <>Continue to Review <ChevronRight className="w-4 h-4" strokeWidth={2} /></>
                                                     )}
                                                 </button>
                                             </>)}
@@ -856,14 +845,14 @@ function CheckoutPageInner() {
                                 {step === 1 && (
                                     <div className="space-y-4">
                                         <SectionCard title="Delivering to"
-                                            action={<button onClick={() => go(0)} className="text-xs text-[#8B1E1E] font-medium hover:underline">Change</button>}>
-                                            <p className="text-sm font-medium text-gray-800">{activeAddr().fullName}</p>
-                                            <p className="text-xs text-gray-400 mt-0.5 leading-relaxed font-light">
+                                            action={<button onClick={() => go(0)} className="text-xs text-[#D4AF37] font-bold hover:underline uppercase tracking-wider">Change</button>}>
+                                            <p className="text-base font-bold text-[#8B1E1E]" style={{ fontFamily: SERIF }}>{activeAddr().fullName}</p>
+                                            <p className="text-sm text-[#1A1A1A] mt-1 leading-relaxed">
                                                 {activeAddr().street}{activeAddr().landmark && `, ${activeAddr().landmark}`}<br />
-                                                {activeAddr().city}, {activeAddr().state} — {activeAddr().pincode}
+                                                {activeAddr().city}, {activeAddr().state} — <span className="font-bold">{activeAddr().pincode}</span>
                                             </p>
-                                            <p className="text-xs text-gray-300 mt-1.5 flex items-center gap-1">
-                                                <Phone className="w-3 h-3" strokeWidth={1.5} /> +91 {activeAddr().phone}
+                                            <p className="text-sm text-[#1A1A1A] mt-1.5 flex items-center gap-1">
+                                                <Phone className="w-3.5 h-3.5 text-[#D4AF37]" strokeWidth={2} /> +91 {activeAddr().phone}
                                             </p>
                                         </SectionCard>
 
@@ -877,44 +866,44 @@ function CheckoutPageInner() {
                                                             <img src={item.image} alt={item.name} className="w-full h-full object-contain p-1" />
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-[13px] font-medium text-gray-700 truncate">{item.name}</p>
-                                                            <p className="text-xs text-gray-400 font-light">{item.weight} × {item.quantity}</p>
+                                                            <p className="text-[15px] font-bold text-[#8B1E1E] truncate" style={{ fontFamily: SERIF }}>{item.name}</p>
+                                                            <p className="text-sm text-[#1A1A1A]">{item.weight} × {item.quantity}</p>
                                                         </div>
-                                                        <p className="text-sm font-medium text-gray-700">&#8377;{(item.price * item.quantity).toFixed(0)}</p>
+                                                        <p className="text-base font-bold text-[#1A1A1A]">&#8377;{(item.price * item.quantity).toFixed(0)}</p>
                                                     </motion.div>
                                                 ))}
                                             </motion.div>
                                         </SectionCard>
 
                                         {/* Order Total */}
-                                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                                            <div className="px-6 py-4 border-b border-gray-100">
-                                                <h2 className="text-base text-[#1A1A1A]" style={{ fontFamily: SERIF, fontWeight: 600 }}>Price Details</h2>
+                                        <div className="bg-white rounded-lg border border-[#D4AF37]/20 overflow-hidden shadow-sm">
+                                            <div className="px-6 py-4 border-b border-[#D4AF37]/20 bg-[#FAF7F2]/50">
+                                                <h2 className="text-lg text-[#8B1E1E] font-bold" style={{ fontFamily: SERIF }}>Price Details</h2>
                                             </div>
-                                            <div className="p-6 space-y-3">
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-400 font-light">Subtotal</span>
-                                                    <span className="font-medium text-gray-600">&#8377;{subtotal.toFixed(0)}</span>
+                                            <div className="p-6 space-y-3" style={{ fontFamily: CRIMSON }}>
+                                                <div className="flex justify-between text-[15px]">
+                                                    <span className="text-[#1A1A1A]">Subtotal</span>
+                                                    <span className="font-bold text-[#1A1A1A]">&#8377;{subtotal.toFixed(0)}</span>
                                                 </div>
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-400 font-light">Shipping</span>
-                                                    <span className="font-medium text-[#8B1E1E]">Free</span>
+                                                <div className="flex justify-between text-[15px]">
+                                                    <span className="text-[#1A1A1A]">Shipping</span>
+                                                    <span className="font-bold text-[#8B1E1E]">Free</span>
                                                 </div>
 
-                                                <div className="h-[1px] bg-[#8B1E1E]/10 my-1" />
+                                                <div className="h-[1px] bg-[#D4AF37]/30 my-3" />
                                                 <div className="flex justify-between items-center">
-                                                    <span className="font-medium text-gray-700 text-sm">Total</span>
-                                                    <span className="text-lg font-bold text-[#8B1E1E]" style={{ fontFamily: SERIF }}>&#8377;{total.toFixed(0)}</span>
+                                                    <span className="font-bold text-[#1A1A1A] text-base uppercase tracking-wider">Total</span>
+                                                    <span className="text-2xl font-bold text-[#8B1E1E]" style={{ fontFamily: SERIF }}>&#8377;{total.toFixed(0)}</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Delivery estimate */}
-                                        <div className="bg-[#FAF7F2] rounded-md p-4 border border-gray-100 flex items-center gap-3">
-                                            <Truck className="w-4 h-4 text-[#8B1E1E]/50 flex-shrink-0" strokeWidth={1.5} />
-                                            <div>
-                                                <p className="text-xs font-medium text-gray-500">Expected Delivery</p>
-                                                <p className="text-sm text-gray-700 font-light">
+                                        <div className="bg-[#FAF7F2] rounded-md p-4 border border-[#D4AF37]/20 flex items-center gap-3">
+                                            <Truck className="w-5 h-5 text-[#D4AF37] flex-shrink-0" strokeWidth={1.5} />
+                                            <div style={{ fontFamily: CRIMSON }}>
+                                                <p className="text-sm font-bold text-[#8B1E1E]">Expected Delivery</p>
+                                                <p className="text-[15px] text-[#1A1A1A]">
                                                     {new Date(Date.now() + 5 * 86400000).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                                                 </p>
                                             </div>
@@ -922,12 +911,14 @@ function CheckoutPageInner() {
 
                                         <div className="flex gap-3">
                                             <button onClick={() => go(0)}
-                                                className="flex-1 py-3 rounded-md font-medium text-sm transition-colors flex items-center justify-center gap-1.5 border border-gray-200 text-gray-500 hover:bg-gray-50">
-                                                <ChevronLeft className="w-4 h-4" strokeWidth={1.5} /> Back
+                                                className="flex-1 py-3.5 rounded-md font-bold text-[13px] uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-1.5 border border-[#D4AF37]/40 text-[#8B1E1E] hover:bg-[#D4AF37]/5"
+                                                style={{ fontFamily: CRIMSON }}>
+                                                <ChevronLeft className="w-4 h-4" strokeWidth={2} /> Back
                                             </button>
                                             <button onClick={() => go(2)}
-                                                className="flex-1 py-3 rounded-md font-medium text-sm transition-colors flex items-center justify-center gap-1.5 bg-[#8B1E1E] text-white hover:bg-[#6B1515]">
-                                                Payment <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
+                                                className="flex-1 py-3.5 rounded-md font-bold text-[13px] uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-1.5 bg-[#8B1E1E] text-white hover:bg-[#6B1515] hover:shadow-lg"
+                                                style={{ fontFamily: CRIMSON }}>
+                                                Payment <ChevronRight className="w-4 h-4" strokeWidth={2} />
                                             </button>
                                         </div>
                                     </div>
@@ -943,12 +934,12 @@ function CheckoutPageInner() {
                                                     <CreditCard className="w-[18px] h-[18px] flex-shrink-0 text-[#8B1E1E]" strokeWidth={1.5} />
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-2">
-                                                            <p className="text-[13px] font-medium text-gray-800">Razorpay</p>
-                                                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#F5F0EB] text-[#8B6914]">
+                                                            <p className="text-base font-bold text-[#8B1E1E]" style={{ fontFamily: SERIF }}>Razorpay</p>
+                                                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded tracking-widest uppercase bg-[#D4AF37]/20 text-[#8B1E1E]" style={{ fontFamily: CRIMSON }}>
                                                                 Online
                                                             </span>
                                                         </div>
-                                                        <p className="text-xs text-gray-400 mt-0.5 font-light">UPI / Cards / Netbanking</p>
+                                                        <p className="text-sm text-[#1A1A1A] mt-0.5" style={{ fontFamily: CRIMSON }}>UPI / Cards / Netbanking</p>
                                                     </div>
                                                     <SelectionIndicator selected={true} />
                                                 </motion.div>
@@ -958,12 +949,14 @@ function CheckoutPageInner() {
 
                                         <div className="flex gap-3">
                                             <button onClick={() => go(1)}
-                                                className="flex-1 py-3 rounded-md font-medium text-sm transition-colors flex items-center justify-center gap-1.5 border border-gray-200 text-gray-500 hover:bg-gray-50">
-                                                <ChevronLeft className="w-4 h-4" strokeWidth={1.5} /> Back
+                                                className="flex-1 py-3.5 rounded-md font-bold text-[13px] uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-1.5 border border-[#D4AF37]/40 text-[#8B1E1E] hover:bg-[#D4AF37]/5"
+                                                style={{ fontFamily: CRIMSON }}>
+                                                <ChevronLeft className="w-4 h-4" strokeWidth={2} /> Back
                                             </button>
                                             <button onClick={placeOrder} disabled={processing}
-                                                className="flex-[2] bg-[#8B1E1E] text-white py-3 rounded-md font-medium text-sm hover:bg-[#6B1515] transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-                                                <Lock className="w-3.5 h-3.5" strokeWidth={1.5} /> Pay &#8377;{total.toFixed(0)}
+                                                className="flex-[2] bg-[#8B1E1E] text-white py-3.5 rounded-md font-bold text-[13px] uppercase tracking-[0.15em] hover:bg-[#6B1515] hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                                style={{ fontFamily: CRIMSON }}>
+                                                <Lock className="w-3.5 h-3.5" strokeWidth={2} /> Pay &#8377;{total.toFixed(0)}
                                             </button>
                                         </div>
                                     </div>

@@ -1,8 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import TranslateToggle from '@/components/common/TranslateToggle';
 
 export default function BrandStory() {
+  const [isEnglish, setIsEnglish] = useState(false);
+
   return (
     <section className="py-12 sm:py-16 md:py-20 bg-[#F5F0E8] relative overflow-hidden">
       {/* Decorative flower symbols in corners */}
@@ -59,8 +63,9 @@ export default function BrandStory() {
           <div className="order-1 lg:order-2 space-y-6">
             {/* Tamil Title */}
             <div className="space-y-2">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#8B1E1E] font-serif">
-                எங்கள் கதை
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#8B1E1E] font-serif flex items-center gap-3">
+                {isEnglish ? 'Our Story' : 'எங்கள் கதை'}
+                <TranslateToggle isEnglish={isEnglish} onToggle={() => setIsEnglish(!isEnglish)} size="md" />
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-[#8B1E1E] italic font-serif">
                 The Midhuna Legacy

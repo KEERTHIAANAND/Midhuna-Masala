@@ -98,9 +98,9 @@ function FarmMineralsSection({ tool, index }: { tool: any; index: number }) {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: "-20px" }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full h-[60vh] lg:h-full max-w-[500px] flex items-center justify-center"
+          className="relative w-full h-[50vh] lg:h-full max-w-[500px] flex items-center justify-center"
         >
           {/* Subtle warm glow behind the stone grinder */}
           <div className="absolute inset-0 bg-radial-gradient from-[#8B1E1E]/5 to-transparent opacity-40 pointer-events-none" />
@@ -163,7 +163,7 @@ function FarmMineralsSection({ tool, index }: { tool: any; index: number }) {
               key={i}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
+              viewport={{ once: true, margin: "-10px" }}
               transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-col gap-3 group"
             >

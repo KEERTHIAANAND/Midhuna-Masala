@@ -98,23 +98,64 @@ export default function MasalaCarousel() {
   return (
     <section
       ref={containerRef}
-      className="relative bg-[#FFFDF8]"
-      style={{ height: `300vh` }}
+      className="relative bg-[#FFFDF8] h-auto lg:h-[300vh]"
     >
-      {/* ── Sticky viewport ── */}
-      <div className="sticky top-0 h-[100dvh] w-full overflow-hidden flex flex-col">
+      {/* =========================================
+          MOBILE VIEW: Stacked Editorial List
+          ========================================= */}
+      <div className="flex lg:hidden flex-col w-full py-16 gap-20">
+        {TOOLS.map((tool) => (
+          <div key={tool.id} className="flex flex-col items-center justify-center px-6 gap-8 relative">
+            {/* Text Content */}
+            <div className="flex flex-col items-center text-center max-w-sm">
+              <span className="text-[10px] font-mono tracking-[0.3em] uppercase mb-4 px-3 py-1 rounded-full border" style={{ color: tool.accentColor, borderColor: tool.accentColor + '33', backgroundColor: tool.accentColor + '0D' }}>
+                {tool.tag}
+              </span>
+              
+              <h2 className="text-4xl sm:text-5xl text-[#1A0A0A] leading-tight mb-2 flex items-center justify-center gap-3" style={{ fontFamily: 'var(--font-arima), display', fontWeight: 700 }}>
+                {isEnglish ? tool.englishName : tool.tamilName}
+                <TranslateToggle isEnglish={isEnglish} onToggle={() => setIsEnglish(!isEnglish)} size="sm" />
+              </h2>
+              
+              <p className="text-sm font-mono tracking-widest uppercase mb-4" style={{ color: tool.accentColor }}>{tool.name}</p>
+              
+              <p className="text-sm sm:text-base text-[#1A0A0A]/70 font-light leading-relaxed">
+                {isEnglish ? tool.englishDescription : tool.description}
+              </p>
+            </div>
+
+            {/* Image Bubble */}
+            <div className="w-full max-w-[280px] sm:max-w-[340px] aspect-square rounded-full flex items-center justify-center bg-[#F5F1EB] shadow-[0_20px_40px_rgba(0,0,0,0.12)] relative z-10 border" style={{ borderColor: tool.accentColor + '20' }}>
+              <div className="absolute inset-0 rounded-full border border-dashed pointer-events-none scale-105" style={{ borderColor: '#8B1E1E25' }} />
+              <Image
+                src={tool.image}
+                alt={tool.name}
+                fill
+                className={`object-contain mix-blend-multiply ${
+                  tool.id === 'ammikall' || tool.id === 'aatukal' ? 'p-6' : 'p-12'
+                }`}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* =========================================
+          DESKTOP VIEW: 300vh Scrubbing Carousel
+          ========================================= */}
+      <div className="hidden lg:flex sticky top-0 h-screen w-full overflow-hidden flex-col">
         {/* ─── Top Section: Title + Details ─── */}
         <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-4 sm:gap-6 lg:gap-16 px-4 sm:px-12 lg:px-24 pt-6 pb-2 sm:pt-8 sm:pb-4 relative z-20">
           
           {/* Left Column — Dynamic Text */}
-          <div className="w-full lg:w-1/2 flex flex-col items-start justify-center max-w-xl">
+          <div className="w-full lg:w-1/2 flex flex-col items-start justify-center max-w-xl overflow-y-auto overflow-x-hidden no-scrollbar pb-4 lg:pb-0">
             {/* Tag / Label */}
             <AnimatePresence mode="wait">
               <motion.span
                 key={activeTool.id + '-tag'}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: -10, transition: { duration: 0.1 } }}
                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 className="text-[10px] font-mono tracking-[0.4em] uppercase mb-4 px-3 py-1 rounded-full border"
                 style={{
@@ -133,7 +174,7 @@ export default function MasalaCarousel() {
                 key={activeTool.id + '-tamil'}
                 initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                exit={{ opacity: 0, y: -20, filter: 'blur(4px)' }}
+                exit={{ opacity: 0, y: -20, filter: 'blur(4px)', transition: { duration: 0.1 } }}
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 className="text-3xl sm:text-5xl lg:text-[5rem] text-[#1A0A0A] tracking-normal leading-[1.2] mb-1 sm:mb-2 flex items-center gap-3"
                 style={{ fontFamily: 'var(--font-arima), display', fontWeight: 700 }}
@@ -149,7 +190,7 @@ export default function MasalaCarousel() {
                 key={activeTool.id + '-eng'}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
+                exit={{ opacity: 0, x: 10, transition: { duration: 0.1 } }}
                 transition={{ duration: 0.4, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
                 className="text-sm sm:text-lg font-mono tracking-widest uppercase mb-4 sm:mb-6"
                 style={{ color: activeTool.accentColor }}
@@ -164,7 +205,7 @@ export default function MasalaCarousel() {
                 key={activeTool.id + '-desc'}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
+                exit={{ opacity: 0, y: -15, transition: { duration: 0.1 } }}
                 transition={{ duration: 0.45, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
                 className="text-xs sm:text-base text-[#1A0A0A]/70 font-light leading-relaxed mb-4 sm:mb-8 max-w-md pl-4 border-l-2"
                 style={{ borderColor: activeTool.accentColor + '40' }}
@@ -205,7 +246,7 @@ export default function MasalaCarousel() {
                   key={activeTool.id + '-img'}
                   initial={{ opacity: 0, scale: 0.9, rotate: -10 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, rotate: 10 }}
+                  exit={{ opacity: 0, scale: 0.95, rotate: 5, transition: { duration: 0.15 } }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   className="absolute inset-4 sm:inset-6 rounded-full overflow-hidden bg-[#F5F1EB] shadow-[0_25px_60px_rgba(0,0,0,0.15)] flex items-center justify-center"
                 >

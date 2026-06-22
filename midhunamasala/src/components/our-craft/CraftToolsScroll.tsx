@@ -89,7 +89,7 @@ function FarmMineralsSection({ tool, index }: { tool: any; index: number }) {
   const [isEnglish, setIsEnglish] = useState(false);
 
   return (
-    <section className={`relative w-full flex flex-col lg:flex-row ${theme.bg} border-b border-[#8B1E1E]/5 last:border-0`}>
+    <section id={tool.id} className={`relative w-full flex flex-col lg:flex-row ${theme.bg} border-b border-[#8B1E1E]/5 last:border-0`}>
       
       {/* 1. Sticky Image Panel (Alternating sides on desktop) */}
       <div className={`w-full lg:w-1/2 lg:h-screen lg:sticky lg:top-0 flex items-center justify-center p-8 sm:p-16 lg:p-24 overflow-hidden ${theme.panelBg} ${

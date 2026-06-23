@@ -242,11 +242,11 @@ export default function TrackOrderPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-[#8B1E1E]" style={{ fontFamily: 'Playfair Display, serif' }}>
+            <h1 className="text-3xl font-bold text-[#8B1E1E] font-serif">
               Order Tracking
             </h1>
           </div>
-          <p className="text-base text-[#D4AF37] italic" style={{ fontFamily: 'Crimson Text, serif' }}>
+          <p className="text-base text-[#D4AF37] italic font-serif">
             Track your spice journey from our village to your kitchen.
           </p>
         </div>
@@ -255,21 +255,21 @@ export default function TrackOrderPage() {
           <div className="mx-auto max-w-xl bg-white rounded-2xl shadow-lg p-5 mb-8">
             <form onSubmit={submitGuestTracking} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-[#8B1E1E] mb-1">Order Number</label>
+                <label className="block text-sm font-semibold text-[#8B1E1E] mb-1 font-serif tracking-wide">Order Number</label>
                 <input
                   value={trackOrderNumber}
                   onChange={(e) => setTrackOrderNumber(e.target.value)}
                   placeholder="e.g. MM-10023"
-                  className="w-full rounded-lg border border-[#E5D4B8] px-3 py-2 text-sm outline-none focus:border-[#D4AF37]"
+                  className="w-full rounded-lg border border-[#E5D4B8] px-3 py-2 text-sm outline-none focus:border-[#D4AF37] font-serif placeholder:font-serif placeholder:italic"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#8B1E1E] mb-1">Email or Phone</label>
+                <label className="block text-sm font-semibold text-[#8B1E1E] mb-1 font-serif tracking-wide">Email or Phone</label>
                 <input
                   value={trackEmailOrPhone}
                   onChange={(e) => setTrackEmailOrPhone(e.target.value)}
                   placeholder="email@example.com or phone"
-                  className="w-full rounded-lg border border-[#E5D4B8] px-3 py-2 text-sm outline-none focus:border-[#D4AF37]"
+                  className="w-full rounded-lg border border-[#E5D4B8] px-3 py-2 text-sm outline-none focus:border-[#D4AF37] font-serif placeholder:font-serif placeholder:italic"
                 />
               </div>
 
@@ -278,14 +278,14 @@ export default function TrackOrderPage() {
               <button
                 type="submit"
                 disabled={trackLoading}
-                className="w-full py-2.5 bg-gradient-to-r from-[#8B1E1E] to-[#A02C2C] text-white text-sm font-semibold rounded-lg disabled:opacity-60"
+                className="w-full py-2.5 bg-gradient-to-r from-[#8B1E1E] to-[#A02C2C] text-white text-base font-bold tracking-wider rounded-lg disabled:opacity-60 font-serif"
               >
                 {trackLoading ? 'Tracking…' : 'Track Order'}
               </button>
 
-              <div className="text-xs text-gray-600 text-center">
+              <div className="text-xs text-gray-600 text-center font-serif tracking-wide">
                 Have an account?{' '}
-                <Link href="/login" className="text-[#8B1E1E] underline underline-offset-2">
+                <Link href="/login" className="text-[#8B1E1E] underline underline-offset-2 font-bold">
                   Sign in
                 </Link>
               </div>
@@ -331,7 +331,7 @@ export default function TrackOrderPage() {
                   <div className="p-4">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 pr-4">
-                        <h3 className="text-base font-bold text-[#8B1E1E] mb-0.5 line-clamp-1" style={{ fontFamily: 'Playfair Display, serif' }}>
+                        <h3 className="text-base font-bold text-[#8B1E1E] mb-0.5 line-clamp-1 font-serif">
                           Order #{order.orderNumber}
                         </h3>
                         <div className="flex items-center gap-1.5 text-xs text-gray-500">
@@ -344,7 +344,7 @@ export default function TrackOrderPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-[#8B1E1E]" style={{ fontFamily: 'Playfair Display, serif' }}>
+                        <p className="text-lg font-bold text-[#8B1E1E] font-serif">
                           ₹{Number(order.total || 0).toFixed(2)}
                         </p>
                       </div>
@@ -387,7 +387,7 @@ export default function TrackOrderPage() {
               {/* Modal Header */}
               <div className="sticky top-0 bg-gradient-to-r from-[#8B1E1E] to-[#A02C2C] px-5 py-4 flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-white" style={{ fontFamily: 'Playfair Display, serif' }}>
+                  <h3 className="text-lg font-bold text-white font-serif">
                     Order #{order.orderNumber}
                   </h3>
                   <p className="text-xs text-white/70">{new Date(order.createdAt).toLocaleString('en-IN')}</p>
@@ -489,7 +489,7 @@ export default function TrackOrderPage() {
                     <div className="flex items-center gap-4 text-xs">
                       <span className="text-gray-500">Payment: <span className="font-semibold text-[#8B1E1E]">{String(order.paymentStatus || '').toUpperCase()}</span></span>
                     </div>
-                    <p className="text-base font-bold text-[#8B1E1E]" style={{ fontFamily: 'Playfair Display, serif' }}>
+                    <p className="text-base font-bold text-[#8B1E1E] font-serif">
                       Total: <span className="text-lg">₹{Number(order.total || 0).toFixed(2)}</span>
                     </p>
                   </div>

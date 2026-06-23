@@ -45,40 +45,53 @@ export default function Navbar() {
     return null;
   }
 
+  const marqueePhrases = [
+    "★ PURE AUTHENTIC CHETTINAD FLAVORS ★",
+    "TRADITIONAL STONE GROUND MASALAS",
+    "★ FROM OUR VILLAGE TO YOUR KITCHEN ★",
+    "100% NATURAL & SUN DRIED",
+    "★ AACHI'S SECRET RECIPES ★",
+    "NO PRESERVATIVES OR ADDED COLORS",
+    "★ HAND-POUNDED TO PERFECTION ★"
+  ];
+  
+  // We repeat the array twice per block to guarantee it spans wider than 4K monitors
+  const displayPhrases = [...marqueePhrases, ...marqueePhrases];
+
   return (
     <>
       {/* Marquee Section */}
-      <div className="bg-[#8B1E1E] text-[#F6C84C] py-1.5 sm:py-2 overflow-hidden whitespace-nowrap relative z-50">
+      <div className="bg-[#8B1E1E] text-[#F6C84C] py-1.5 sm:py-2 overflow-hidden whitespace-nowrap relative z-50 flex">
         <style dangerouslySetInnerHTML={{
           __html: `
             @keyframes marquee {
               0% { transform: translateX(0%); }
-              100% { transform: translateX(-100%); }
+              100% { transform: translateX(-50%); }
             }
             .animate-marquee {
-              animation: marquee 25s linear infinite;
+              animation: marquee 40s linear infinite;
             }
           `
         }} />
-        <div className="animate-marquee inline-block">
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">★ PURE AUTHENTIC CHETTINAD FLAVORS ★</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">TRADITIONAL STONE GROUND MASALAS</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">★ FROM OUR VILLAGE TO YOUR KITCHEN ★</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">100% NATURAL &amp; SUN DRIED</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">★ PURE AUTHENTIC CHETTINAD FLAVORS ★</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">TRADITIONAL STONE GROUND MASALAS</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">★ FROM OUR VILLAGE TO YOUR KITCHEN ★</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">100% NATURAL &amp; SUN DRIED</span>
-        </div>
-        <div className="animate-marquee inline-block absolute top-1.5 sm:top-2 left-0">
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">★ PURE AUTHENTIC CHETTINAD FLAVORS ★</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">TRADITIONAL STONE GROUND MASALAS</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">★ FROM OUR VILLAGE TO YOUR KITCHEN ★</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">100% NATURAL &amp; SUN DRIED</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">★ PURE AUTHENTIC CHETTINAD FLAVORS ★</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">TRADITIONAL STONE GROUND MASALAS</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">★ FROM OUR VILLAGE TO YOUR KITCHEN ★</span>
-          <span className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">100% NATURAL &amp; SUN DRIED</span>
+        
+        <div className="animate-marquee flex w-max">
+          {/* First Block */}
+          <div className="flex shrink-0 items-center">
+            {displayPhrases.map((phrase, idx) => (
+              <span key={`block1-${idx}`} className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">
+                {phrase}
+              </span>
+            ))}
+          </div>
+
+          {/* Second Duplicate Block for Seamless Loop */}
+          <div className="flex shrink-0 items-center">
+            {displayPhrases.map((phrase, idx) => (
+              <span key={`block2-${idx}`} className="mx-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase">
+                {phrase}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 

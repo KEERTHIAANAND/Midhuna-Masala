@@ -43,7 +43,7 @@ export default function HeroSection() {
 
           {/* Main Title */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white font-serif mb-4 sm:mb-6 tracking-wide">
-            Midhuna Masala
+            Pure Flavors
           </h1>
 
           {/* Tagline */}

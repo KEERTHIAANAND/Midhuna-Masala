@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ShoppingCart, User, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -87,14 +88,17 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 overflow-visible">
           <div className="flex justify-between items-center h-16 sm:h-20 md:h-24 overflow-visible">
             {/* Logo */}
-            <div className="flex flex-col items-start">
-              <Link href="/" className="flex flex-col">
-                <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#8B1E1E] font-serif tracking-wide">
-                  Midhuna Masala
-                </span>
-                <span className="text-[8px] sm:text-[9px] md:text-[10px] font-bold text-[#8B1E1E] tracking-[0.15em] sm:tracking-[0.2em] uppercase mt-0.5 sm:mt-1 text-center w-full">
-                  Traditional Stone Ground Spices
-                </span>
+            <div className="flex flex-col items-start -ml-4 sm:-ml-8 md:-ml-12 lg:-ml-16">
+              <Link href="/" className="flex items-center">
+                <div className="relative h-14 sm:h-16 md:h-20 w-48 sm:w-56 md:w-64 lg:w-[260px]">
+                  <Image
+                    src="/images/logo.png"
+                    alt="Midhuna Masala"
+                    fill
+                    className="object-contain object-left scale-110"
+                    priority
+                  />
+                </div>
               </Link>
             </div>
 
@@ -182,10 +186,15 @@ export default function Navbar() {
 
               {/* Header inside Menu */}
               <div className="flex justify-between items-center h-16 sm:h-20 px-4 sm:px-6 relative z-10 border-b border-[#F6C84C]/20">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex flex-col">
-                  <span className="text-2xl font-bold text-white font-serif tracking-wide">
-                    Midhuna Masala
-                  </span>
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center">
+                  <div className="relative h-8 sm:h-10 w-28 sm:w-32">
+                    <Image
+                      src="/images/logo.png"
+                      alt="Midhuna Masala"
+                      fill
+                      className="object-contain object-left brightness-0 invert" 
+                    />
+                  </div>
                 </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}

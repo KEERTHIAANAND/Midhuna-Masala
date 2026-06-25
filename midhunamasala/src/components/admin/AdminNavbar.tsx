@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
     LayoutGrid, ShoppingBag, ShoppingCart, Package,
@@ -38,9 +39,14 @@ export default function AdminNavbar({ user, onLogout }: AdminNavbarProps) {
             <div className="bg-white px-3 sm:px-6 py-3 flex items-center justify-between border-b border-[#F3EFEA]">
                 {/* Logo */}
                 <div className="flex items-center gap-3">
-                    <div>
-                        <h1 className="text-base sm:text-xl font-serif font-bold text-[#7A1A1A] leading-tight">Midhuna Masala</h1>
-                        <p className="text-[8px] sm:text-[9px] font-bold text-[#D4AF37] tracking-[0.12em] uppercase">Traditional Stone Ground Spices</p>
+                    <div className="relative w-40 sm:w-48 h-12 sm:h-14">
+                        <Image
+                            src="/images/logo.png"
+                            alt="Midhuna Masala"
+                            fill
+                            className="object-contain object-left"
+                            priority
+                        />
                     </div>
                 </div>
 

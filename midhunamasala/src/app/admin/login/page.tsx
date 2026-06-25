@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutDashboard, Loader2, AlertCircle, ArrowRight, X } from 'lucide-react';
@@ -91,9 +92,15 @@ export default function AdminLoginPage() {
                     <div className="bg-[#8B1E1E] px-6 sm:px-8 py-8 sm:py-10 text-center relative overflow-hidden">
                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")" }}></div>
 
-                        {/* Logo Icon */}
-                        <div className="relative mx-auto w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center border border-white/20 mb-4 backdrop-blur-sm shadow-inner transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                            <LayoutDashboard className="w-7 h-7 text-[#F6C84C]" />
+                        {/* Logo */}
+                        <div className="relative mx-auto w-32 h-16 mb-4 transform hover:scale-105 transition-transform duration-500">
+                            <Image
+                                src="/images/logo.png"
+                                alt="Midhuna Masala Admin"
+                                fill
+                                className="object-contain brightness-0 invert drop-shadow-md"
+                                priority
+                            />
                         </div>
 
                         <h1 className="relative text-xl sm:text-2xl font-serif font-bold text-white tracking-wide">
